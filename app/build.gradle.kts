@@ -49,6 +49,8 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+    implementation("com.google.android.material:material:1.9.0")
+
 
     implementation(libs.room.runtime)
     kapt(libs.androidx.room.compiler)
