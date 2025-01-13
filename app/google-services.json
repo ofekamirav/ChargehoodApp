@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1102140063",
+    "project_id": "chargehood",
+    "storage_bucket": "chargehood.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1102140063:android:34365a7db6a589a3e0c8aa",
+        "android_client_info": {
+          "package_name": "com.example.chargehoodapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCju7g1teXzIw5EjoRI30r9XGVAc1G_lQA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
