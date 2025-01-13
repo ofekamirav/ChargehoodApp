@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">ChargehoodApp</string>
+    <color name="hint_color">#77BFBE</color>
 </resources>
