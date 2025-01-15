@@ -5,6 +5,8 @@ plugins {
     alias(libs.plugins.google.services)
 
     id("kotlin-kapt")
+    id ("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
+
 }
 
 android {
@@ -62,6 +64,10 @@ dependencies {
 
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.kotlinx.coroutines.android)
+
+    implementation(libs.play.services.maps)
+    implementation(libs.play.services.location)
+
 
 
     implementation (libs.github.glide)

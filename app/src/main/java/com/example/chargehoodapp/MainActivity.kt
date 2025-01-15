@@ -7,18 +7,24 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
+import androidx.navigation.ui.navigateUp
 import com.example.chargehoodapp.databinding.ActivityMainBinding
+import com.google.android.material.navigation.NavigationView
 
 class MainActivity : AppCompatActivity() {
 
 
     private var binding: ActivityMainBinding?=null
     //var sharedPreferences: SharedPreferences?=null
-    var navController: NavController?=null
-    var navHostFragment: NavHostFragment?=null
+    private var navController: NavController?=null
+    private var navHostFragment: NavHostFragment?=null
+    private var drawerLayout: DrawerLayout? = null
+    private var navigation_view: NavigationView? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,11 +37,31 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        //Setup the navigation controller
-        navHostFragment= supportFragmentManager.findFragmentById(R.id.main_nav_host) as? NavHostFragment
-        navController=navHostFragment?.navController
-        //navController?.let { NavigationUI.setupActionBarWithNavController(this, it) }
+        // Setup the navigation controller
+        navHostFragment = supportFragmentManager.findFragmentById(R.id.main_nav_host) as? NavHostFragment
+        navController = navHostFragment?.navController
+        setSupportActionBar(binding?.toolbar)
+        drawerLayout = binding?.drawerLayout
+        navigation_view = binding?.navigationView
+        navController?.let {
+            NavigationUI.setupActionBarWithNavController(this, it, binding?.drawerLayout)
+            NavigationUI.setupWithNavController(navigation_view!!, navController!!)
+        }
 
+
+
+        //Show the navigation drawer when the hamburger icon is clicked
+        navController?.addOnDestinationChangedListener { _, destination, _ ->
+            when (destination.id) {
+                R.id.loginFragment, R.id.registerFragment, R.id.welcomeFragment -> {
+                    drawerLayout?.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+                }
+
+                else -> {
+                    drawerLayout?.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+                }
+            }
+        }
 
 //
 //        navController?.addOnDestinationChangedListener { _, destination, _ ->
@@ -47,9 +73,9 @@ class MainActivity : AppCompatActivity() {
 //        }
 
 
+            //navController?.navigate(R.id.welcomeFragment)
 
-
-        navController?.navigate(R.id.welcomeFragment)
+            navController?.navigate(R.id.homepageFragment)
 //        sharedPreferences = getSharedPreferences("MyAppPreferences", MODE_PRIVATE)
 //        val isFirstLaunch = sharedPreferences?.getBoolean("isFirstLaunch", true)
 //
@@ -66,6 +92,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        return navController?.navigateUp() ?: super.onSupportNavigateUp()
+        return navController?.navigateUp(binding?.drawerLayout) ?: super.onSupportNavigateUp()
     }
 }
