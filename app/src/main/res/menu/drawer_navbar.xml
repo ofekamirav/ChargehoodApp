@@ -1,0 +1,33 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+   <item
+        android:id="@+id/nav_logo"
+        android:icon="@drawable/chargehood_logo"
+        android:title="" />
+    <item
+        android:id="@+id/nav_home"
+        android:name="com.example.chargehoodapp.ui.HomeFragment"
+        android:icon="@drawable/ic_home"
+        android:iconTint="#02343F"
+        android:title="Homepage" />
+    <item
+        android:id="@+id/nav_stations"
+        android:icon="@drawable/find_stations_icon"
+        android:iconTint="#02343F"
+        android:title="Your Stations" />
+    <item
+        android:id="@+id/nav_payments"
+        android:icon="@drawable/ic_payments"
+        android:iconTint="#02343F"
+        android:title="Payments" />
+    <item
+        android:id="@+id/nav_favorites"
+        android:icon="@drawable/ic_favorites"
+        android:iconTint="#02343F"
+        android:title="Favorite Stations" />
+    <item
+        android:id="@+id/nav_settings"
+        android:icon="@drawable/ic_settings"
+        android:iconTint="#02343F"
+        android:title="Settings" />
+</menu>

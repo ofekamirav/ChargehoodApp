@@ -16,10 +16,13 @@ constraintlayout = "2.2.0"
 materialVersion = "1.12.0"
 navigationFragmentKtx = "2.8.5"
 navigationSafeArgsGradlePlugin = "2.8.5"
+playServicesLocation = "21.3.0"
+playServicesMaps = "19.0.0"
 roomRuntimeVersion = "2.6.1"
 googleServices = "4.4.2"
 firebaseAuth = "23.1.0"
 firebaseBom = "33.7.0"
+secretsGradlePlugin = "2.0.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -43,7 +46,10 @@ material = { group = "com.google.android.material", name = "material", version.r
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 material-v190 = { module = "com.google.android.material:material", version.ref = "materialVersion" }
+play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
+play-services-maps = { module = "com.google.android.gms:play-services-maps", version.ref = "playServicesMaps" }
 room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntimeVersion" }
+secrets-gradle-plugin = { module = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin:secrets-gradle-plugin", version.ref = "secretsGradlePlugin" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
