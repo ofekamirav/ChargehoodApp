@@ -7,6 +7,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.app.ActivityCompat
 import android.Manifest
+import android.widget.ImageButton
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import com.example.chargehoodapp.databinding.HomepageFragmentBinding
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -24,7 +27,8 @@ class HomepageFragment : Fragment(), OnMapReadyCallback {
     private var mapView: MapView? = null
     private var googleMap: GoogleMap? = null
     private var fusedLocationClient: FusedLocationProviderClient? = null
-
+    private var drawerLayout: DrawerLayout? = null
+    private var hamburger_button: ImageButton? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,6 +46,13 @@ class HomepageFragment : Fragment(), OnMapReadyCallback {
         mapView?.getMapAsync(this)
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
+
+        //Set the hamburger button to open the drawer
+        drawerLayout = requireActivity().findViewById(R.id.drawer_layout)
+        hamburger_button = binding?.hamburgerButton
+        hamburger_button?.setOnClickListener {
+            drawerLayout?.openDrawer(GravityCompat.START)
+        }
 
 
 
@@ -109,7 +120,6 @@ class HomepageFragment : Fragment(), OnMapReadyCallback {
     //Set the map settings
     override fun onMapReady(map: GoogleMap) {
         googleMap = map
-        googleMap?.uiSettings?.isZoomControlsEnabled = true
         checkLocationPermission()
 
         // Enable location button
@@ -118,8 +128,11 @@ class HomepageFragment : Fragment(), OnMapReadyCallback {
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
         ) {
-            googleMap?.isMyLocationEnabled = true
-
+            //Enable location button and hide the default button
+            googleMap?.uiSettings?.isMyLocationButtonEnabled = false
+            binding?.myLocationButton?.setOnClickListener{
+                googleMap?.isMyLocationEnabled=true
+            }
             //Set the current location on focus
             fusedLocationClient?.lastLocation?.addOnSuccessListener { location ->
                 if (location != null) {
@@ -130,10 +143,13 @@ class HomepageFragment : Fragment(), OnMapReadyCallback {
         }
 
         //Enable zoom controls
-        googleMap?.uiSettings?.isZoomControlsEnabled = true
+        binding?.zoomInButton?.setOnClickListener{
+            googleMap?.animateCamera(CameraUpdateFactory.zoomIn())
+        }
+        binding?.zoomOutButton?.setOnClickListener{
+            googleMap?.animateCamera(CameraUpdateFactory.zoomOut())
+        }
 
-        //Enable compass
-        googleMap?.uiSettings?.isCompassEnabled = true
 
 
     }

@@ -5,6 +5,7 @@
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layoutDirection="ltr"
     tools:context=".MainActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -12,32 +13,6 @@
         android:id="@+id/main"
         android:layout_height="match_parent">
 
-        <com.google.android.material.appbar.AppBarLayout
-            android:id="@+id/app_bar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:background="#E8FCF1">
-
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="#E8FCF1"
-                app:popupTheme="@style/ThemeOverlay.MaterialComponents.Light">
-
-                <ImageView
-                    android:id="@+id/toolbar_logo"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:src="@drawable/chargehood_logo"
-                    android:contentDescription="App Logo"
-                    android:layout_gravity="center" />
-
-            </androidx.appcompat.widget.Toolbar>
-        </com.google.android.material.appbar.AppBarLayout>
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/main_nav_host"
@@ -46,7 +21,7 @@
             android:layout_height="0dp"
             app:defaultNavHost="true"
             app:navGraph="@navigation/nav_graph"
-            app:layout_constraintTop_toBottomOf="@id/app_bar"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />

@@ -2,9 +2,12 @@ package com.example.chargehoodapp
 
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
+import android.widget.ImageButton
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -40,14 +43,14 @@ class MainActivity : AppCompatActivity() {
         // Setup the navigation controller
         navHostFragment = supportFragmentManager.findFragmentById(R.id.main_nav_host) as? NavHostFragment
         navController = navHostFragment?.navController
-        setSupportActionBar(binding?.toolbar)
+
+        //Setup the navigation menu
         drawerLayout = binding?.drawerLayout
         navigation_view = binding?.navigationView
+
         navController?.let {
-            NavigationUI.setupActionBarWithNavController(this, it, binding?.drawerLayout)
             NavigationUI.setupWithNavController(navigation_view!!, navController!!)
         }
-
 
 
         //Show the navigation drawer when the hamburger icon is clicked
@@ -62,18 +65,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-
-//
-//        navController?.addOnDestinationChangedListener { _, destination, _ ->
-//            if (destination.id == R.id.loginFragment || destination.id == R.id.registerFragment || destination.id == R.id.welcomeFragment) {
-//                hideToolbar()
-//            } else {
-//                showToolbar()
-//            }
-//        }
-
-
-            //navController?.navigate(R.id.welcomeFragment)
 
             navController?.navigate(R.id.homepageFragment)
 //        sharedPreferences = getSharedPreferences("MyAppPreferences", MODE_PRIVATE)
@@ -91,7 +82,8 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    override fun onSupportNavigateUp(): Boolean {
-        return navController?.navigateUp(binding?.drawerLayout) ?: super.onSupportNavigateUp()
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return NavigationUI.onNavDestinationSelected(item, navController!!) || super.onOptionsItemSelected(item)
     }
+
 }
