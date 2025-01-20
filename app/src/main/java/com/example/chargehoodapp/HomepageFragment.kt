@@ -11,6 +11,7 @@ import android.widget.ImageButton
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.example.chargehoodapp.databinding.HomepageFragmentBinding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -29,6 +30,7 @@ class HomepageFragment : Fragment(), OnMapReadyCallback {
     private var fusedLocationClient: FusedLocationProviderClient? = null
     private var drawerLayout: DrawerLayout? = null
     private var hamburger_button: ImageButton? = null
+    private var profile_button: ImageButton? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -52,6 +54,13 @@ class HomepageFragment : Fragment(), OnMapReadyCallback {
         hamburger_button = binding?.hamburgerButton
         hamburger_button?.setOnClickListener {
             drawerLayout?.openDrawer(GravityCompat.START)
+        }
+
+        //Set the profile button
+        profile_button = binding?.profileButton
+        profile_button?.setOnClickListener {
+            val action = HomepageFragmentDirections.actionHomepageFragmentToProfileFragment()
+            findNavController().navigate(action)
         }
 
 
@@ -79,6 +88,7 @@ class HomepageFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
+    //If first time, request permission to using location
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -128,16 +138,17 @@ class HomepageFragment : Fragment(), OnMapReadyCallback {
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
         ) {
-            //Enable location button and hide the default button
+            //Hide the default button
             googleMap?.uiSettings?.isMyLocationButtonEnabled = false
-            binding?.myLocationButton?.setOnClickListener{
-                googleMap?.isMyLocationEnabled=true
-            }
+
             //Set the current location on focus
             fusedLocationClient?.lastLocation?.addOnSuccessListener { location ->
                 if (location != null) {
                     val currentLatLng = LatLng(location.latitude, location.longitude)
-                    googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15f))
+                    binding?.myLocationButton?.setOnClickListener{
+                        googleMap?.isMyLocationEnabled=true
+                        googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15f))
+                    }
                 }
             }
         }

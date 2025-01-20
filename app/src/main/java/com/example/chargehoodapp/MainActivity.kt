@@ -22,11 +22,10 @@ class MainActivity : AppCompatActivity() {
 
 
     private var binding: ActivityMainBinding?=null
-    //var sharedPreferences: SharedPreferences?=null
     private var navController: NavController?=null
     private var navHostFragment: NavHostFragment?=null
     private var drawerLayout: DrawerLayout? = null
-    private var navigation_view: NavigationView? = null
+    private var navigationView: NavigationView? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,10 +45,10 @@ class MainActivity : AppCompatActivity() {
 
         //Setup the navigation menu
         drawerLayout = binding?.drawerLayout
-        navigation_view = binding?.navigationView
+        navigationView = binding?.navigationView
 
         navController?.let {
-            NavigationUI.setupWithNavController(navigation_view!!, navController!!)
+            NavigationUI.setupWithNavController(navigationView!!, navController!!)
         }
 
 
@@ -66,19 +65,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-            navController?.navigate(R.id.homepageFragment)
-//        sharedPreferences = getSharedPreferences("MyAppPreferences", MODE_PRIVATE)
-//        val isFirstLaunch = sharedPreferences?.getBoolean("isFirstLaunch", true)
-//
-//        if (isFirstLaunch == true) {
-//        //Navigate to WelcomeFragment
-//            navController?.navigate(R.id.welcomeFragment)
-//
-//            sharedPreferences?.edit()?.putBoolean("isFirstLaunch", false)?.apply()
-//        } else {
-//            navController?.navigate(R.id.loginFragment)
-//        }
-
+            navController?.navigate(R.id.welcomeFragment)
 
     }
 
