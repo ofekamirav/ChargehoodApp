@@ -9,6 +9,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.Navigation
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.example.chargehoodapp.databinding.LoginFragmentBinding
@@ -19,6 +22,7 @@ class LoginFragment: Fragment() {
 
     private var binding: LoginFragmentBinding?=null
     private var auth: FirebaseAuth?=null
+    private var viewModel: UserViewModel?=null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -30,7 +34,16 @@ class LoginFragment: Fragment() {
 
         auth = FirebaseAuth.getInstance()
 
-        binding?.LoginButton?.setOnClickListener(::handleLoginClick)
+        //Initialize the view model
+        viewModel= ViewModelProvider(this)[UserViewModel::class.java]
+
+        binding?.LoginButton?.setOnClickListener{
+            val email = binding?.emailEditText?.text.toString().trim()
+            val password = binding?.passwordEditText?.text.toString().trim()
+
+            viewModel?.validateAndLoginUser(email, password)
+        }
+        observeViewModel()
 
         binding?.RegisterButton?.setOnClickListener{
             val action=LoginFragmentDirections.actionLoginFragmentToRegisterFragment()
@@ -40,66 +53,36 @@ class LoginFragment: Fragment() {
         return binding?.root
     }
 
-    private fun handleLoginClick(view: View) {
-        val email = binding?.emailEditText?.text.toString().trim()
-        val password = binding?.passwordEditText?.text.toString().trim()
+    private fun observeViewModel() {
+        // Email error
+        viewModel?.emailError?.observe(viewLifecycleOwner, Observer { error ->
+            binding?.emailInputLayout?.error = error
+        })
 
-        if (email.isEmpty() || password.isEmpty()) {
-            binding?.emailInputLayout?.error = "Email is required"
-            binding?.passwordInputLayout?.error = "Password is required"
-        }
-        if (password.length < 6) {
-            binding?.passwordInputLayout?.error = "Password must be at least 6 characters"
-        }
-        if (!isEmailValid(email)) {
-            binding?.emailInputLayout?.error = "Invalid email format"
-        }
-        else{
-            binding?.emailInputLayout?.error = null
-            binding?.passwordInputLayout?.error = null
-        }
+        // Password error
+        viewModel?.passwordError?.observe(viewLifecycleOwner, Observer { error ->
+            binding?.passwordInputLayout?.error = error
+        })
 
-        auth?.signInWithEmailAndPassword(email, password)
-            ?.addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    //Sign in successful, update UI with the signed-in user's information
-                    Log.d("TAG", "signInWithEmail:success")
-                    val user = auth?.currentUser
-                    UpdateUI(user)
-                } else {
-                    //If sign in failes, display a message to the user
-                    Log.w("TAG", "signInWithEmail:failure", task.exception)
-                    Toast.makeText(requireContext(), "Authentication failed", Toast.LENGTH_SHORT)
-                        .show()
-                    UpdateUI(null)
+        // Login success
+        viewModel?.loginSuccess?.observe(viewLifecycleOwner, Observer { message ->
+            if (!message.isNullOrEmpty()) {
+                Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+
+                // Navigate to homepage after successful login
+                val action = LoginFragmentDirections.actionLoginFragmentToHomepageFragment()
+                binding?.root?.let { view ->
+                    Navigation.findNavController(view).navigate(action)
                 }
             }
+        })
 
-
-
-    }
-
-    private fun UpdateUI(user: FirebaseUser?) {
-        if (user != null) {
-            Toast.makeText(
-                requireContext(),
-                "Welcome, ${user.email}",
-                Toast.LENGTH_SHORT
-            ).show()
-//                val mainActivityNavController = requireActivity().findNavController(R.id.main_nav_host)
-//                mainActivityNavController.navigate(R.id.HomepageFragment)
-        } else {
-            // Clear the input fields
-            binding?.emailEditText?.text?.clear()
-            binding?.passwordEditText?.text?.clear()
-
-        }
-    }
-
-    //Helping func that checks if the email is valid
-    private fun isEmailValid(email: String): Boolean {
-        val emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+"
-        return email.matches(Regex(emailPattern))
+        // Login error
+        viewModel?.loginError?.observe(viewLifecycleOwner, Observer { error ->
+            if (!error.isNullOrEmpty()) {
+                Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 
 

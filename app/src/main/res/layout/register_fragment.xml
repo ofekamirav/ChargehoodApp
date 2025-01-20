@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#E8FCF1"
@@ -52,8 +53,7 @@
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
             android:textColor="#02343F"
-            android:hint="Email"
-            android:inputType="textPassword" />
+            android:hint="Email" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -102,7 +102,8 @@
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
             android:textColor="#02343F"
-            android:hint="Phone"/>
+            android:hint="Phone"
+            android:inputType="phone" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -152,6 +153,17 @@
             app:strokeColor="#77BFBE"
             app:rippleColor="#A6D8D7"
             app:strokeWidth="2dp"/>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleInverse"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:visibility="gone"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

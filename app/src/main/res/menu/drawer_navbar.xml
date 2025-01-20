@@ -6,7 +6,7 @@
         android:title="" />
     <item
         android:id="@+id/nav_home"
-        android:name="com.example.chargehoodapp.ui.HomeFragment"
+        android:name="com.example.chargehoodapp.ui.HomepageFragment"
         android:icon="@drawable/ic_home"
         android:iconTint="#02343F"
         android:title="Homepage" />
@@ -14,6 +14,7 @@
         android:id="@+id/nav_stations"
         android:icon="@drawable/find_stations_icon"
         android:iconTint="#02343F"
+        android:iconTintMode="src_in"
         android:title="Your Stations" />
     <item
         android:id="@+id/nav_payments"
