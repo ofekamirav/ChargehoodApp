@@ -165,5 +165,12 @@ class HomepageFragment : Fragment(), OnMapReadyCallback {
 
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val progressbar = activity?.findViewById<View>(R.id.progressBar)
+        progressbar?.visibility = View.GONE
+    }
+
 
 }

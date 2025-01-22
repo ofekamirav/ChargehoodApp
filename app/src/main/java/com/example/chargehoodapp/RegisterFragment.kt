@@ -35,7 +35,6 @@
                 val fullName = binding?.NameEditText?.text.toString().trim()
 
                 viewModel?.validateAndRegisterUser(email, password, phoneNumber, fullName)
-                binding?.progressBar?.visibility = View.VISIBLE
             }
             observeViewModel()
             return binding?.root
@@ -73,6 +72,7 @@
             })
 
             viewModel?.registrationSuccess?.observe(viewLifecycleOwner, Observer { message ->
+                binding?.progressBar?.visibility = View.VISIBLE
                 if (!message.isNullOrEmpty()) {
                     Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
 
@@ -80,7 +80,6 @@
                     val action = RegisterFragmentDirections.actionRegisterFragmentToHomepageFragment()
                     binding?.root?.let { view ->
                         Navigation.findNavController(view).navigate(action)
-                        binding?.progressBar?.visibility = View.GONE
                     }
                 }
             })

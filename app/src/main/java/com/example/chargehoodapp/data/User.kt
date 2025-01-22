@@ -7,4 +7,6 @@ data class User(
     val phoneNumber: String,
     val profilePictureUrl: String = "",
     val isStationOwner: Boolean = false
-)
+){
+    constructor() : this("", "", "", "", "", false)
+}

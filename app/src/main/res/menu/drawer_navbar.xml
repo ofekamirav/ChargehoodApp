@@ -3,13 +3,8 @@
    <item
         android:id="@+id/nav_logo"
         android:icon="@drawable/chargehood_logo"
+        android:enabled="false"
         android:title="" />
-    <item
-        android:id="@+id/nav_home"
-        android:name="com.example.chargehoodapp.ui.HomepageFragment"
-        android:icon="@drawable/ic_home"
-        android:iconTint="#02343F"
-        android:title="Homepage" />
     <item
         android:id="@+id/nav_stations"
         android:icon="@drawable/find_stations_icon"

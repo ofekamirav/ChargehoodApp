@@ -1,6 +1,7 @@
 package com.example.chargehoodapp.data
 
 import android.util.Log
+import com.example.studentsapp.base.Constants.Collections.USERS
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import java.lang.Exception
@@ -8,7 +9,7 @@ import java.lang.Exception
 class UserRepository {
 
     private val firestore = FirebaseFirestore.getInstance()
-    private val usersCollection = firestore.collection("users")
+    private val usersCollection = firestore.collection(USERS)
 
     //Create a new user
     suspend fun createUser(user: User): Boolean {
@@ -35,6 +36,7 @@ class UserRepository {
             user
         } catch (e: Exception) {
             //Connection error
+            Log.e("TAG", "UserRepository-Error getting user by UID: ${e.message}")
             null
         }
     }
