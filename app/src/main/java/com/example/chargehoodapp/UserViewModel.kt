@@ -40,6 +40,9 @@ class UserViewModel: ViewModel() {
     private val _loginSuccess = MutableLiveData<String?>()
     val loginSuccess: LiveData<String?> get() = _loginSuccess
 
+    private val _currentUser = MutableLiveData<User?>()
+    val currentUser: LiveData<User?> get() = _currentUser
+
     private val auth = FirebaseAuth.getInstance()
 
 //Registration--------------------------------------------------------------------------------------------------
@@ -167,12 +170,34 @@ class UserViewModel: ViewModel() {
             }
     }
 
-//--------------------------------------------------------------------------------------------------
+//Current user--------------------------------------------------------------------------------------------------
 
-    private fun getUserProfile(uid: String) {
-        viewModelScope.launch {
-            userRepository.getUserByUid(uid)
+    fun getCurrentUser() {
+        val uid = auth.currentUser?.uid
+        if (uid != null) {
+            viewModelScope.launch {
+                try {
+                    val user = userRepository.getUserByUid(uid)
+                    _currentUser.value = user
+                    Log.d("TAG", "UserViewModel-Current user retrieved: ${user?.name}")
+                } catch (e: Exception) {
+                    Log.e("TAG", "UserViewModel-Error getting current user: ${e.message}")
+                    _loginError.value = "Error getting current user: ${e.message}"
+                    _currentUser.value = null
+                }
+            }
+        } else {
+            Log.d("TAG", "UserViewModel-No user is currently logged in")
+            _currentUser.value = null
         }
+    }
+
+//Logout--------------------------------------------------------------------------------------------------
+
+    fun logout() {
+        auth.signOut()
+        _currentUser.value = null
+        Log.d("TAG", "UserViewModel-User logged out")
     }
 
 }

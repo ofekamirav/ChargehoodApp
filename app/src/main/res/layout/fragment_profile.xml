@@ -9,8 +9,26 @@
     android:layoutDirection="ltr"
     android:padding="16dp">
 
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:indeterminate="true"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/contentGroup"
+        android:visibility="gone"
+        app:constraint_referenced_ids="userProfilePic,detailsCard,back_button,LogoutButton,EditProfileBotton"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"/>
+
     <ImageButton
-        android:id="@+id/hamburger_button"
+        android:id="@+id/back_button"
         android:visibility="visible"
         android:layout_width="50dp"
         android:layout_height="50dp"
@@ -18,7 +36,7 @@
         android:layout_marginStart="8dp"
         android:scaleType="fitCenter"
         android:background="@drawable/button_colors"
-        android:src="@drawable/ic_menu"
+        android:src="@drawable/ic_back"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -28,7 +46,7 @@
         android:layout_height="150dp"
         android:layout_marginTop="50dp"
         android:scaleType="centerCrop"
-        android:src="@drawable/profile_pic"
+        android:src="@drawable/default_profile_pic"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -82,8 +100,7 @@
                 android:textAppearance="?attr/textAppearanceBody1"
                 app:layout_constraintBaseline_toBaselineOf="@id/nameLabel"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/guideline"
-                tools:text="John Doe" />
+                app:layout_constraintStart_toEndOf="@id/guideline" />
 
             <ImageView
                 android:id="@+id/emailIcon"
@@ -117,8 +134,7 @@
                 android:textAppearance="?attr/textAppearanceBody1"
                 app:layout_constraintBaseline_toBaselineOf="@id/emailLabel"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/guideline"
-                tools:text="john.doe@example.com" />
+                app:layout_constraintStart_toEndOf="@id/guideline" />
 
             <ImageView
                 android:id="@+id/phoneIcon"
@@ -151,8 +167,7 @@
                 android:textAppearance="?attr/textAppearanceBody1"
                 app:layout_constraintBaseline_toBaselineOf="@id/phoneLabel"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/guideline"
-                tools:text="050-1234567" />
+                app:layout_constraintStart_toEndOf="@id/guideline" />
 
 
             <ImageView
@@ -186,8 +201,7 @@
                 android:textAppearance="?attr/textAppearanceBody1"
                 app:layout_constraintBaseline_toBaselineOf="@id/passwordLabel"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/guideline"
-                tools:text="************" />
+                app:layout_constraintStart_toEndOf="@id/guideline" />
 
 
             <androidx.constraintlayout.widget.Guideline
@@ -223,6 +237,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_marginBottom="10dp"
         android:layout_marginEnd="8dp" />
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

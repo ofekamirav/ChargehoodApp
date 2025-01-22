@@ -66,6 +66,7 @@ class LoginFragment: Fragment() {
 
         // Login success
         viewModel?.loginSuccess?.observe(viewLifecycleOwner, Observer { message ->
+            binding?.progressBar?.visibility = View.VISIBLE
             if (!message.isNullOrEmpty()) {
                 Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
 
