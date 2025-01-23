@@ -8,6 +8,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import java.lang.Exception
 
+
+//Connect the ViewModel with the database- local and remote
 class UserRepository {
 
     private val firestore = FirebaseFirestore.getInstance()

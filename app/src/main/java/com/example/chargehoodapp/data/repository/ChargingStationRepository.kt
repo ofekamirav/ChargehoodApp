@@ -10,7 +10,7 @@ import kotlinx.coroutines.tasks.await
 import javax.inject.Singleton
 
 @Singleton
-//handle the charging station data between the local database and the remote Firestore database
+//Connect the ViewModel with the database- local and remote
 class ChargingStationRepository(
     private val chargingStationDao: ChargingStationDao,
 ) {
