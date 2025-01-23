@@ -1,4 +1,4 @@
-package com.example.chargehoodapp
+package com.example.chargehoodapp.presentation
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
+import com.example.chargehoodapp.R
 import com.example.chargehoodapp.databinding.WelcomeFragmentBinding
 
 class WelcomeFragment: Fragment() {
@@ -33,7 +34,7 @@ class WelcomeFragment: Fragment() {
 
 
         binding?.GetStartedButton?.setOnClickListener{
-            val action=WelcomeFragmentDirections.actionWelcomeFragmentToLoginFragment()
+            val action= WelcomeFragmentDirections.actionWelcomeFragmentToLoginFragment()
             findNavController().navigate(action)
         }
 

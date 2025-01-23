@@ -6,7 +6,7 @@
 
     <fragment
         android:id="@+id/welcomeFragment"
-        android:name="com.example.chargehoodapp.WelcomeFragment"
+        android:name="com.example.chargehoodapp.presentation.WelcomeFragment"
         android:label="WelcomeFragment" >
         <action
             android:id="@+id/action_welcomeFragment_to_loginFragment"
@@ -14,7 +14,7 @@
     </fragment>
     <fragment
         android:id="@+id/registerFragment"
-        android:name="com.example.chargehoodapp.RegisterFragment"
+        android:name="com.example.chargehoodapp.presentation.register.RegisterFragment"
         android:label="RegisterFragment" >
         <action
             android:id="@+id/action_registerFragment_to_homepageFragment"
@@ -22,7 +22,7 @@
     </fragment>
     <fragment
         android:id="@+id/loginFragment"
-        android:name="com.example.chargehoodapp.LoginFragment"
+        android:name="com.example.chargehoodapp.presentation.login.LoginFragment"
         android:label="LoginFragment" >
         <action
             android:id="@+id/action_loginFragment_to_registerFragment"
@@ -33,7 +33,7 @@
     </fragment>
     <fragment
         android:id="@+id/homepageFragment"
-        android:name="com.example.chargehoodapp.HomepageFragment"
+        android:name="com.example.chargehoodapp.presentation.homepage.HomepageFragment"
         android:label="HomepageFragment" >
         <action
             android:id="@+id/action_homepageFragment_to_profileFragment"
@@ -41,7 +41,7 @@
     </fragment>
     <fragment
         android:id="@+id/profileFragment"
-        android:name="com.example.chargehoodapp.ProfileFragment"
+        android:name="com.example.chargehoodapp.presentation.profile.ProfileFragment"
         android:label="ProfieFragment" >
         <action
             android:id="@+id/action_profileFragment_to_loginFragment"

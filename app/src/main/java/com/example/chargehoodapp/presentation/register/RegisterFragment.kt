@@ -1,4 +1,4 @@
-    package com.example.chargehoodapp
+    package com.example.chargehoodapp.presentation.register
 
     import android.os.Bundle
     import android.view.LayoutInflater
@@ -15,7 +15,7 @@
     class RegisterFragment:Fragment() {
 
         private var binding: RegisterFragmentBinding?=null
-        private var viewModel: UserViewModel?=null
+        private var viewModel: RegisterViewModel?=null
 
         override fun onCreateView(
             inflater: LayoutInflater,
@@ -25,7 +25,7 @@
             binding=RegisterFragmentBinding.inflate(inflater,container,false)
 
             //Initialize the view model
-            viewModel= ViewModelProvider(this)[UserViewModel::class.java]
+            viewModel= ViewModelProvider(this)[RegisterViewModel::class.java]
 
 
             binding?.RegisterButton?.setOnClickListener {

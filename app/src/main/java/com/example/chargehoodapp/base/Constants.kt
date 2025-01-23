@@ -1,4 +1,4 @@
-package com.example.studentsapp.base
+package com.example.chargehoodapp.base
 
 
 typealias EmptyCallback = () -> Unit
