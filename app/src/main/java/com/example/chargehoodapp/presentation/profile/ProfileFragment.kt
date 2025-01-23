@@ -33,10 +33,16 @@ class ProfileFragment : Fragment() {
         // Observe the currentUser LiveData
         ObserveCurrentUserDetails()
 
-        // Back button functionality
         binding?.backButton?.setOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
+
+        binding?.EditProfileBotton?.setOnClickListener{
+            val action = ProfileFragmentDirections.actionProfileFragmentToEditProfileFragment()
+            findNavController().navigate(action)
+        }
+
+
 
     }
 

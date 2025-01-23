@@ -8,6 +8,8 @@ object Constants {
 
     object Collections {
         const val USERS = "users"
+        const val CHARGING_STATIONS = "charging_stations"
+
     }
 
 

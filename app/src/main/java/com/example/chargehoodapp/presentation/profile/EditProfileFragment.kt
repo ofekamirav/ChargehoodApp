@@ -1,22 +1,27 @@
 package com.example.chargehoodapp.presentation.profile
 
+import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.ViewModelProvider
 import com.example.chargehoodapp.databinding.FragmentEditProfileBinding
 
 
 class EditProfileFragment : Fragment() {
 
-    private var binding: FragmentEditProfileBinding?= null
-    private var viewModel: ProfileViewModel?=null
-    private var cameralauncher: ActivityResultLauncher<Void>?=null
-    private var gallerylauncher: ActivityResultLauncher<Void>?=null
-    private var didSetprofileImage: Boolean = false
+    private var binding: FragmentEditProfileBinding? = null
+    private var viewModel: ProfileViewModel? = null
+    private var cameraLauncher: ActivityResultLauncher<Void?>? = null
+    private var galleryLauncher: ActivityResultLauncher<String>? = null
+    private var didSetProfileImage: Boolean = false
+    private var selectedImageBitmap: Bitmap? = null
+    private var selectedImageUri: Uri? = null
 
 
 
@@ -39,27 +44,32 @@ class EditProfileFragment : Fragment() {
     ): View? {
         binding = FragmentEditProfileBinding.inflate(inflater, container, false)
 
-//        cameralauncher = registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
-//                if (bitmap != null) {
-//                    binding?.userProfilePic?.setImageBitmap(bitmap)
-//                }
-//                didSetprofileImage = true
-//            }
-//
-//        binding?.cameraButton?.setOnClickListener{
-//            cameralauncher?.launch(null)
-//        }
-//        binding?.galleryButton?.setOnClickListener{
-//            gallerylauncher?.launch("image/*")
-//        }
-//
-//
-//        gallerylauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-//            if (uri != null) {
-//                binding?.userProfilePic?.setImageURI(uri)
-//            }
-//            didSetprofileImage = true
-//        }
+        // Initialize the camera launcher
+        cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
+            if (bitmap != null) {
+                selectedImageBitmap = bitmap
+                binding?.userProfilePic?.setImageBitmap(bitmap)
+                didSetProfileImage = true
+            }
+        }
+
+        // Initialize the gallery launcher
+        galleryLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+            if (uri != null) {
+                selectedImageUri = uri
+                binding?.userProfilePic?.setImageURI(uri)
+                didSetProfileImage = true
+            }
+        }
+
+        binding?.cameraButton?.setOnClickListener{
+            cameraLauncher?.launch(null)
+        }
+
+        binding?.galleryButton?.setOnClickListener{
+            galleryLauncher?.launch("image/*")
+        }
+
         return binding?.root
     }
 

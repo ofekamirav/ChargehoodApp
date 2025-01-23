@@ -50,6 +50,8 @@ class UserRepository {
             //Update the user profile in Firestore
             usersCollection.document(uid).update(updates).await()
 
+            //add logic to update user profile picture in Cloudinary
+
             //Update the user email and password in Firebase Authentication if needed
             val user = auth.currentUser
 

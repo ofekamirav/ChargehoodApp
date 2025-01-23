@@ -34,6 +34,7 @@ class CloudinaryModel {
     fun uploadImage(
         bitmap: Bitmap,
         name: String,
+        folder: String,
         onSuccess: StringCallback,
         onError: StringCallback
     ) {
@@ -41,15 +42,11 @@ class CloudinaryModel {
         val file: File = bitmap.toFile(context, name)
 
         MediaManager.get().upload(file.path)
-            .option("folder", "images")
-            .callback(object  : UploadCallback {
-                override fun onStart(requestId: String?) {
+            .option("folder", folder) // Set the folder dynamically
+            .callback(object : UploadCallback {
+                override fun onStart(requestId: String?) {}
 
-                }
-
-                override fun onProgress(requestId: String?, bytes: Long, totalBytes: Long) {
-
-                }
+                override fun onProgress(requestId: String?, bytes: Long, totalBytes: Long) {}
 
                 override fun onSuccess(requestId: String?, resultData: Map<*, *>) {
                     val url = resultData["secure_url"] as? String ?: ""
@@ -60,10 +57,7 @@ class CloudinaryModel {
                     onError(error?.description ?: "Unknown error")
                 }
 
-                override fun onReschedule(requestId: String?, error: ErrorInfo?) {
-
-                }
-
+                override fun onReschedule(requestId: String?, error: ErrorInfo?) {}
             })
             .dispatch()
     }
