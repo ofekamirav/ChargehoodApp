@@ -1,4 +1,4 @@
-package com.example.chargehoodapp.data
+package com.example.chargehoodapp.data.model
 
 data class User(
     val uid: String,

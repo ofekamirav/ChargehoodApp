@@ -1,28 +1,24 @@
-package com.example.chargehoodapp
+package com.example.chargehoodapp.presentation.login
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.example.chargehoodapp.databinding.LoginFragmentBinding
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 
 class LoginFragment: Fragment() {
 
     private var binding: LoginFragmentBinding?=null
     private var auth: FirebaseAuth?=null
-    private var viewModel: UserViewModel?=null
+    private var viewModel: LoginViewModel?=null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -35,7 +31,7 @@ class LoginFragment: Fragment() {
         auth = FirebaseAuth.getInstance()
 
         //Initialize the view model
-        viewModel= ViewModelProvider(this)[UserViewModel::class.java]
+        viewModel= ViewModelProvider(this)[LoginViewModel::class.java]
 
         binding?.LoginButton?.setOnClickListener{
             val email = binding?.emailEditText?.text.toString().trim()
@@ -46,7 +42,7 @@ class LoginFragment: Fragment() {
         observeViewModel()
 
         binding?.RegisterButton?.setOnClickListener{
-            val action=LoginFragmentDirections.actionLoginFragmentToRegisterFragment()
+            val action= LoginFragmentDirections.actionLoginFragmentToRegisterFragment()
             findNavController().navigate(action)
         }
 

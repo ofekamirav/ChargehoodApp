@@ -1,4 +1,4 @@
-package com.example.chargehoodapp
+package com.example.chargehoodapp.presentation.register
 
 import android.util.Log
 import android.util.Patterns
@@ -6,13 +6,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.chargehoodapp.data.User
-import com.example.chargehoodapp.data.UserRepository
+import com.example.chargehoodapp.data.repository.UserRepository
+import com.example.chargehoodapp.data.model.User
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
-class UserViewModel: ViewModel() {
+class RegisterViewModel: ViewModel() {
 
     private val userRepository = UserRepository()
 
@@ -34,18 +34,12 @@ class UserViewModel: ViewModel() {
     private val _registrationError = MutableLiveData<String?>()
     val registrationError: LiveData<String?> get() = _registrationError
 
-    private val _loginError = MutableLiveData<String?>()
-    val loginError: LiveData<String?> get() = _loginError
-
-    private val _loginSuccess = MutableLiveData<String?>()
-    val loginSuccess: LiveData<String?> get() = _loginSuccess
 
     private val _currentUser = MutableLiveData<User?>()
     val currentUser: LiveData<User?> get() = _currentUser
 
     private val auth = FirebaseAuth.getInstance()
 
-//Registration--------------------------------------------------------------------------------------------------
     fun validateAndRegisterUser(
         email: String,
         password: String,
@@ -137,67 +131,8 @@ class UserViewModel: ViewModel() {
         }
     }
 
-//Login--------------------------------------------------------------------------------------------------
-    fun validateAndLoginUser(email: String, password: String) {
-        var isValid = true
 
-        if (email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            _emailError.value = "Invalid email format"
-            isValid = false
-        } else {
-            _emailError.value = null
-        }
 
-        if (password.isEmpty()) {
-            _passwordError.value = "Password cannot be empty"
-            isValid = false
-        } else {
-            _passwordError.value = null
-        }
 
-        if (isValid) {
-            loginUser(email, password)
-        }
-    }
-
-    private fun loginUser(email: String, password: String) {
-            auth.signInWithEmailAndPassword(email, password).addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    _loginSuccess.value = "Welcome, ${auth.currentUser?.email}"
-                } else {
-                    _loginError.value = "Authentication failed: ${task.exception?.message}"
-                }
-            }
-    }
-
-//Current user--------------------------------------------------------------------------------------------------
-
-    fun getCurrentUser() {
-        val uid = auth.currentUser?.uid
-        if (uid != null) {
-            viewModelScope.launch {
-                try {
-                    val user = userRepository.getUserByUid(uid)
-                    _currentUser.value = user
-                    Log.d("TAG", "UserViewModel-Current user retrieved: ${user?.name}")
-                } catch (e: Exception) {
-                    Log.e("TAG", "UserViewModel-Error getting current user: ${e.message}")
-                    _loginError.value = "Error getting current user: ${e.message}"
-                    _currentUser.value = null
-                }
-            }
-        } else {
-            Log.d("TAG", "UserViewModel-No user is currently logged in")
-            _currentUser.value = null
-        }
-    }
-
-//Logout--------------------------------------------------------------------------------------------------
-
-    fun logout() {
-        auth.signOut()
-        _currentUser.value = null
-        Log.d("TAG", "UserViewModel-User logged out")
-    }
 
 }

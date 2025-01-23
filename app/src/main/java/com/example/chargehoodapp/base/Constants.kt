@@ -1,4 +1,4 @@
-package com.example.studentsapp.base
+package com.example.chargehoodapp.base
 
 
 typealias EmptyCallback = () -> Unit
@@ -8,6 +8,8 @@ object Constants {
 
     object Collections {
         const val USERS = "users"
+        const val CHARGING_STATIONS = "charging_stations"
+
     }
 
 

@@ -1,4 +1,4 @@
-package com.example.chargehoodapp
+package com.example.chargehoodapp.presentation.profile
 
 import android.os.Bundle
 import android.util.Log
@@ -6,21 +6,23 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
+import com.example.chargehoodapp.R
 import com.example.chargehoodapp.databinding.FragmentProfileBinding
 
 class ProfileFragment : Fragment() {
 
     private var binding: FragmentProfileBinding?=null
-    private var viewModel: UserViewModel?=null
+    private var viewModel: ProfileViewModel?=null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?){
         super.onViewCreated(view, savedInstanceState)
 
         // Initialize the ViewModel
-        viewModel= ViewModelProvider(this)[UserViewModel::class.java]
+        viewModel= ViewModelProvider(this)[ProfileViewModel::class.java]
 
         binding?.contentGroup?.visibility = View.GONE
         binding?.progressBar?.visibility = View.VISIBLE
@@ -31,16 +33,16 @@ class ProfileFragment : Fragment() {
         // Observe the currentUser LiveData
         ObserveCurrentUserDetails()
 
-        // Back button functionality
         binding?.backButton?.setOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
 
-        binding?.LogoutButton?.setOnClickListener{
-            viewModel?.logout()
-            val action=ProfileFragmentDirections.actionProfileFragmentToLoginFragment()
+        binding?.EditProfileBotton?.setOnClickListener{
+            val action = ProfileFragmentDirections.actionProfileFragmentToEditProfileFragment()
             findNavController().navigate(action)
         }
+
+
 
     }
 
@@ -55,6 +57,21 @@ class ProfileFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding=FragmentProfileBinding.inflate(inflater,container,false)
+
+        binding?.LogoutButton?.setOnClickListener {
+            AlertDialog.Builder(requireContext())
+                .setTitle("Logout")
+                .setMessage("Are you sure you want to logout?")
+                .setPositiveButton("Yes") { _, _ ->
+                    viewModel?.logout()
+                    val action = ProfileFragmentDirections.actionProfileFragmentToLoginFragment()
+                    findNavController().navigate(action)
+                }
+                .setNegativeButton("Cancel") { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .show()
+        }
 
         return binding?.root
     }
