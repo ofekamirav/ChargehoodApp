@@ -17,7 +17,6 @@ import com.google.firebase.auth.FirebaseAuth
 class LoginFragment: Fragment() {
 
     private var binding: LoginFragmentBinding?=null
-    private var auth: FirebaseAuth?=null
     private var viewModel: LoginViewModel?=null
 
     override fun onCreateView(
@@ -27,8 +26,6 @@ class LoginFragment: Fragment() {
     ): View? {
 
         binding=LoginFragmentBinding.inflate(inflater,container,false)
-
-        auth = FirebaseAuth.getInstance()
 
         //Initialize the view model
         viewModel= ViewModelProvider(this)[LoginViewModel::class.java]

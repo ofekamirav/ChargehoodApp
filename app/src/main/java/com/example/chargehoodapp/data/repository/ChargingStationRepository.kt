@@ -1,5 +1,6 @@
 package com.example.chargehoodapp.data.repository
 
+import FirebaseModel
 import androidx.lifecycle.LiveData
 import com.example.chargehoodapp.base.Constants.Collections.CHARGING_STATIONS
 import com.example.chargehoodapp.data.local.dao.ChargingStationDao
