@@ -2,7 +2,6 @@ package com.example.chargehoodapp.base
 
 import android.app.Application
 import android.content.Context
-import com.google.firebase.FirebaseApp
 
 
 //Shared preferences to all project
@@ -14,6 +13,5 @@ class MyApplication: Application() {
     override fun onCreate() {
         super.onCreate()
         Globals.context = applicationContext
-        FirebaseApp.initializeApp(this)
     }
 }

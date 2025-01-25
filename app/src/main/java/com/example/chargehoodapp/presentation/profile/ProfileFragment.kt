@@ -27,14 +27,16 @@ class ProfileFragment : Fragment() {
         binding?.contentGroup?.visibility = View.GONE
         binding?.progressBar?.visibility = View.VISIBLE
 
-        // Get the current user
-        viewModel?.getCurrentUser()
+        // Load current user data only if needed
+        if (viewModel?.currentUser?.value == null) {
+            viewModel?.getCurrentUser()
+        }
 
         // Observe the currentUser LiveData
         ObserveCurrentUserDetails()
 
         binding?.backButton?.setOnClickListener {
-            requireActivity().onBackPressedDispatcher.onBackPressed()
+            findNavController().navigateUp()
         }
 
         binding?.EditProfileBotton?.setOnClickListener{
@@ -92,6 +94,7 @@ class ProfileFragment : Fragment() {
                     if (user.profilePictureUrl.isNotEmpty()) {
                         Glide.with(this@ProfileFragment)
                             .load(user.profilePictureUrl)
+                            .circleCrop()
                             .placeholder(R.drawable.default_profile_pic)
                             .into(userProfilePic)
                     } else {

@@ -14,5 +14,7 @@ data class ChargingStation(
     val chargingSpeed: String,
     val availability: Boolean,
     val imageUrl: String,
-    val pricePerMinute: Double
+    val pricePerMinute: Double,
+    val whatsappNumber: String,
+    val wazeUrl: String
     )

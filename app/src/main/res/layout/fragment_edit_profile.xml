@@ -13,11 +13,19 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:indeterminate="true"
+        android:indeterminateTint="#77BFBE"
         android:visibility="gone"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/contentGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids="back_button,userProfilePic,buttonsLayout,detailsCard,SaveButton" />
 
     <ImageButton
         android:id="@+id/back_button"
@@ -26,7 +34,7 @@
         android:layout_marginTop="10dp"
         android:layout_marginStart="8dp"
         android:scaleType="fitCenter"
-        android:background="@drawable/button_colors"
+        android:background="@drawable/regular_button_colors"
         android:src="@drawable/ic_back"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -40,42 +48,37 @@
         android:src="@drawable/default_profile_pic"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/buttonsLayout" />
+        app:layout_constraintTop_toBottomOf="@id/back_button" />
 
     <LinearLayout
-        android:layout_width="120dp"
-        android:layout_height="65dp"
+        android:id="@+id/buttonsLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginTop="16dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/userProfilePic"
-        android:id="@+id/buttonsLayout">
+        app:layout_constraintTop_toBottomOf="@id/userProfilePic">
 
-    <ImageButton
-        android:id="@+id/cameraButton"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp"
-        android:background="@null"
-        android:src="@drawable/ic_camera"
-        android:scaleType="fitCenter"
-        android:contentDescription="Open Camera"
-        app:layout_constraintStart_toEndOf="@id/userProfilePic"
-        app:layout_constraintTop_toBottomOf="@id/userProfilePic" />
+        <ImageButton
+            android:id="@+id/cameraButton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginEnd="8dp"
+            android:background="@null"
+            android:src="@drawable/ic_camera"
+            android:scaleType="fitCenter"
+            android:contentDescription="Open Camera" />
 
-    <ImageButton
-        android:id="@+id/galleryButton"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginStart="8dp"
-        android:background="@null"
-        android:src="@drawable/ic_gallery"
-        android:scaleType="fitCenter"
-        android:contentDescription="Open Gallery"
-        app:layout_constraintEnd_toStartOf="@id/userProfilePic"
-        app:layout_constraintTop_toBottomOf="@id/userProfilePic" />
+        <ImageButton
+            android:id="@+id/galleryButton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@null"
+            android:src="@drawable/ic_gallery"
+            android:scaleType="fitCenter"
+            android:contentDescription="Open Gallery" />
     </LinearLayout>
 
     <com.google.android.material.card.MaterialCardView
@@ -99,7 +102,7 @@
                 android:id="@+id/nameInputLayout"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                app:boxStrokeColor="#77BFBE"
+                app:boxStrokeColor="#02343F"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
@@ -107,7 +110,6 @@
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/nameEditText"
                     android:hint="Name"
-                    android:textColorHint="#77BFBE"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
             </com.google.android.material.textfield.TextInputLayout>
@@ -117,7 +119,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                app:boxStrokeColor="#77BFBE"
+                app:boxStrokeColor="#02343F"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/nameInputLayout">
@@ -125,7 +127,6 @@
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/emailEditText"
                     android:hint="Email"
-                    android:textColorHint="#77BFBE"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
             </com.google.android.material.textfield.TextInputLayout>
@@ -135,7 +136,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                app:boxStrokeColor="#77BFBE"
+                app:boxStrokeColor="#02343F"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/emailInputLayout">
@@ -143,7 +144,6 @@
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/phoneEditText"
                     android:hint="Phone"
-                    android:textColorHint="#77BFBE"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
             </com.google.android.material.textfield.TextInputLayout>
@@ -153,7 +153,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                app:boxStrokeColor="#77BFBE"
+                app:boxStrokeColor="#02343F"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/phoneInputLayout"
@@ -162,7 +162,6 @@
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/passwordEditText"
                     android:hint="Password"
-                    android:textColorHint="#77BFBE"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPassword" />

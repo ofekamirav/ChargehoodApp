@@ -14,6 +14,7 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:indeterminate="true"
+        android:indeterminateTint="#77BFBE"
         android:visibility="gone"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -35,7 +36,7 @@
         android:layout_marginTop="10dp"
         android:layout_marginStart="8dp"
         android:scaleType="fitCenter"
-        android:background="@drawable/button_colors"
+        android:background="@drawable/regular_button_colors"
         android:src="@drawable/ic_back"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
