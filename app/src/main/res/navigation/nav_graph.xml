@@ -38,6 +38,9 @@
         <action
             android:id="@+id/action_homepageFragment_to_profileFragment"
             app:destination="@id/profileFragment" />
+        <action
+            android:id="@+id/action_homepageFragment_to_chargingStationDetailsFragment"
+            app:destination="@id/chargingStationDetailsFragment" />
     </fragment>
     <fragment
         android:id="@+id/profileFragment"
@@ -58,4 +61,8 @@
             android:id="@+id/action_editProfileFragment_to_homepageFragment"
             app:destination="@id/homepageFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/chargingStationDetailsFragment"
+        android:name="com.example.chargehoodapp.presentation.charging_station_details.ChargingStationDetailsFragment"
+        android:label="ChargingStationDetailsFragment" />
 </navigation>
