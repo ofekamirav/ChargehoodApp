@@ -79,7 +79,6 @@ class LoginFragment: Fragment() {
         })
     }
 
-
     //hide the action bar
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

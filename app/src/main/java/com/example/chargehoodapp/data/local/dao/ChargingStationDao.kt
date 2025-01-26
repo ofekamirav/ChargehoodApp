@@ -25,6 +25,9 @@ interface ChargingStationDao {
     @Query("SELECT * FROM charging_stations WHERE id = :id")
     fun getChargingStation(id: String): ChargingStation?
 
-    @Update
-    fun updateChargingStation(chargingStation: ChargingStation)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun updateChargingStations(stations: List<ChargingStation>)
+
+    @Query("DELETE FROM charging_stations WHERE id NOT IN (:ids)")
+    fun deleteStationsNotIn(ids: List<String>)
 }

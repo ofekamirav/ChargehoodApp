@@ -8,14 +8,28 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.chargehoodapp.base.MyApplication
+import com.example.chargehoodapp.data.model.ChargingStation
+import com.example.chargehoodapp.data.repository.ChargingStationRepository
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
+import com.google.firebase.firestore.GeoPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class HomepageViewModel : ViewModel() {
 
+    private val repository: ChargingStationRepository =
+        (MyApplication.Globals.context?.applicationContext as MyApplication).repository
+
     private val _currentLocation = MutableLiveData<LatLng>()
     val currentLocation: LiveData<LatLng> = _currentLocation
+
+    private val _chargingStations = MutableLiveData<List<ChargingStation>>()
+    val chargingStations: LiveData<List<ChargingStation>> = _chargingStations
 
     private val _locationPermissionGranted = MutableLiveData<Boolean>()
     val locationPermissionGranted: LiveData<Boolean> = _locationPermissionGranted
@@ -50,4 +64,47 @@ class HomepageViewModel : ViewModel() {
             Log.e("TAG", "HomepageViewModel-Permission denied: ${e.message}")
         }
     }
+
+    fun syncStations() {
+        viewModelScope.launch {
+            repository.syncChargingStations()
+            loadAllChargingStations() //load all charging stations after syncing
+        }
+    }
+
+    //Get all charging stations and update the LiveData
+    fun loadAllChargingStations() {
+        repository.getAllChargingStations().observeForever { stations ->
+            _chargingStations.value = stations
+        }
+    }
+
+    fun addDummyStation(onResult: (ChargingStation?) -> Unit) {
+        viewModelScope.launch {
+            val dummyStation = ChargingStation(
+                id = "", // Firebase ייצור את ה-ID
+                ownerId = "dummy_owner",
+                latitude = 32.080744,
+                longitude = 34.782202,
+                connectionType = "Type 2",
+                chargingSpeed = "50 kW",
+                availability = true,
+                imageUrl = "",
+                pricePerkW = 0.5,
+                wazeUrl = "",
+                lastUpdated = System.currentTimeMillis()
+            )
+
+            val success = repository.createChargingStation(dummyStation, null)
+            if (success) {
+                onResult(dummyStation)
+            } else {
+                onResult(null)
+            }
+        }
+    }
+
+
+
+
 }

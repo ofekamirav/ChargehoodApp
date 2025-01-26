@@ -9,12 +9,35 @@ import com.google.firebase.firestore.GeoPoint
 data class ChargingStation(
     @PrimaryKey val id: String,
     val ownerId: String,
-    val location: GeoPoint,
+    val latitude: Double,
+    val longitude: Double,
     val connectionType: String,
     val chargingSpeed: String,
     val availability: Boolean,
     val imageUrl: String,
-    val pricePerMinute: Double,
-    val whatsappNumber: String,
-    val wazeUrl: String
-    )
+    val pricePerkW: Double,
+    val wazeUrl: String,
+    val lastUpdated: Long? = null
+    ) {
+    fun toGeoPoint(): GeoPoint {
+        return GeoPoint(latitude, longitude)
+    }
+
+    companion object {
+        fun fromGeoPoint(id: String, ownerId: String, geoPoint: GeoPoint): ChargingStation {
+            return ChargingStation(
+                id = id,
+                ownerId = ownerId,
+                latitude = geoPoint.latitude,
+                longitude = geoPoint.longitude,
+                connectionType = "Type",
+                chargingSpeed = "Fast",
+                availability = true,
+                imageUrl = "url",
+                pricePerkW = 0.5,
+                wazeUrl = "waze",
+                lastUpdated = System.currentTimeMillis()
+            )
+        }
+    }
+}
