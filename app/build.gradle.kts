@@ -25,6 +25,7 @@ android {
         buildConfigField("String", "CLOUD_NAME", "\"${project.properties["CLOUD_NAME"]?: ""}\"")
         buildConfigField("String", "API_KEY", "\"${project.properties["API_KEY"]?: ""}\"")
         buildConfigField("String", "API_SECRET", "\"${project.properties["API_SECRET"]?: ""}\"")
+        buildConfigField ("String", "GOOGLE_MAPS_API_KEY", "\"${properties["GOOGLE_MAPS_API_KEY"]}\"")
 
 
     }
@@ -79,6 +80,7 @@ dependencies {
     implementation(libs.play.services.location)
     implementation(libs.play.services.auth)
     implementation(libs.play.services.base)
+    implementation(libs.places)
 
 
     implementation (libs.github.glide)

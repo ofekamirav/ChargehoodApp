@@ -6,7 +6,6 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Update
 import com.example.chargehoodapp.data.model.ChargingStation
 
 
@@ -29,5 +28,5 @@ interface ChargingStationDao {
     fun updateChargingStations(stations: List<ChargingStation>)
 
     @Query("DELETE FROM charging_stations WHERE id NOT IN (:ids)")
-    fun deleteStationsNotIn(ids: List<String>)
+    fun deleteStationsNotIn(ids: List<String?>)
 }

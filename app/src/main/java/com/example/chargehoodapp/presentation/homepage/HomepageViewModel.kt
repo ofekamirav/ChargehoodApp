@@ -79,32 +79,5 @@ class HomepageViewModel : ViewModel() {
         }
     }
 
-    fun addDummyStation(onResult: (ChargingStation?) -> Unit) {
-        viewModelScope.launch {
-            val dummyStation = ChargingStation(
-                id = "", // Firebase ייצור את ה-ID
-                ownerId = "dummy_owner",
-                latitude = 32.080744,
-                longitude = 34.782202,
-                connectionType = "Type 2",
-                chargingSpeed = "50 kW",
-                availability = true,
-                imageUrl = "",
-                pricePerkW = 0.5,
-                wazeUrl = "",
-                lastUpdated = System.currentTimeMillis()
-            )
-
-            val success = repository.createChargingStation(dummyStation, null)
-            if (success) {
-                onResult(dummyStation)
-            } else {
-                onResult(null)
-            }
-        }
-    }
-
-
-
 
 }

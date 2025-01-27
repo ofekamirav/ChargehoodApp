@@ -11,33 +11,12 @@ data class ChargingStation(
     val ownerId: String,
     val latitude: Double,
     val longitude: Double,
+    val addressName: String = "",
     val connectionType: String,
     val chargingSpeed: String,
     val availability: Boolean,
     val imageUrl: String,
     val pricePerkW: Double,
     val wazeUrl: String,
-    val lastUpdated: Long? = null
-    ) {
-    fun toGeoPoint(): GeoPoint {
-        return GeoPoint(latitude, longitude)
-    }
-
-    companion object {
-        fun fromGeoPoint(id: String, ownerId: String, geoPoint: GeoPoint): ChargingStation {
-            return ChargingStation(
-                id = id,
-                ownerId = ownerId,
-                latitude = geoPoint.latitude,
-                longitude = geoPoint.longitude,
-                connectionType = "Type",
-                chargingSpeed = "Fast",
-                availability = true,
-                imageUrl = "url",
-                pricePerkW = 0.5,
-                wazeUrl = "waze",
-                lastUpdated = System.currentTimeMillis()
-            )
-        }
-    }
-}
+    val lastUpdated: Long = System.currentTimeMillis()
+    )

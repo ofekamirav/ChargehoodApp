@@ -17,8 +17,10 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.example.chargehoodapp.R
+import com.example.chargehoodapp.base.MyApplication
 import com.example.chargehoodapp.data.model.ChargingStation
 import com.example.chargehoodapp.databinding.HomepageFragmentBinding
+import com.example.chargehoodapp.presentation.charging_station_details.ChargingStationDetailsFragment
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapView
@@ -72,6 +74,7 @@ class HomepageFragment : Fragment(), OnMapReadyCallback {
         }
 
 
+
     }
 
     override fun onCreateView(
@@ -85,18 +88,6 @@ class HomepageFragment : Fragment(), OnMapReadyCallback {
         mapView = binding?.mapView
         mapView?.onCreate(savedInstanceState)
         mapView?.getMapAsync(this)
-
-
-        binding?.addDummyButton?.setOnClickListener {
-            viewModel?.addDummyStation { station ->
-                station?.let {
-                    addStationMarker(it)
-                    Log.d("TAG", "Dummy station added to map: ${it.id}")
-                } ?: Log.e("TAG", "Failed to add dummy station")
-            }
-        }
-
-
 
 
         return binding?.root
@@ -157,9 +148,9 @@ class HomepageFragment : Fragment(), OnMapReadyCallback {
         googleMap?.setOnMarkerClickListener { marker ->
             val station = marker.tag as? ChargingStation
             station?.let {
+                MyApplication.Globals.selectedStation = it
                 Log.d("TAG", "HomepageFragment-Marker clicked: ${station.id}")
-                val action = HomepageFragmentDirections.actionHomepageFragmentToChargingStationDetailsFragment()
-                findNavController().navigate(action)
+                showStationDetailsDialog()
             }
             true
         }
@@ -200,6 +191,21 @@ class HomepageFragment : Fragment(), OnMapReadyCallback {
         marker?.tag = station //set the station to marker
         Log.d("TAG", "Marker added for station: ${station.id}")
     }
+
+
+    // Show the station details card fragment above the map
+    private fun showStationDetailsDialog() {
+        val dialogFragment = ChargingStationDetailsFragment()
+        dialogFragment.show(parentFragmentManager, "ChargingStationDetailsFragment")
+    }
+
+
+
+
+    fun hideDetailsCard() {
+        binding?.cardDetailsContainer?.visibility = View.GONE
+    }
+
 
 
     override fun onDestroyView() {
