@@ -5,11 +5,14 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.chargehoodapp.base.MyApplication
 import com.example.chargehoodapp.data.local.dao.ChargingStationDao
+import com.example.chargehoodapp.data.local.dao.PaymentInfoDao
 import com.example.chargehoodapp.data.model.ChargingStation
+import com.example.chargehoodapp.data.model.PaymentInfo
 
-@Database(entities = [ChargingStation::class], version = 1)
+@Database(entities = [ChargingStation::class, PaymentInfo::class], version = 2)
 abstract class AppLocalDBRepository : RoomDatabase() {
     abstract fun ChargingStationDao(): ChargingStationDao
+    abstract fun PaymentInfoDao(): PaymentInfoDao
 }
 
 object AppLocalDB {

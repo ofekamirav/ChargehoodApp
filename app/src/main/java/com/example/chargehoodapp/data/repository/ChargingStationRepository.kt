@@ -1,7 +1,6 @@
 package com.example.chargehoodapp.data.repository
 
 import FirebaseModel
-import android.content.Context
 import android.graphics.Bitmap
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -12,7 +11,6 @@ import com.example.chargehoodapp.data.local.dao.ChargingStationDao
 import com.example.chargehoodapp.data.model.ChargingStation
 import com.example.chargehoodapp.data.remote.CloudinaryModel
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.GeoPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
@@ -28,12 +26,15 @@ class ChargingStationRepository(
     private val usersCollection = firestore.collection(USERS)
     private val cloudinaryModel = CloudinaryModel()
     private val userUid = FirebaseModel.getCurrentUser()?.uid
-    private var updatedChargingStation: ChargingStation? = null
+
+    companion object {
+        private const val LAST_UPDATE_KEY = "last_update_time_charging_stations"
+    }
 
 
     //Update charging stations in local database from Firestore
     suspend fun syncChargingStations() {
-        val lastUpdateTime = MyApplication.getLastUpdateTime()
+        val lastUpdateTime = MyApplication.getLastUpdateTime(LAST_UPDATE_KEY)
 
         try {
             //Get all charging stations from the last update time
@@ -49,7 +50,7 @@ class ChargingStationRepository(
 
                 // Update the last update time
                 val latestUpdateTime = updatedStations.maxOfOrNull { it.lastUpdated ?: 0L } ?: lastUpdateTime
-                MyApplication.saveLastUpdateTime(latestUpdateTime)
+                MyApplication.saveLastUpdateTime(LAST_UPDATE_KEY, latestUpdateTime)
             }
 
             // Delete charging stations that are no longer in the updated list
@@ -68,8 +69,7 @@ class ChargingStationRepository(
     suspend fun createChargingStation(chargingStation: ChargingStation, image: Bitmap?): Boolean {
         return withContext(Dispatchers.IO) {
             try {
-                val location = chargingStation.toGeoPoint()
-                val wazeUrl = "https://waze.com/ul?ll=${location.latitude},${location.longitude}&navigate=yes"
+                val wazeUrl = "https://waze.com/ul?ll=${chargingStation.latitude},${chargingStation.longitude}&navigate=yes"
                 var stationWithImage: ChargingStation? = null
 
                 if (image != null) {
@@ -93,7 +93,7 @@ class ChargingStationRepository(
                     val generatedId = documentRef.id
 
                     val finalStation = station.copy(id = generatedId)
-                    chargingStationDao.createChargingStation(finalStation) // שמירה ב-ROOM
+                    chargingStationDao.createChargingStation(finalStation)
                     documentRef.set(finalStation).await()
                     Log.d("TAG", "Charging station created with ID: $generatedId")
                 }
@@ -110,11 +110,9 @@ class ChargingStationRepository(
         }
     }
 
-
-
     fun deleteChargingStation(chargingStation: ChargingStation) {
        chargingStationDao.deleteChargingStation(chargingStation)
-       stationsCollection.document(chargingStation.id).delete()
+       stationsCollection.document(chargingStation.id.toString()).delete()
        Log.d("TAG", "ChargingStationRepository-Charging station deleted: ${chargingStation.id}")
    }
 
