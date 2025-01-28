@@ -29,7 +29,7 @@
             android:layout_marginTop="16dp"
             android:text="Add Your Charging Station"
             android:textColor="#02343F"
-            android:textSize="30sp"
+            android:textSize="28sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

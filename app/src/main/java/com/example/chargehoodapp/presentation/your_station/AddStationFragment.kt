@@ -1,4 +1,5 @@
 package com.example.chargehoodapp.presentation.your_station
+
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -52,7 +53,7 @@ class AddStationFragment : Fragment() {
         binding.AddStationButton.setOnClickListener {
             if (viewModel.validateInputs()) {
                 Toast.makeText(requireContext(), "Station added successfully!", Toast.LENGTH_SHORT).show()
-                // Add submission logic here
+                // Add logic for submitting data
             }
         }
     }

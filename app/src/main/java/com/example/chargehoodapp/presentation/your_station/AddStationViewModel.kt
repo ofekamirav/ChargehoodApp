@@ -1,4 +1,5 @@
 package com.example.chargehoodapp.presentation.your_station
+
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -30,5 +31,19 @@ class AddStationViewModel : ViewModel() {
                 true
             }
         }
+    }
+
+    fun resetInputs() {
+        connectionType.value = null
+        chargingSpeed.value = null
+        pricePerMinute.value = null
+    }
+
+    fun isConnectionTypeSelected(type: String): Boolean {
+        return connectionType.value == type
+    }
+
+    fun isChargingSpeedSelected(speed: String): Boolean {
+        return chargingSpeed.value == speed
     }
 }
