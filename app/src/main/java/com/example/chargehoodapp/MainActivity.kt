@@ -67,6 +67,18 @@ class MainActivity : AppCompatActivity() {
 
             navController?.navigate(R.id.welcomeFragment)
 
+        navigationView?.setNavigationItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.nav_stations -> {
+                    navController?.navigate(R.id.chargingStationListFragment)
+                }
+                // Add other menu items here
+            }
+            drawerLayout?.closeDrawer(GravityCompat.START) // Close drawer after selection
+            true
+        }
+
+
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

@@ -60,6 +60,11 @@
     </fragment>
 
     <fragment
+        android:id="@+id/chargingStationListFragment"
+        android:name="com.example.chargehoodapp.presentation.your_station.YourStationListFragment"
+        android:label="Your Stations" />
+
+    <fragment
         android:id="@+id/chargingPageFragment"
         android:name="com.example.chargehoodapp.presentation.charging_page.ChargingPageFragment"
         android:label="ChargingPageFragment" />
