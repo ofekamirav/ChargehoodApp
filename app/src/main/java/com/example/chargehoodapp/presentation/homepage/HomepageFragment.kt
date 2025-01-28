@@ -2,6 +2,8 @@ package com.example.chargehoodapp.presentation.homepage
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -15,12 +17,17 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.example.chargehoodapp.R
+import com.example.chargehoodapp.base.MyApplication
+import com.example.chargehoodapp.data.model.ChargingStation
 import com.example.chargehoodapp.databinding.HomepageFragmentBinding
+import com.example.chargehoodapp.presentation.charging_station_details.ChargingStationDetailsFragment
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 
 class HomepageFragment : Fragment(), OnMapReadyCallback {
 
@@ -65,6 +72,9 @@ class HomepageFragment : Fragment(), OnMapReadyCallback {
         binding?.myLocationButton?.setOnClickListener {
             viewModel?.updateLocation(requireContext())
         }
+
+
+
     }
 
     override fun onCreateView(
@@ -78,6 +88,8 @@ class HomepageFragment : Fragment(), OnMapReadyCallback {
         mapView = binding?.mapView
         mapView?.onCreate(savedInstanceState)
         mapView?.getMapAsync(this)
+
+
         return binding?.root
     }
 
@@ -120,8 +132,28 @@ class HomepageFragment : Fragment(), OnMapReadyCallback {
     //After the map is loaded, check if permission is granted and enable the location layer
     override fun onMapReady(map: GoogleMap) {
         googleMap = map
-
         googleMap?.mapType = GoogleMap.MAP_TYPE_NORMAL
+
+        viewModel?.syncStations()
+
+        // Add markers to the map when data is ready
+        viewModel?.chargingStations?.observe(viewLifecycleOwner) { stations ->
+            stations?.forEach { station ->
+                Log.d("TAG", "HomepageFragment-Adding marker for station: ${station.id}")
+                addStationMarker(station)
+            }
+        }
+
+        // Handle Marker click
+        googleMap?.setOnMarkerClickListener { marker ->
+            val station = marker.tag as? ChargingStation
+            station?.let {
+                MyApplication.Globals.selectedStation = it
+                Log.d("TAG", "HomepageFragment-Marker clicked: ${station.id}")
+                showStationDetailsDialog()
+            }
+            true
+        }
 
         enableMyLocation()
 
@@ -140,6 +172,41 @@ class HomepageFragment : Fragment(), OnMapReadyCallback {
             googleMap?.animateCamera(CameraUpdateFactory.zoomOut())
         }
     }
+
+    //add custom marker to map
+    private fun addStationMarker(station: ChargingStation) {
+        val position = LatLng(station.latitude, station.longitude)
+
+        val bitmap = BitmapFactory.decodeResource(resources, R.drawable.ic_location_marker)
+        val scaledBitmap = Bitmap.createScaledBitmap(bitmap, 90, 120, false)
+
+        val icon = BitmapDescriptorFactory.fromBitmap(scaledBitmap)
+        val marker = googleMap?.addMarker(
+            MarkerOptions()
+                .position(position)
+                .title(station.id) //title of marker is station id
+                .icon(icon)
+        )
+
+        marker?.tag = station //set the station to marker
+        Log.d("TAG", "Marker added for station: ${station.id}")
+    }
+
+
+    // Show the station details card fragment above the map
+    private fun showStationDetailsDialog() {
+        val dialogFragment = ChargingStationDetailsFragment()
+        dialogFragment.show(parentFragmentManager, "ChargingStationDetailsFragment")
+    }
+
+
+
+
+    fun hideDetailsCard() {
+        binding?.cardDetailsContainer?.visibility = View.GONE
+    }
+
+
 
     override fun onDestroyView() {
         super.onDestroyView()

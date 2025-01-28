@@ -9,12 +9,14 @@ import com.google.firebase.firestore.GeoPoint
 data class ChargingStation(
     @PrimaryKey val id: String,
     val ownerId: String,
-    val location: GeoPoint,
+    val latitude: Double,
+    val longitude: Double,
+    val addressName: String = "",
     val connectionType: String,
     val chargingSpeed: String,
     val availability: Boolean,
     val imageUrl: String,
-    val pricePerMinute: Double,
-    val whatsappNumber: String,
-    val wazeUrl: String
+    val pricePerkW: Double,
+    val wazeUrl: String,
+    val lastUpdated: Long = System.currentTimeMillis()
     )

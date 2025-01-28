@@ -6,7 +6,8 @@ data class User(
     val email: String,
     val phoneNumber: String,
     val profilePictureUrl: String = "",
-    val isStationOwner: Boolean = false
+    val isStationOwner: Boolean = false,
+    val hasPaymentInfo: Boolean = false
 ){
-    constructor() : this("", "", "", "", "", false)
+    constructor() : this("", "", "", "", "", false, false)
 }

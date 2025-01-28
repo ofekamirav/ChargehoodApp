@@ -58,4 +58,9 @@
             android:id="@+id/action_editProfileFragment_to_homepageFragment"
             app:destination="@id/homepageFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/chargingPageFragment"
+        android:name="com.example.chargehoodapp.presentation.charging_page.ChargingPageFragment"
+        android:label="ChargingPageFragment" />
 </navigation>
