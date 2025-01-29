@@ -10,7 +10,8 @@ import com.example.chargehoodapp.data.repository.ChargingStationRepository
 class YourStationListViewModel : ViewModel() {
 
     private val repository: ChargingStationRepository =
-        (MyApplication.Globals.context?.applicationContext as MyApplication).repository
+        (MyApplication.Globals.context?.applicationContext as MyApplication).StationRepository
+    private val userUid = FirebaseModel.getCurrentUser()?.uid
 
     private val _stations = MutableLiveData<List<ChargingStation>>()
     val stations: LiveData<List<ChargingStation>> get() = _stations
@@ -18,7 +19,7 @@ class YourStationListViewModel : ViewModel() {
     fun setStations(newStations: List<ChargingStation>) {
         _stations.value = newStations
     }
-    suspend fun lowDataStations() {
-        repository.syncChargingStations()
+    fun lowDataStations() {
+        repository.getChargingStationById(userUid.toString())
     }
 }

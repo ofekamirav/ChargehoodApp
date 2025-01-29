@@ -7,25 +7,23 @@
     <fragment
         android:id="@+id/welcomeFragment"
         android:name="com.example.chargehoodapp.presentation.WelcomeFragment"
-        android:label="WelcomeFragment">
+        android:label="WelcomeFragment" >
         <action
             android:id="@+id/action_welcomeFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
     </fragment>
-
     <fragment
         android:id="@+id/registerFragment"
         android:name="com.example.chargehoodapp.presentation.register.RegisterFragment"
-        android:label="RegisterFragment">
+        android:label="RegisterFragment" >
         <action
             android:id="@+id/action_registerFragment_to_homepageFragment"
             app:destination="@id/homepageFragment" />
     </fragment>
-
     <fragment
         android:id="@+id/loginFragment"
         android:name="com.example.chargehoodapp.presentation.login.LoginFragment"
-        android:label="LoginFragment">
+        android:label="LoginFragment" >
         <action
             android:id="@+id/action_loginFragment_to_registerFragment"
             app:destination="@id/registerFragment" />
@@ -33,23 +31,18 @@
             android:id="@+id/action_loginFragment_to_homepageFragment"
             app:destination="@id/homepageFragment" />
     </fragment>
-
     <fragment
         android:id="@+id/homepageFragment"
         android:name="com.example.chargehoodapp.presentation.homepage.HomepageFragment"
-        android:label="HomepageFragment">
+        android:label="HomepageFragment" >
         <action
             android:id="@+id/action_homepageFragment_to_profileFragment"
             app:destination="@id/profileFragment" />
-        <action
-            android:id="@+id/action_homepageFragment_to_yourStationListFragment"
-            app:destination="@id/yourStationListFragment" />
     </fragment>
-
     <fragment
         android:id="@+id/profileFragment"
         android:name="com.example.chargehoodapp.presentation.profile.ProfileFragment"
-        android:label="ProfileFragment">
+        android:label="ProfieFragment" >
         <action
             android:id="@+id/action_profileFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
@@ -57,36 +50,45 @@
             android:id="@+id/action_profileFragment_to_editProfileFragment"
             app:destination="@id/editProfileFragment" />
     </fragment>
-
     <fragment
         android:id="@+id/editProfileFragment"
         android:name="com.example.chargehoodapp.presentation.profile.EditProfileFragment"
-        android:label="EditProfileFragment">
+        android:label="EditProfileFragment" >
         <action
             android:id="@+id/action_editProfileFragment_to_homepageFragment"
             app:destination="@id/homepageFragment" />
     </fragment>
 
     <fragment
+        android:id="@+id/chargingPageFragment"
+        android:name="com.example.chargehoodapp.presentation.charging_page.ChargingPageFragment"
+        android:label="ChargingPageFragment" >
+        <action
+            android:id="@+id/action_chargingPageFragment_to_homepageFragment"
+            app:destination="@id/homepageFragment" />
+    </fragment>
+    <dialog
+        android:id="@+id/chargingStationDetailsFragment"
+        android:name="com.example.chargehoodapp.presentation.charging_station_details.ChargingStationDetailsFragment"
+        android:label="ChargingStationDetailsFragment" >
+        <action
+            android:id="@+id/action_chargingStationDetailsFragment_to_chargingPageFragment"
+            app:destination="@id/chargingPageFragment" />
+    </dialog>
+    <fragment
+        android:id="@+id/ordersListFragment"
+        android:name="com.example.chargehoodapp.presentation.orders.OrdersListFragment"
+        android:label="OrdersListFragment" />
+    <fragment
         android:id="@+id/yourStationListFragment"
         android:name="com.example.chargehoodapp.presentation.your_station.YourStationListFragment"
-        android:label="Your Stations">
+        android:label="YourStationListFragment" >
         <action
             android:id="@+id/action_yourStationListFragment_to_addStationFragment"
             app:destination="@id/addStationFragment" />
     </fragment>
-
     <fragment
         android:id="@+id/addStationFragment"
         android:name="com.example.chargehoodapp.presentation.your_station.AddStationFragment"
-        android:label="Add Station">
-        <action
-            android:id="@+id/action_addStationFragment_to_yourStationListFragment"
-            app:destination="@id/yourStationListFragment" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/chargingPageFragment"
-        android:name="com.example.chargehoodapp.presentation.charging_page.ChargingPageFragment"
-        android:label="ChargingPageFragment" />
+        android:label="AddStationFragment" />
 </navigation>

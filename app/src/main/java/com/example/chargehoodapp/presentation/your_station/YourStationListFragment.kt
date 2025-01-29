@@ -54,9 +54,7 @@ class YourStationListFragment : Fragment(), OnStationClick {
         binding.recyclerViewChargingStations.adapter = adapter
     }
 
-//    private suspend fun fetchStations() {
-//        viewModel?.lowDataStations()
-//    }
+
 
     override fun onDestroyView() {
         super.onDestroyView()

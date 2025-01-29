@@ -118,6 +118,8 @@ class ChargingStationRepository(
 
     fun getChargingStationById(id: String): ChargingStation? = chargingStationDao.getChargingStation(id)
 
+    fun getAllChargingStationsByOwnerId(ownerId: String): LiveData<List<ChargingStation>> = chargingStationDao.getAllChargingStationsByOwnerId(ownerId)
+
 
     suspend fun getOwnerName(ownerId: String): String? {
         return try {
