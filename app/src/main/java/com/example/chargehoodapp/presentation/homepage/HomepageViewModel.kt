@@ -66,14 +66,17 @@ class HomepageViewModel : ViewModel() {
     fun syncStations() {
         viewModelScope.launch {
             repository.syncChargingStations()
-            loadAllChargingStations() //load all charging stations after syncing
+            loadAllChargingStations()
         }
     }
 
-    //Get all charging stations and update the LiveData
-    fun loadAllChargingStations() {
-        repository.getAllChargingStations().observeForever { stations ->
-            _chargingStations.value = stations
+    //Get all charging stations from the database and update the LiveData
+    private fun loadAllChargingStations() {
+        viewModelScope.launch {
+            repository.getAllChargingStations().observeForever { stations ->
+                _chargingStations.value = stations
+                Log.d("TAG", "HomepageViewModel - stations that loaded: ${stations.size}")
+            }
         }
     }
 
