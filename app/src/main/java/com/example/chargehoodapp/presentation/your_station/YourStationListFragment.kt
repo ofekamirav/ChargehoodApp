@@ -1,6 +1,5 @@
 package com.example.chargehoodapp.presentation.your_station
 
-
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,10 +9,10 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.chargehoodapp.data.model.ChargingStation
 import com.example.chargehoodapp.databinding.YourStationRecycledListBinding
-import com.example.chargehoodapp.presentation.your_station.adapter.YourStationListAdapter
 import com.example.chargehoodapp.presentation.your_station.adapter.OnStationClick
+import com.example.chargehoodapp.presentation.your_station.adapter.YourStationListAdapter
 
-class YourStationListFragment : Fragment(), OnStationClick {
+class ChargingStationListFragment : Fragment(), OnStationClick {
 
     private var _binding: YourStationRecycledListBinding? = null
     private val binding get() = _binding!!
