@@ -92,4 +92,20 @@
         android:id="@+id/addPaymentMethodFragment"
         />
 
+    <fragment
+        android:id="@+id/ordersListFragment"
+        android:name="com.example.chargehoodapp.presentation.orders.OrdersListFragment"
+        android:label="OrdersListFragment" />
+    <fragment
+        android:id="@+id/yourStationListFragment"
+        android:name="com.example.chargehoodapp.presentation.your_station.YourStationListFragment"
+        android:label="YourStationListFragment" >
+        <action
+            android:id="@+id/action_yourStationListFragment_to_addStationFragment"
+            app:destination="@id/addStationFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/addStationFragment"
+        android:name="com.example.chargehoodapp.presentation.your_station.AddStationFragment"
+        android:label="AddStationFragment" />
 </navigation>
