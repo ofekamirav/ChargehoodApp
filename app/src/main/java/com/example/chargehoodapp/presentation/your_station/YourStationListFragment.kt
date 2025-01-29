@@ -6,13 +6,15 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.chargehoodapp.R
 import com.example.chargehoodapp.data.model.ChargingStation
 import com.example.chargehoodapp.databinding.YourStationRecycledListBinding
 import com.example.chargehoodapp.presentation.your_station.adapter.OnStationClick
 import com.example.chargehoodapp.presentation.your_station.adapter.YourStationListAdapter
 
-class ChargingStationListFragment : Fragment(), OnStationClick {
+class YourStationListFragment : Fragment(), OnStationClick {
 
     private var _binding: YourStationRecycledListBinding? = null
     private val binding get() = _binding!!
@@ -36,6 +38,10 @@ class ChargingStationListFragment : Fragment(), OnStationClick {
         // Observe data from ViewModel
         viewModel.stations.observe(viewLifecycleOwner) { stations ->
             adapter.updateStations(stations)
+        }
+
+        binding.AddButton.setOnClickListener {
+            findNavController().navigate(R.id.action_yourStationListFragment_to_addStationFragment)
         }
 
         // Example: Fetch data (replace this with Firebase or Room DB)

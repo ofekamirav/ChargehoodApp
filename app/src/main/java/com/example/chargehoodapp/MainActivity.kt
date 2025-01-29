@@ -70,7 +70,7 @@ class MainActivity : AppCompatActivity() {
         navigationView?.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.nav_stations -> {
-                    navController?.navigate(R.id.chargingStationListFragment)
+                    navController?.navigate(R.id.yourStationListFragment)
                 }
                 // Add other menu items here
             }
