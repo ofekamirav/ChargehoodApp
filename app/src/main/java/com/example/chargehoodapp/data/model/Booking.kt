@@ -4,7 +4,9 @@ data class Booking(
     val bookingId: String,
     val userId: String,
     val stationId: String,
-    val startTime: Long,
-    val endTime: Long,
-    val status: String
+    val time: Long,
+    val status: String,
+    val energyCharged: Double,
+    val chargingCost: Double,
+    val date: Long
 )

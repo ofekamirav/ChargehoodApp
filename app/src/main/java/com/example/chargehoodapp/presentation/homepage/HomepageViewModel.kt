@@ -15,15 +15,13 @@ import com.example.chargehoodapp.data.repository.ChargingStationRepository
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
-import com.google.firebase.firestore.GeoPoint
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class HomepageViewModel : ViewModel() {
 
     private val repository: ChargingStationRepository =
-        (MyApplication.Globals.context?.applicationContext as MyApplication).repository
+        (MyApplication.Globals.context?.applicationContext as MyApplication).StationRepository
 
     private val _currentLocation = MutableLiveData<LatLng>()
     val currentLocation: LiveData<LatLng> = _currentLocation

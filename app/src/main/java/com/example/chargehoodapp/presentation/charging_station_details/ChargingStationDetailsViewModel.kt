@@ -17,7 +17,7 @@ import kotlinx.coroutines.withContext
 class ChargingStationDetailsViewModel: ViewModel() {
 
     private val repository: ChargingStationRepository =
-        (MyApplication.Globals.context?.applicationContext as MyApplication).repository
+        (MyApplication.Globals.context?.applicationContext as MyApplication).StationRepository
 
     private val userRepository = UserRepository()
 
@@ -38,54 +38,37 @@ class ChargingStationDetailsViewModel: ViewModel() {
     private val _ownerPhoneNumber = MutableLiveData<String?>()
     val ownerPhoneNumber: LiveData<String?> = _ownerPhoneNumber
 
-    // Load station details from the DB with side threads
-    fun loadChargingStationDetails(stationId: String) {
-        viewModelScope.launch {
-            try {
-                val station = withContext(Dispatchers.IO) {
-                    repository.getChargingStationById(stationId) // פעולה שקוראת ממסד הנתונים
-                }
-                Log.d("TAG", "ViewModel: Station loaded - $station")
-                _chargingStation.postValue(station)
+    fun setStation(station: ChargingStation) {
+        _chargingStation.value = station
+    }
 
-                val ownerId = station?.ownerId
-                if (ownerId != null) {
-                    val ownerName = withContext(Dispatchers.IO) {
-                        repository.getOwnerName(ownerId)
-                    }
-                    val ownerPhone = withContext(Dispatchers.IO) {
-                        repository.getOwnerPhoneNumber(ownerId)
-                    }
-                    Log.d("TAG", "ViewModel: Owner loaded - Name: $ownerName, Phone: $ownerPhone")
-                    _ownerName.postValue(ownerName)
-                    _ownerPhoneNumber.postValue(ownerPhone)
-                }
+
+    fun checkCurrentUserPayment() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val user = userRepository.getUserByUid(currentUserId.toString())
+                _currentUserPaymentBoolean.postValue(user?.hasPaymentInfo ?: false)
             } catch (e: Exception) {
-                Log.e("TAG", "ChargingStationDetailsViewModel-Error loading station details: ${e.message}")
-                _errorMessage.postValue("Error loading station details: ${e.message}")
+                Log.e("TAG", "Error checking user payment: ${e.message}")
+            }
+        }
+    }
+
+    fun loadOwnerDetails() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val ownerId = _chargingStation.value?.ownerId ?: return@launch
+                val ownerName = repository.getOwnerName(ownerId)
+                val ownerPhone = repository.getOwnerPhoneNumber(ownerId)
+                _ownerName.postValue(ownerName)
+                _ownerPhoneNumber.postValue(ownerPhone)
+            } catch (e: Exception) {
+                Log.e("TAG", "Error loading owner details: ${e.message}")
             }
         }
     }
 
 
-    fun checkCurrentUserPaymentBoolean() {
-        viewModelScope.launch {
-            try {
-                val user = currentUserId?.let { userRepository.getUserByUid(it) }
-
-                if (user != null) {
-                    _currentUserPaymentBoolean.postValue(user.hasPaymentInfo)
-                } else {
-                    _currentUserPaymentBoolean.postValue(false)
-                    Log.d("TAG", "ChargingStationDetailsViewModel-User not found")
-                }
-            } catch (e: Exception) {
-                _errorMessage.postValue("Error checking user payment boolean: ${e.message}")
-            }
-
-        }
-
-    }
 }
 
 
