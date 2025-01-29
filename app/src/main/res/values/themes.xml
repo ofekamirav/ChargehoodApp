@@ -2,6 +2,9 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.ChargehoodApp" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="android:windowSoftInputMode">adjustResize</item>
+        <!-- Set the global font for all text elements -->
+        <item name="android:fontFamily">@font/poppins</item>
+        <item name="fontFamily">@font/poppins</item>
     </style>
 
     <style name="Theme.ChargehoodApp" parent="Base.Theme.ChargehoodApp" />

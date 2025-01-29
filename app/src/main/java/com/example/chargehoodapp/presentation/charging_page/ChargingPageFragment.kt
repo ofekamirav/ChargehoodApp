@@ -66,8 +66,6 @@ class ChargingPageFragment : Fragment() {
             findNavController().navigate(action)
         }
 
-
-
     }
 
 
