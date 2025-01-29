@@ -77,6 +77,9 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_stations -> {
                     navController?.navigate(R.id.yourStationListFragment)
                 }
+                R.id.nav_payments->{
+                    navController?.navigate(R.id.paymentMethodFragment)
+                }
                 // Add other menu items here
             }
             drawerLayout?.closeDrawer(GravityCompat.START) // Close drawer after selection
