@@ -62,6 +62,19 @@
     <fragment
         android:id="@+id/chargingPageFragment"
         android:name="com.example.chargehoodapp.presentation.charging_page.ChargingPageFragment"
+        android:label="ChargingPageFragment" >
+        <action
+            android:id="@+id/action_chargingPageFragment_to_homepageFragment"
+            app:destination="@id/homepageFragment" />
+    </fragment>
+    <dialog
+        android:id="@+id/chargingStationDetailsFragment"
+        android:name="com.example.chargehoodapp.presentation.charging_station_details.ChargingStationDetailsFragment"
+        android:label="ChargingStationDetailsFragment" >
+        <action
+            android:id="@+id/action_chargingStationDetailsFragment_to_chargingPageFragment"
+            app:destination="@id/chargingPageFragment" />
+    </dialog>
         android:label="ChargingPageFragment" />
 
     <fragment

@@ -1,12 +1,14 @@
 package com.example.chargehoodapp
 
 import android.content.SharedPreferences
+import android.graphics.Color
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import android.widget.ImageButton
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -38,6 +40,9 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+        //Set the status bar color
+        window.statusBarColor = Color.parseColor("#E8FCF1")
 
         // Setup the navigation controller
         navHostFragment = supportFragmentManager.findFragmentById(R.id.main_nav_host) as? NavHostFragment

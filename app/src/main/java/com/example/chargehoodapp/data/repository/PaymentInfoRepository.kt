@@ -8,7 +8,9 @@ import com.example.chargehoodapp.data.local.dao.PaymentInfoDao
 import com.example.chargehoodapp.data.model.PaymentInfo
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
+import javax.inject.Singleton
 
+@Singleton
 class PaymentInfoRepository(
     private val paymentInfoDao: PaymentInfoDao
 ) {

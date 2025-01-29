@@ -10,25 +10,30 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.example.chargehoodapp.base.MyApplication
 import com.example.chargehoodapp.data.model.ChargingStation
 import com.example.chargehoodapp.databinding.StationDetailsCardBinding
+import com.example.chargehoodapp.presentation.charging_page.ChargingPageViewModel
 
 class ChargingStationDetailsFragment: DialogFragment() {
 
 
     private var binding: StationDetailsCardBinding? = null
     private var viewModel: ChargingStationDetailsViewModel? = null
+    private val chargingPageViewModel: ChargingPageViewModel by activityViewModels()
+
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dialog = super.onCreateDialog(savedInstanceState)
         dialog.setOnShowListener {
             val window = dialog.window
             window?.setLayout(
-                (resources.displayMetrics.widthPixels * 0.85).toInt(), // 85% מרוחב המסך
-                ViewGroup.LayoutParams.WRAP_CONTENT // גובה מותאם לפי התוכן
+                (resources.displayMetrics.widthPixels * 0.85).toInt(),
+                ViewGroup.LayoutParams.WRAP_CONTENT
             )
         }
         return dialog
@@ -43,12 +48,6 @@ class ChargingStationDetailsFragment: DialogFragment() {
     ): View? {
         binding = StationDetailsCardBinding.inflate(inflater, container, false)
 
-        binding?.SMSLinkTextView?.setOnClickListener{
-            val phoneNumber = binding?.SMSLinkTextView?.text.toString()
-            val message = "Hello, I'm interested in charging your station."
-            openSmsApp(phoneNumber, message)
-        }
-
 
         return binding?.root
     }
@@ -59,16 +58,14 @@ class ChargingStationDetailsFragment: DialogFragment() {
         // Initialize the ViewModel
         viewModel = ViewModelProvider(this)[ChargingStationDetailsViewModel::class.java]
 
-        val selectedStation = MyApplication.Globals.selectedStation
-        selectedStation?.let {
-            viewModel?.loadChargingStationDetails(it.id.toString())
+        //Set the station from the shared preferences
+        MyApplication.Globals.selectedStation?.let { station ->
+            viewModel?.setStation(station)
+            chargingPageViewModel.setStation(station)
+            viewModel?.loadOwnerDetails()
         }
-
-        //Update UI with station details
         viewModel?.chargingStation?.observe(viewLifecycleOwner) { station ->
-            station?.let {
-                bindStationDetails(it)
-            }
+            station?.let { bindStationDetails(it) }
         }
 
         viewModel?.ownerName?.observe(viewLifecycleOwner) { name ->
@@ -79,70 +76,43 @@ class ChargingStationDetailsFragment: DialogFragment() {
             binding?.SMSLinkTextView?.text = phoneNumber ?: "Unknown Phone Number"
         }
 
+        binding?.SMSLinkTextView?.setOnClickListener{
+            val phoneNumber = binding?.SMSLinkTextView?.text.toString()
+            val message = "Hello, I'm interested in charging your station."
+            openSmsApp(phoneNumber, message)
+        }
+
         binding?.cancelButton?.setOnClickListener {
             dismiss()
         }
-
 
         binding?.NavigationButton?.setOnClickListener{
             openWaze()
         }
 
-//        binding?.startChargingButton?.setOnClickListener {
-//            selectedStation?.let { station ->
-//                if (checkAvailabilityAndPayment(station)) {
-//                    val action = ChargingStationDetailsFragmentDirections.actionChargingStationDetailsFragmentToChargingPageFragment()
-//                    findNavController().navigate(action)
-//                }
-//                else{
-//                    Log.d("TAG", "ChargingStationDetailsFragment-Error starting charging session")
-//                }
-//
-//                }
-//        }
-
-    }
-
-
-    private fun openSmsApp(phoneNumber: String, message: String) {
-        try {
-            val intent = Intent(Intent.ACTION_VIEW).apply {
-                data = Uri.parse("sms:$phoneNumber") // Protocol SMS
-                putExtra("sms_body", message)       // Sms body
-            }
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            MyApplication.Globals.context?.startActivity(intent)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Log.e("TAG", "ChargingStationDetailsViewModel-Error opening SMS app: ${e.message}")
-            Toast.makeText(requireContext(), "Unable to open messaging app.", Toast.LENGTH_SHORT).show()
+        binding?.startChargingButton?.setOnClickListener {
+            checkAndStartCharging()
         }
+
     }
 
-    private fun openWaze() {
-        val locationUrl = viewModel?.chargingStation?.value?.wazeUrl
 
-        if (!locationUrl.isNullOrEmpty()) {
-            try {
-                val intent = Intent(Intent.ACTION_VIEW).apply {
-                    data = Uri.parse(locationUrl)
-                }
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                startActivity(intent)
-            } catch (e: Exception) {
-                Toast.makeText(requireContext(), "Unable to open Waze. Please check if the app is installed.", Toast.LENGTH_SHORT).show()
-            }
+    private fun checkAndStartCharging() {
+        val station = viewModel?.chargingStation?.value ?: return
+        val isPaymentValid = viewModel?.currentUserPaymentBoolean?.value ?: false
+
+        if (station.availability && isPaymentValid) {
+            val action = ChargingStationDetailsFragmentDirections.actionChargingStationDetailsFragmentToChargingPageFragment()
+            findNavController().navigate(action)
         } else {
-            Toast.makeText(requireContext(), "No Waze link available for this location.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Station unavailable or missing payment info.", Toast.LENGTH_SHORT).show()
         }
     }
 
     // Bind the station details to the UI
     private fun bindStationDetails(station: ChargingStation) {
         binding?.apply {
-            Glide.with(requireContext())
-                .load(station.imageUrl)
-                .into(imageView)
+            Glide.with(requireContext()).load(station.imageUrl).into(imageView)
             addressTextView.text = station.addressName
             availabilityTextView.text = if (station.availability) "Available" else "Unavailable"
             chargingSpeedTextView.text = station.chargingSpeed
@@ -150,38 +120,31 @@ class ChargingStationDetailsFragment: DialogFragment() {
         }
     }
 
-    //Check if the station is available and if there is payment information
-    private fun checkAvailabilityAndPayment(station: ChargingStation): Boolean {
-        viewModel?.chargingStation?.value?.let { station ->
-            if (station.availability) {
-                viewModel?.currentUserPaymentBoolean?.value?.let { paymentBoolean ->
-                    if (paymentBoolean) {
-                        return true
-                    } else {
-                        Toast.makeText(
-                            requireContext(),
-                            "Please add a payment method.",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
-            } else {
-                Toast.makeText(
-                    requireContext(),
-                    "This station is not available.",
-                    Toast.LENGTH_SHORT
-                ).show()
+
+    private fun openSmsApp(phoneNumber: String, message: String) {
+        try {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("sms:$phoneNumber")).apply {
+                putExtra("sms_body", message)
             }
+            startActivity(intent)
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Unable to open messaging app.", Toast.LENGTH_SHORT).show()
         }
-        return false
+    }
+
+    private fun openWaze() {
+        val locationUrl = viewModel?.chargingStation?.value?.wazeUrl ?: return
+        try {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(locationUrl))
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            startActivity(intent)
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Waze app not installed.", Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onStart() {
         super.onStart()
-        dialog?.window?.setLayout(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        )
         dialog?.window?.setBackgroundDrawableResource(android.R.color.transparent)
     }
 
