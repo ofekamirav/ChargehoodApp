@@ -11,5 +11,11 @@ data class PaymentInfo(
     val cardLastFour: String,
     val cardType: String,
     val cardExpiry: String,
-    val lastUpdated: Long = System.currentTimeMillis()
-)
+    val lastUpdated: Long
+){
+    constructor() : this("", "", "", "", "", System.currentTimeMillis())
+
+    constructor(userId: String, cardLastFour: String, cardType: String, cardExpiry: String) : this("", userId, cardLastFour, cardType, cardExpiry, System.currentTimeMillis())
+}
+
+

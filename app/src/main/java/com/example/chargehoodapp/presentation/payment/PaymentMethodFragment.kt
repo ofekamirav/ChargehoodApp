@@ -5,17 +5,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.MutableLiveData
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.chargehoodapp.data.model.PaymentInfo
+import com.example.chargehoodapp.R
 import com.example.chargehoodapp.databinding.FragmentPaymentMethodBinding
 import com.example.chargehoodapp.presentation.payment.adapter.PaymentMethodAdapter
 
 class PaymentMethodFragment : Fragment() {
 
     private var binding: FragmentPaymentMethodBinding? = null
-    val paymentInfoList = MutableLiveData<List<PaymentInfo>?>()
-
+    private var viewModel: PaymentMethodViewModel ?= null
     private lateinit var adapter: PaymentMethodAdapter
 
     override fun onCreateView(
@@ -27,55 +28,35 @@ class PaymentMethodFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewModel = ViewModelProvider(requireActivity())[PaymentMethodViewModel::class.java]
 
         // Initialize adapter
         adapter = PaymentMethodAdapter(emptyList()) { paymentInfo ->
-            deletePaymentInfo(paymentInfo)
+            viewModel?.deletePaymentInfo(paymentInfo)
+        }
+
+        binding?.backButton?.setOnClickListener {
+            findNavController().navigateUp()
+        }
+
+        binding?.addCardButton?.setOnClickListener {
+            findNavController().navigate(R.id.action_paymentMethodFragment_to_addPaymentFragment)
         }
 
         // Set up RecyclerView
         binding?.recyclerViewPaymentMethods?.layoutManager = LinearLayoutManager(requireContext())
         binding?.recyclerViewPaymentMethods?.adapter = adapter
 
-        // Observe paymentInfoList LiveData
-        paymentInfoList.observe(viewLifecycleOwner) { paymentMethods ->
+        // Observe ViewModel LiveData
+        viewModel?.paymentInfoList?.observe(viewLifecycleOwner) { paymentMethods ->
             adapter.updateData(paymentMethods)
             updateUI(paymentMethods?.isEmpty() ?: true)
         }
 
-        // Add dummy data (replace with Room or Firebase fetch later)
-        loadDummyData()
-
-        // Handle "Add Card" button
+        // Handle "Add Card" button (Navigate to Add Card screen)
         binding?.addCardButton?.setOnClickListener {
-            // Navigate to "Add Card" screen or handle card addition logic
+            findNavController().navigate(R.id.action_paymentMethodFragment_to_addPaymentFragment)
         }
-    }
-
-    private fun loadDummyData() {
-        val dummyData = listOf(
-            PaymentInfo(
-                id = "1",
-                userId = "123",
-                cardLastFour = "4242",
-                cardType = "Visa",
-                cardExpiry = "12/25"
-            ),
-            PaymentInfo(
-                id = "2",
-                userId = "123",
-                cardLastFour = "5678",
-                cardType = "MasterCard",
-                cardExpiry = "11/24"
-            )
-        )
-        paymentInfoList.value = dummyData
-    }
-
-    private fun deletePaymentInfo(paymentInfo: PaymentInfo) {
-        val updatedList = paymentInfoList.value?.toMutableList()
-        updatedList?.remove(paymentInfo)
-        paymentInfoList.value = updatedList
     }
 
     private fun updateUI(isEmpty: Boolean) {

@@ -75,12 +75,21 @@
             android:id="@+id/action_chargingStationDetailsFragment_to_chargingPageFragment"
             app:destination="@id/chargingPageFragment" />
     </dialog>
-        android:label="ChargingPageFragment" />
 
     <fragment
         android:name="com.example.chargehoodapp.presentation.payment.PaymentMethodFragment"
         android:label="Payment Method"
         android:id="@+id/paymentMethodFragment"
+        >
+        <action
+            android:id="@+id/action_paymentMethodFragment_to_addPaymentFragment"
+            app:destination="@id/addPaymentMethodFragment" />
+    </fragment>
+
+    <fragment
+        android:name="com.example.chargehoodapp.presentation.payment.AddPaymentFragment"
+        android:label="Add Payment Method"
+        android:id="@+id/addPaymentMethodFragment"
         />
 
 </navigation>

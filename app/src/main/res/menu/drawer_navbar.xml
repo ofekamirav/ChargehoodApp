@@ -18,7 +18,7 @@
         android:title="Payment Method" />
 
     <item
-        android:title="Orders"
+        android:title="nav_orders"
         android:icon="@drawable/ic_orders"
         android:iconTint="#02343F"/>
 
