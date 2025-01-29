@@ -69,7 +69,6 @@ class HomepageFragment : Fragment(), OnMapReadyCallback {
             }
         }
 
-
         binding?.hamburgerButton?.setOnClickListener {
             val drawerLayout = requireActivity().findViewById<DrawerLayout>(R.id.drawer_layout)
             drawerLayout.openDrawer(GravityCompat.START)
@@ -102,6 +101,7 @@ class HomepageFragment : Fragment(), OnMapReadyCallback {
 
         return binding?.root
     }
+//Android Location Permission----------------------------------------------------------------------------------------------------------------
 
     //handle the result of the permission request
     override fun onRequestPermissionsResult(
@@ -138,7 +138,7 @@ class HomepageFragment : Fragment(), OnMapReadyCallback {
             requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 100)
         }
     }
-
+//----------------------------------------------------------------------------------------------------------------------------------------
     //After the map is loaded, check if permission is granted and enable the location layer
     override fun onMapReady(map: GoogleMap) {
         googleMap = map
@@ -207,13 +207,6 @@ class HomepageFragment : Fragment(), OnMapReadyCallback {
     private fun showStationDetailsDialog() {
         val dialogFragment = ChargingStationDetailsFragment()
         dialogFragment.show(parentFragmentManager, "ChargingStationDetailsFragment")
-    }
-
-
-
-
-    fun hideDetailsCard() {
-        binding?.cardDetailsContainer?.visibility = View.GONE
     }
 
 
