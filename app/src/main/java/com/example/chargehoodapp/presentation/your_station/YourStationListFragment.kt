@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.chargehoodapp.R
@@ -19,7 +20,7 @@ class YourStationListFragment : Fragment(), OnStationClick {
     private var _binding: YourStationRecycledListBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: YourStationListViewModel by viewModels()
+    private var viewModel: YourStationListViewModel?=null
     private lateinit var adapter: YourStationListAdapter
 
     override fun onCreateView(
@@ -32,11 +33,12 @@ class YourStationListFragment : Fragment(), OnStationClick {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewModel = ViewModelProvider(requireActivity()).get(YourStationListViewModel::class.java)
 
         setupRecyclerView()
 
         // Observe data from ViewModel
-        viewModel.stations.observe(viewLifecycleOwner) { stations ->
+        viewModel?.stations?.observe(viewLifecycleOwner) { stations ->
             adapter.updateStations(stations)
         }
 
@@ -44,8 +46,6 @@ class YourStationListFragment : Fragment(), OnStationClick {
             findNavController().navigate(R.id.action_yourStationListFragment_to_addStationFragment)
         }
 
-        // Example: Fetch data (replace this with Firebase or Room DB)
-        fetchStations()
     }
 
     private fun setupRecyclerView() {
@@ -54,40 +54,9 @@ class YourStationListFragment : Fragment(), OnStationClick {
         binding.recyclerViewChargingStations.adapter = adapter
     }
 
-    private fun fetchStations() {
-        val sampleStations = listOf(
-            ChargingStation(
-                id = "1",
-                ownerId = "user1",
-                latitude = 32.0853,
-                longitude = 34.7818,
-                addressName = "Tel Aviv - Rothschild Blvd",
-                connectionType = "Type 2",
-                chargingSpeed = "50 kW",
-                availability = true,
-                imageUrl = "",
-                pricePerkW = 1.2,
-                wazeUrl = "https://waze.com",
-                lastUpdated = System.currentTimeMillis()
-            ),
-            ChargingStation(
-                id = "2",
-                ownerId = "user2",
-                latitude = 31.7683,
-                longitude = 35.2137,
-                addressName = "Jerusalem - Jaffa Street",
-                connectionType = "CCS",
-                chargingSpeed = "100 kW",
-                availability = false,
-                imageUrl = "",
-                pricePerkW = 1.5,
-                wazeUrl = "https://waze.com",
-                lastUpdated = System.currentTimeMillis()
-            )
-        )
-
-        viewModel.setStations(sampleStations)
-    }
+//    private suspend fun fetchStations() {
+//        viewModel?.lowDataStations()
+//    }
 
     override fun onDestroyView() {
         super.onDestroyView()

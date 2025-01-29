@@ -118,6 +118,7 @@ class ChargingStationRepository(
 
     fun getChargingStationById(id: String): ChargingStation? = chargingStationDao.getChargingStation(id)
 
+
     suspend fun getOwnerName(ownerId: String): String? {
         return try {
             val document = firestore.collection("users").document(ownerId).get().await()
