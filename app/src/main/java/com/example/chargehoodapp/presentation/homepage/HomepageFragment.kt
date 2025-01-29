@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -11,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
@@ -39,6 +41,14 @@ class HomepageFragment : Fragment(), OnMapReadyCallback {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Set the status bar transparent
+        requireActivity().window.apply {
+            decorView.systemUiVisibility = (
+                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                    )
+            statusBarColor = Color.TRANSPARENT
+        }
+
         // Initialize ViewModel
         viewModel = ViewModelProvider(requireActivity())[HomepageViewModel::class.java]
         viewModel?.initLocationProvider(requireContext())
@@ -58,7 +68,6 @@ class HomepageFragment : Fragment(), OnMapReadyCallback {
                 googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(it, 15f))
             }
         }
-
 
         binding?.hamburgerButton?.setOnClickListener {
             val drawerLayout = requireActivity().findViewById<DrawerLayout>(R.id.drawer_layout)
@@ -92,6 +101,7 @@ class HomepageFragment : Fragment(), OnMapReadyCallback {
 
         return binding?.root
     }
+//Android Location Permission----------------------------------------------------------------------------------------------------------------
 
     //handle the result of the permission request
     override fun onRequestPermissionsResult(
@@ -128,7 +138,7 @@ class HomepageFragment : Fragment(), OnMapReadyCallback {
             requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 100)
         }
     }
-
+//----------------------------------------------------------------------------------------------------------------------------------------
     //After the map is loaded, check if permission is granted and enable the location layer
     override fun onMapReady(map: GoogleMap) {
         googleMap = map
@@ -201,19 +211,15 @@ class HomepageFragment : Fragment(), OnMapReadyCallback {
 
 
 
-
-    fun hideDetailsCard() {
-        binding?.cardDetailsContainer?.visibility = View.GONE
-    }
-
-
-
     override fun onDestroyView() {
         super.onDestroyView()
         binding = null
         mapView?.onDestroy()
+        requireActivity().window.apply {
+            decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
+            statusBarColor = Color.parseColor("#E8FCF1")
+        }
     }
-
     override fun onResume() {
         super.onResume()
         mapView?.onResume()

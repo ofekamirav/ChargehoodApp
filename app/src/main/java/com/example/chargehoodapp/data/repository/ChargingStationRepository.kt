@@ -128,6 +128,14 @@ class ChargingStationRepository(
         }
     }
 
+    fun updateStationStatus(stationId: String?, status: String) {
+        if(stationId != null){
+            stationsCollection.document(stationId).update("availability", status)
+            chargingStationDao.updateStationStatus(stationId, status)
+            Log.d("TAG", "ChargingStationRepository-Charging station status updated: $status")
+        }
+    }
+
     suspend fun getOwnerPhoneNumber(ownerId: String): String? {
         return try {
             val document = firestore.collection("users").document(ownerId).get().await()
