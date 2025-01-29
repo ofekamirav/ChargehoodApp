@@ -67,6 +67,15 @@ class MainActivity : AppCompatActivity() {
 
             navController?.navigate(R.id.welcomeFragment)
 
+        navigationView?.setNavigationItemSelectedListener { menuItem->
+            when(menuItem.itemId){
+                R.id.nav_payments->{
+                    navController?.navigate(R.id.paymentMethodFragment)
+                }
+            }
+            drawerLayout?.closeDrawer(GravityCompat.START)
+            true
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

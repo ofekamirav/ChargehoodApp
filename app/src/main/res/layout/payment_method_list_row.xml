@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layoutDirection="ltr"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:tools="http://schemas.android.com/tools"
@@ -20,8 +21,7 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginEnd="16dp"
-            android:src="@drawable/ic_credit_card"
-            android:contentDescription="@string/card_type_icon" />
+            android:src="@drawable/ic_american_express"/>
 
         <LinearLayout
             android:layout_width="0dp"
@@ -33,7 +33,7 @@
                 android:id="@+id/cardLast4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/black"
+                android:textColor="#02343F"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 tools:text="•••• 4242" />
@@ -44,22 +44,23 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:textColor="@color/black"
-                android:textStyle="bold"
+                android:textStyle=""
                 android:textSize="14sp"
                 tools:text="Expiry: 12/25" />
         </LinearLayout>
 
-        <!-- Delete Button -->
         <ImageButton
             android:id="@+id/deleteCardButton"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
+            android:layout_marginTop="4dp"
+            android:src="@drawable/ic_delete"
+            android:background="@null"
+            android:scaleType="fitCenter"
             />
 
-<!--            android:contentDescription="@string/delete_card"-->
-<!--            android:src="@drawable/ic_delete"-->
-<!--            android:tint="@color/red" />-->
+
+
     </LinearLayout>
 
 </com.google.android.material.card.MaterialCardView>

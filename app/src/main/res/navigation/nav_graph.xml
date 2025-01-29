@@ -63,4 +63,11 @@
         android:id="@+id/chargingPageFragment"
         android:name="com.example.chargehoodapp.presentation.charging_page.ChargingPageFragment"
         android:label="ChargingPageFragment" />
+
+    <fragment
+        android:name="com.example.chargehoodapp.presentation.payment.PaymentMethodFragment"
+        android:label="Payment Method"
+        android:id="@+id/paymentMethodFragment"
+        />
+
 </navigation>
