@@ -10,6 +10,7 @@ object Constants {
         const val USERS = "users"
         const val CHARGING_STATIONS = "charging_stations"
         const val PAYMENT_INFO = "payment_info"
+        const val BOOKING = "booking"
     }
 
 

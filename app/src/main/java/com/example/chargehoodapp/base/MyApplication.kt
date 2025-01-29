@@ -13,7 +13,7 @@ import com.google.android.libraries.places.api.Places
 class MyApplication : Application() {
 
     val database by lazy { AppLocalDB.database }
-    val repository by lazy { ChargingStationRepository(database.ChargingStationDao()) }
+    val StationRepository by lazy { ChargingStationRepository(database.ChargingStationDao()) }
     val paymentInfoRepository by lazy { PaymentInfoRepository(database.PaymentInfoDao()) }
 
 
