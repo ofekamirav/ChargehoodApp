@@ -36,6 +36,18 @@ class BookingRepository {
 
     }
 
+    fun getAllBookings(callback: (List<Booking>) -> Unit) {
+        bookingsCollection.get()
+            .addOnSuccessListener { result ->
+                val bookings = result.documents.mapNotNull { it.toObject(Booking::class.java) }
+                callback(bookings)
+            }
+            .addOnFailureListener { e ->
+                Log.e("TAG", "BookingRepository-Error fetching bookings: ${e.message}")
+                callback(emptyList())
+            }
+    }
+
 //    fun listenToBooking(bookingId: String): LiveData<Booking> {
 //        val bookingLiveData = MutableLiveData<Booking>()
 //        db.collection("bookings").document(bookingId)

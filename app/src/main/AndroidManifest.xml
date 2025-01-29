@@ -13,7 +13,7 @@
         android:name=".base.MyApplication"
         android:icon="@drawable/chargehood_logo"
         android:label="Chargehood"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@drawable/chargehood_logo"
         android:supportsRtl="true"
         android:theme="@style/Theme.ChargehoodApp"
         tools:targetApi="31">
