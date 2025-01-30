@@ -4,15 +4,18 @@ import android.app.Dialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
+import com.example.chargehoodapp.R
 import com.example.chargehoodapp.base.MyApplication
 import com.example.chargehoodapp.data.model.ChargingStation
 import com.example.chargehoodapp.databinding.StationDetailsCardBinding
@@ -44,8 +47,6 @@ class ChargingStationDetailsFragment: DialogFragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = StationDetailsCardBinding.inflate(inflater, container, false)
-
-
         return binding?.root
     }
 
@@ -55,12 +56,20 @@ class ChargingStationDetailsFragment: DialogFragment() {
         // Initialize the ViewModel
         viewModel = ViewModelProvider(this)[ChargingStationDetailsViewModel::class.java]
 
+        binding?.stationDetailsCard?.visibility = View.VISIBLE
+        binding?.progressBar?.visibility = View.VISIBLE
+        binding?.contentGroup?.visibility = View.GONE
+
+
         //Set the station from the shared preferences
         MyApplication.Globals.selectedStation?.let { station ->
+            Log.d("TAG", "ChargingStationDetailsFragment-Station: $station")
             viewModel?.setStation(station)
+            viewModel?.loadOwnerDetails(station)
+            viewModel?.setUserPaymentBoolean()
             chargingPageViewModel.setStation(station)
-            viewModel?.loadOwnerDetails()
         }
+
         viewModel?.chargingStation?.observe(viewLifecycleOwner) { station ->
             station?.let { bindStationDetails(it) }
         }
@@ -71,6 +80,16 @@ class ChargingStationDetailsFragment: DialogFragment() {
 
         viewModel?.ownerPhoneNumber?.observe(viewLifecycleOwner) { phoneNumber ->
             binding?.SMSLinkTextView?.text = phoneNumber ?: "Unknown Phone Number"
+        }
+
+        viewModel?.isLoading?.observe(viewLifecycleOwner) { isLoading ->
+            if (isLoading) {
+                binding?.progressBar?.visibility = View.VISIBLE
+                binding?.contentGroup?.visibility = View.GONE
+            } else {
+                binding?.progressBar?.visibility = View.GONE
+                binding?.contentGroup?.visibility = View.VISIBLE
+            }
         }
 
         binding?.SMSLinkTextView?.setOnClickListener{
@@ -97,8 +116,10 @@ class ChargingStationDetailsFragment: DialogFragment() {
     private fun checkAndStartCharging() {
         val station = viewModel?.chargingStation?.value ?: return
         val isPaymentValid = viewModel?.currentUserPaymentBoolean?.value ?: false
+        Log.d("TAG", "ChargingStationDetailsFragment-Station availability: ${station.availability} - Payment valid: $isPaymentValid")
 
         if (station.availability && isPaymentValid) {
+            Log.d("TAG", "ChargingStationDetailsFragment-Start charging button clicked")
             val action = ChargingStationDetailsFragmentDirections.actionChargingStationDetailsFragmentToChargingPageFragment()
             findNavController().navigate(action)
         } else {
@@ -112,6 +133,8 @@ class ChargingStationDetailsFragment: DialogFragment() {
             Glide.with(requireContext()).load(station.imageUrl).into(imageView)
             addressTextView.text = station.addressName
             availabilityTextView.text = if (station.availability) "Available" else "Unavailable"
+            val colorRes = if (station.availability) R.color.green else R.color.red
+            availabilityTextView.setTextColor(ContextCompat.getColor(requireContext(), colorRes))
             chargingSpeedTextView.text = station.chargingSpeed
             priceTextView.text = station.pricePerkW.toString()
         }

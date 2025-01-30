@@ -56,6 +56,14 @@ class OrdersListFragment: Fragment() {
         }
     }
 
+    // Update UI based on the list being empty or not
+    private fun updateUI(isEmpty: Boolean) {
+        binding?.apply {
+            OrdersRecyclerList.visibility = if (isEmpty) View.GONE else View.VISIBLE
+            noCardsTextView.visibility = if (isEmpty) View.VISIBLE else View.GONE
+        }
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         binding = null

@@ -29,14 +29,15 @@ class YourStationListViewModel : ViewModel() {
         viewModelScope.launch {
             if (userUid.isNotEmpty()) {
                 repository.getAllChargingStationsByOwnerId(userUid).observeForever { stationList ->
-                    _stations.value = stationList
-                    _isEmpty.value = stationList.isNullOrEmpty()
+                    _stations.postValue(stationList)
+                    _isEmpty.postValue(stationList.isNullOrEmpty())
                 }
-            } else{
-                Log.d("TAG", "YourStationListViewModel-User UID is empty or null")
+            } else {
+                Log.d("TAG", "YourStationListViewModel - User UID is empty or null")
             }
         }
     }
+
     fun deleteStation(station: ChargingStation) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.deleteChargingStation(station)

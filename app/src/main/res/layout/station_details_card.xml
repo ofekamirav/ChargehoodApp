@@ -1,14 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/stationDetailsCard"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
     app:cardCornerRadius="8dp"
+    android:padding="16dp"
     android:layoutDirection="ltr"
     android:backgroundTint="#E8FCF1"
     style="@style/Widget.Material3.CardView.Elevated">
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:indeterminate="true"
+        android:indeterminateTint="#77BFBE"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/contentGroup"
+        android:visibility="gone"
+        app:constraint_referenced_ids="nameTextView,NavigationButton,SMSLinkTextView,imageView,availabilityTextView, chargingSpeedLabelTextView,addressTextView, chargingSpeedTextView, priceLabelTextView, priceTextView, cancelButton, startChargingButton"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -23,13 +44,23 @@
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/nameTextView"
-                android:layout_width="0dp"
+                android:layout_width="280dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:textSize="30sp"
                 android:textColor="#02343F"
-                android:text="Ofek Amirav"
-                android:textAppearance="?attr/textAppearanceHeadlineSmall" />
+                android:text="" />
+
+            <ImageButton
+                android:id="@+id/NavigationButton"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:layout_marginEnd="50dp"
+                android:visibility="visible"
+                android:layout_gravity="center"
+                android:background="@null"
+                android:src="@drawable/waze_icon"
+                android:contentDescription="Waze link"
+                android:scaleType="fitCenter" />
 
         </LinearLayout>
 
@@ -37,15 +68,15 @@
             android:id="@+id/SMSLinkTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="050-66778811"
-            android:clickable="true"
-            android:textAppearance="?attr/textAppearanceBodyMedium" />
-
+            android:textColor="#02343F"
+            android:text=""
+            android:clickable="true" />
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/imageView"
             android:layout_width="match_parent"
             android:layout_height="150dp"
-            android:scaleType="centerCrop" />
+            android:layout_marginTop="16dp"
+            android:scaleType="fitCenter" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -57,31 +88,21 @@
                 android:id="@+id/addressTextView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
                 android:layout_weight="1"
                 android:textSize="22sp"
                 android:textColor="#02343F"
-                android:text="Emil Zula 26, Tel-Aviv"
-                android:textAppearance="?attr/textAppearanceHeadlineSmall" />
-
-            <ImageButton
-                android:id="@+id/NavigationButton"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginStart="8dp"
-                android:background="@null"
-                android:scaleType="fitCenter"
-                tools:srcCompat="@drawable/waze_icon" />
-
+                android:text="" />
         </LinearLayout>
+
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/availabilityTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="16dp"
             android:text="Available"
-            android:textColor="#41C03D"
-            android:textAppearance="?attr/textAppearanceBodyMedium" />
+            android:textColor="#41C03D" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -93,18 +114,18 @@
                 android:id="@+id/chargingSpeedLabelTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textColor="#02343F"
                 android:layout_marginEnd="8dp"
                 android:text="Charging Speed:"
-                android:textAppearance="?attr/textAppearanceBodyMedium"
                 android:textStyle="bold" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/chargingSpeedTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textColor="#02343F"
                 android:layout_marginEnd="16dp"
-                android:text="50 kWh"
-                android:textAppearance="?attr/textAppearanceBodyMedium" />
+                android:text="" />
         </LinearLayout>
 
         <LinearLayout
@@ -117,17 +138,17 @@
                 android:id="@+id/priceLabelTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textColor="#02343F"
                 android:layout_marginEnd="8dp"
                 android:text="Price:"
-                android:textAppearance="?attr/textAppearanceBodyMedium"
                 android:textStyle="bold" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/priceTextView"
                 android:layout_width="wrap_content"
+                android:textColor="#02343F"
                 android:layout_height="wrap_content"
-                android:text="0.5 INS/min"
-                android:textAppearance="?attr/textAppearanceBodyMedium" />
+                android:text="" />
         </LinearLayout>
 
         <LinearLayout
@@ -145,7 +166,6 @@
                 android:layout_marginEnd="10dp"
                 android:layout_weight="1"
                 android:text="@string/cancel"
-                android:textAppearance="?attr/textAppearanceBodyMedium"
                 android:textColor="#02343F"
                 android:textSize="16sp"
                 app:rippleColor="#77BFBE"
@@ -159,7 +179,6 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Start Charging"
-                android:textAppearance="?attr/textAppearanceBodyMedium"
                 android:textSize="16sp"
                 android:textColor="#02343F"
                 app:backgroundTint="#77BFBE"

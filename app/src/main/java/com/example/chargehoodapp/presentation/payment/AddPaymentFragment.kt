@@ -14,7 +14,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.example.chargehoodapp.databinding.FragmentAddPaymentMethodBinding
-import com.example.chargehoodapp.presentation.payment.viewmodel.AddPaymentViewModel
 
 class AddPaymentFragment : Fragment() {
 
@@ -74,7 +73,7 @@ class AddPaymentFragment : Fragment() {
                 selectCard(card, cardList)
                 when (card.id) {
                     binding?.visaCard?.id -> viewModel?.selectCard("Visa")
-                    binding?.amexCard?.id -> viewModel?.selectCard("American Express")
+                    binding?.amexCard?.id -> viewModel?.selectCard("AmericanExpress")
                     binding?.mastercardCard?.id -> viewModel?.selectCard("MasterCard")
                 }
             }

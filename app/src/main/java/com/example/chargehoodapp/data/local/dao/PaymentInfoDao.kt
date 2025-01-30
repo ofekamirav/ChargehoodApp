@@ -1,5 +1,6 @@
 package com.example.chargehoodapp.data.local.dao
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
@@ -15,6 +16,9 @@ interface PaymentInfoDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun addPaymentInfoList(paymentInfoList: List<PaymentInfo>)
+
+    @Query("SELECT * FROM payment_info WHERE userId = :userId")
+    fun getPaymentInfoSync(userId: String): LiveData<List<PaymentInfo>>
 
     @Query("SELECT * FROM payment_info WHERE userId = :userId")
     fun getPaymentInfo(userId: String): LiveData<List<PaymentInfo>>

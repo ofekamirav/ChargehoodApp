@@ -23,6 +23,7 @@ import com.example.chargehoodapp.base.MyApplication
 import com.example.chargehoodapp.data.model.ChargingStation
 import com.example.chargehoodapp.databinding.HomepageFragmentBinding
 import com.example.chargehoodapp.presentation.charging_station_details.ChargingStationDetailsFragment
+import com.example.chargehoodapp.presentation.charging_station_details.ChargingStationDetailsViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapView
@@ -161,7 +162,9 @@ class HomepageFragment : Fragment(), OnMapReadyCallback {
             station?.let {
                 MyApplication.Globals.selectedStation = it
                 Log.d("TAG", "HomepageFragment-Marker clicked: ${station.id}")
-                showStationDetailsDialog()
+
+                val dialogFragment = ChargingStationDetailsFragment()
+                dialogFragment.show(parentFragmentManager, "ChargingStationDetailsFragment")
             }
             true
         }

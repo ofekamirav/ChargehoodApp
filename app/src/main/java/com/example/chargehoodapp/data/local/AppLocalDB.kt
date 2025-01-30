@@ -9,7 +9,7 @@ import com.example.chargehoodapp.data.local.dao.PaymentInfoDao
 import com.example.chargehoodapp.data.model.ChargingStation
 import com.example.chargehoodapp.data.model.PaymentInfo
 
-@Database(entities = [ChargingStation::class, PaymentInfo::class], version = 8)
+@Database(entities = [ChargingStation::class, PaymentInfo::class], version = 11)
 abstract class AppLocalDBRepository : RoomDatabase() {
     abstract fun ChargingStationDao(): ChargingStationDao
     abstract fun PaymentInfoDao(): PaymentInfoDao

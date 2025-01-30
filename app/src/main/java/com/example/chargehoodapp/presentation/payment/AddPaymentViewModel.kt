@@ -1,4 +1,4 @@
-package com.example.chargehoodapp.presentation.payment.viewmodel
+package com.example.chargehoodapp.presentation.payment
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -27,17 +27,22 @@ class AddPaymentViewModel : ViewModel() {
     val errorMessage: LiveData<String?> get() = _errorMessage
 
     fun selectCard(cardType: String) {
-        _selectedCardType.value = cardType
+        _selectedCardType.postValue(cardType)
     }
 
     fun savePaymentInfo(cardNumber: String, expiry: String) {
         if (cardNumber.length < 16) {
-            _errorMessage.value = "Invalid Card Number (Must be 16 digits)"
+            val error = "Invalid Card Number (Must be 16 digits)"
+            _errorMessage.postValue(error)
             return
         }
 
         if (!expiry.matches(Regex("^(0[1-9]|1[0-2])/[0-9]{2}$"))) {
-            _errorMessage.value = "Invalid Expiry Date (Format: MM/YY)"
+            _errorMessage.postValue("Invalid Expiry Date (Format: MM/YY)")
+            return
+        }
+        if(_selectedCardType.value == null){
+            _errorMessage.postValue("Please select a card type")
             return
         }
 

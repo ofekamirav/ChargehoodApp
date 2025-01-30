@@ -2,12 +2,15 @@ package com.example.chargehoodapp.presentation.owner_station_details
 
 import android.app.Dialog
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
+import com.example.chargehoodapp.R
 import com.example.chargehoodapp.base.MyApplication
 import com.example.chargehoodapp.data.model.ChargingStation
 import com.example.chargehoodapp.databinding.FragmentOwnerStationDetailsBinding
@@ -50,12 +53,15 @@ class OwnerStationDetailsFragment : DialogFragment() {
 
         //Set the station from the shared preferences
         MyApplication.Globals.selectedStation?.let { station ->
+            Log.d("TAG", "OwnerStationDetailsFragment-Station: $station")
             viewModel?.setStation(station)
+            bindStationDetails(station)
         }
 
-        viewModel?.chargingStation?.observe(viewLifecycleOwner) { station ->
-            station?.let { bindStationDetails(it) }
-        }
+//        viewModel?.chargingStation?.observe(viewLifecycleOwner) { station ->
+//            Log.d("TAG", "OwnerStationDetailsFragment-Station: $station")
+//            station?.let { bindStationDetails(it) }
+//        }
 
 
         binding?.cancelButton?.setOnClickListener {
@@ -70,6 +76,8 @@ class OwnerStationDetailsFragment : DialogFragment() {
             Glide.with(requireContext()).load(station.imageUrl).into(imageView)
             addressTextView.text = station.addressName
             availabilityTextView.text = if (station.availability) "Available" else "Unavailable"
+            val colorRes = if (station.availability) R.color.green else R.color.red
+            availabilityTextView.setTextColor(ContextCompat.getColor(requireContext(), colorRes))
             chargingSpeedTextView.text = station.chargingSpeed
             priceTextView.text = station.pricePerkW.toString()
             connectionTypeTextView.text = station.connectionType

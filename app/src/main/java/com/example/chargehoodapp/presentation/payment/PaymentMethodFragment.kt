@@ -1,6 +1,7 @@
 package com.example.chargehoodapp.presentation.payment
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -58,12 +59,16 @@ class PaymentMethodFragment : Fragment() {
             findNavController().navigate(action)
         }
 
+        binding?.progressBar?.visibility = View.VISIBLE
         //Observe the LiveData
         viewModel?.paymentInfoList?.observe(viewLifecycleOwner) { paymentMethods ->
+            Log.d("TAG", "PaymentMethodsFragment-Loaded payment methods: $paymentMethods")
+            binding?.progressBar?.visibility = View.GONE
             adapter?.set(paymentMethods)
-            updateUI(paymentMethods.isEmpty())
+            if (paymentMethods != null) {
+                updateUI(paymentMethods.isEmpty())
+            }
         }
-
         viewModel?.syncPayments()
 
     }
@@ -73,6 +78,7 @@ class PaymentMethodFragment : Fragment() {
         binding?.apply {
             recyclerViewPaymentMethods.visibility = if (isEmpty) View.GONE else View.VISIBLE
             noCardsTextView.visibility = if (isEmpty) View.VISIBLE else View.GONE
+            progressBar.visibility = View.GONE
         }
     }
 

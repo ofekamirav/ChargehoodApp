@@ -21,6 +21,7 @@ class PaymentMethodAdapter(
         return PaymentMethodViewHolder(binding, onDeleteClicked)
     }
 
+    // bind the view holder row
     override fun onBindViewHolder(holder: PaymentMethodViewHolder, position: Int) {
         val paymentMethod = paymentMethods?.get(position)
         if (paymentMethod != null) {

@@ -60,10 +60,10 @@ class ChargingStationRepository(
         }
     }
 
-
-    fun getAllChargingStations(): LiveData<List<ChargingStation>> {
-        return chargingStationDao.getAllChargingStations()
+    fun getAllChargingStationsByOwnerId(ownerId: String): LiveData<List<ChargingStation>> {
+        return chargingStationDao.getAllChargingStationsByOwnerId(ownerId)
     }
+
 
     fun listenForFirestoreUpdates() {
         stationsCollection.addSnapshotListener { snapshot, error ->
@@ -170,17 +170,6 @@ class ChargingStationRepository(
 
     fun getChargingStationById(id: String): ChargingStation? = chargingStationDao.getChargingStation(id)
 
-    fun getAllChargingStationsByOwnerId(ownerId: String): LiveData<List<ChargingStation>> = chargingStationDao.getAllChargingStationsByOwnerId(ownerId)
-
-
-    suspend fun getOwnerName(ownerId: String): String? {
-        return try {
-            val document = firestore.collection("users").document(ownerId).get().await()
-            document.getString("name")
-        } catch (e: Exception) {
-            null
-        }
-    }
 
     fun updateStationStatus(stationId: String?, status: String) {
         if(stationId != null){
@@ -190,14 +179,4 @@ class ChargingStationRepository(
         }
     }
 
-
-
-    suspend fun getOwnerPhoneNumber(ownerId: String): String? {
-        return try {
-            val document = firestore.collection("users").document(ownerId).get().await()
-            document.getString("phoneNumber")
-        } catch (e: Exception) {
-            null
-        }
-    }
 }

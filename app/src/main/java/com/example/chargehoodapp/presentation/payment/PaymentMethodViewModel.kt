@@ -8,7 +8,9 @@ import com.example.chargehoodapp.base.MyApplication
 import com.example.chargehoodapp.data.model.PaymentInfo
 import com.example.chargehoodapp.data.repository.ChargingStationRepository
 import com.example.chargehoodapp.data.repository.PaymentInfoRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class PaymentMethodViewModel : ViewModel() {
 
@@ -16,16 +18,16 @@ class PaymentMethodViewModel : ViewModel() {
         (MyApplication.Globals.context?.applicationContext as MyApplication).paymentInfoRepository
 
     //Local list of payment methods
-    val paymentInfoList: LiveData<List<PaymentInfo>> = repository.getPaymentMethods()
+    val paymentInfoList: LiveData<List<PaymentInfo>> = repository.getPaymentMethodsSync()
 
     fun syncPayments() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             repository.syncPaymentInfo()
         }
     }
 
     fun deletePaymentInfo(paymentInfo: PaymentInfo) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             repository.deletePaymentInfo(paymentInfo)
         }
     }
