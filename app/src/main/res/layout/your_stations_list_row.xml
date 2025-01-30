@@ -35,17 +35,35 @@
             android:layout_height="wrap_content"
             android:textColor="#02343F"
             android:textSize="16sp"
-            android:textStyle="bold"
-            tools:text="Burale 28, Rishon Lezion" />
+            android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/stationChargingSpeed"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            tools:text="Charging Speed: Level 3 - 50 kWh" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/ChargingSpeedLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textStyle="bold"
+                android:text="Charging Speed:"
+                android:textColor="#77BFBE"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/stationChargingSpeed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="#77BFBE"
+                android:textSize="12sp" />
+
+        </LinearLayout>
 
     </LinearLayout>
+
+
 
         <ImageButton
             android:id="@+id/deleteCardButton"

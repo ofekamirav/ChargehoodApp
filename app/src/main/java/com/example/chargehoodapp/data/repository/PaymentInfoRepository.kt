@@ -83,18 +83,15 @@ class PaymentInfoRepository(
     suspend fun addPaymentInfo(paymentInfo: PaymentInfo) {
         withContext(Dispatchers.IO) {
             try {
-                val documentRef = paymentInfoCollection.add(paymentInfo).await()
+                val documentRef= paymentInfoCollection.document()
                 val generatedId = documentRef.id
                 Log.d("TAG", "PaymentInfoRepository-PaymentInfo added successfully with ID: $generatedId")
 
                 val updatedPaymentInfo = paymentInfo.copy(id = generatedId)
+                documentRef.set(updatedPaymentInfo).await()
                 paymentInfoDao.addPaymentInfo(updatedPaymentInfo)
 
-                paymentInfoCollection.document(generatedId).set(updatedPaymentInfo).await()
-
                 usersCollection.document(userUid ?: "").update("hasPaymentInfo", true).await()
-
-                syncPaymentInfo()
 
                 Log.d("TAG", "PaymentInfoRepository-PaymentInfo synced successfully after addition.")
             } catch (e: Exception) {

@@ -62,15 +62,15 @@ class PaymentMethodFragment : Fragment() {
         binding?.progressBar?.visibility = View.VISIBLE
         //Observe the LiveData
         viewModel?.paymentInfoList?.observe(viewLifecycleOwner) { paymentMethods ->
-            Log.d("TAG", "PaymentMethodsFragment-Loaded payment methods: $paymentMethods")
+            Log.d("TAG", "PaymentMethodsFragment - Loaded payment methods: $paymentMethods")
             binding?.progressBar?.visibility = View.GONE
             adapter?.set(paymentMethods)
-            if (paymentMethods != null) {
-                updateUI(paymentMethods.isEmpty())
-            }
+            updateUI(paymentMethods.isEmpty())
         }
-        viewModel?.syncPayments()
 
+        if (viewModel?.paymentInfoList?.value.isNullOrEmpty()) {
+            viewModel?.syncPayments()
+        }
     }
 
     // Update UI based on the list being empty or not

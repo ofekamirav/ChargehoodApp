@@ -29,7 +29,7 @@ class YourStationListViewHolder(
     fun bind(station: ChargingStation?, position: Int) {
         this.station = station
         binding.stationAddress.text = station?.addressName
-        binding.stationChargingSpeed.text = "Charging Speed: ${station?.chargingSpeed}"
+        binding.stationChargingSpeed.text = station?.chargingSpeed
         binding.deleteCardButton.tag = position
 
     }

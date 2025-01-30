@@ -142,11 +142,11 @@ class AddStationFragment : Fragment() {
             type?.let { viewModel?.setConnectionType(it) }
         }
 
-        //cahnge to specifi speed!!!! for calculate layter
         binding?.chargingSpeedGroup?.setOnCheckedChangeListener { _, checkedId ->
             val speed = when (checkedId) {
-                binding?.speedSlow?.id -> "Level 1 (3.7-7.4 kW)"
-                binding?.speedMedium?.id -> "Level 2 (11-22 kW)"
+                binding?.speedSlow?.id -> "3.7 kW"
+                binding?.speedMedium?.id -> "11 kW"
+                binding?.MaxSpeed?.id -> "22 kW"
                 else -> null
             }
             speed?.let { viewModel?.setChargingSpeed(it) }
@@ -202,7 +202,6 @@ class AddStationFragment : Fragment() {
             }
         })
 
-        // הפיכת הפרגמנט לשקוף והתאמת העיצוב של שדה החיפוש הפנימי
         customizeAutoCompleteUI(autocompleteFragment)
     }
 
