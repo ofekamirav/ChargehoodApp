@@ -10,11 +10,13 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.chargehoodapp.base.MyApplication
+import com.example.chargehoodapp.data.local.dao.ChargingStationDao
 import com.example.chargehoodapp.data.model.ChargingStation
 import com.example.chargehoodapp.data.repository.ChargingStationRepository
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -26,8 +28,8 @@ class HomepageViewModel : ViewModel() {
     private val _currentLocation = MutableLiveData<LatLng>()
     val currentLocation: LiveData<LatLng> = _currentLocation
 
-    private val _chargingStations = MutableLiveData<List<ChargingStation>>()
-    val chargingStations: LiveData<List<ChargingStation>> = _chargingStations
+    val chargingStations: LiveData<List<ChargingStation>> = repository.chargingStations
+
 
     private val _locationPermissionGranted = MutableLiveData<Boolean>()
     val locationPermissionGranted: LiveData<Boolean> = _locationPermissionGranted
@@ -66,19 +68,6 @@ class HomepageViewModel : ViewModel() {
     fun syncStations() {
         viewModelScope.launch {
             repository.syncChargingStations()
-            loadAllChargingStations()
         }
     }
-
-    //Get all charging stations from the database and update the LiveData
-    private fun loadAllChargingStations() {
-        viewModelScope.launch {
-            repository.getAllChargingStations().observeForever { stations ->
-                _chargingStations.value = stations
-                Log.d("TAG", "HomepageViewModel - stations that loaded: ${stations.size}")
-            }
-        }
-    }
-
-
 }

@@ -42,18 +42,6 @@ class ChargingStationDetailsViewModel: ViewModel() {
         _chargingStation.value = station
     }
 
-
-    fun checkCurrentUserPayment() {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val user = userRepository.getUserByUid(currentUserId.toString())
-                _currentUserPaymentBoolean.postValue(user?.hasPaymentInfo ?: false)
-            } catch (e: Exception) {
-                Log.e("TAG", "Error checking user payment: ${e.message}")
-            }
-        }
-    }
-
     fun loadOwnerDetails() {
         viewModelScope.launch(Dispatchers.IO) {
             try {

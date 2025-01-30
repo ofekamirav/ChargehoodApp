@@ -1,9 +1,10 @@
 package com.example.chargehoodapp.base
 
+import com.example.chargehoodapp.data.model.PaymentInfo
+
 
 typealias EmptyCallback = () -> Unit
 typealias StringCallback = (String?) -> Unit
-
 object Constants {
 
     object Collections {

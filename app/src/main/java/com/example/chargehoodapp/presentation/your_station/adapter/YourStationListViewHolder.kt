@@ -6,14 +6,31 @@ import com.example.chargehoodapp.databinding.YourStationsListRowBinding
 
 class YourStationListViewHolder(
     private val binding: YourStationsListRowBinding,
-    private val listener: OnStationClick
+    private val listener: OnStationClick?,
+    private val onDeleteClick: OnDeleteClick?
 ) : RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(station: ChargingStation) {
-        binding.stationAddress.text = station.addressName
-        binding.stationChargingSpeed.text = "Charging Speed: ${station.chargingSpeed}"
+    private var station: ChargingStation? = null
 
-        // Handle click event
-        binding.root.setOnClickListener { listener.onStationClick(station) }
+    init{
+        binding.deleteCardButton.setOnClickListener {
+            station?.let {
+                onDeleteClick?.onDeleteClick(it)
+            }
+        }
+        binding.root.setOnClickListener {
+            station?.let {
+                listener?.onStationClick(it)
+            }
+        }
+
+    }
+
+    fun bind(station: ChargingStation?, position: Int) {
+        this.station = station
+        binding.stationAddress.text = station?.addressName
+        binding.stationChargingSpeed.text = "Charging Speed: ${station?.chargingSpeed}"
+        binding.deleteCardButton.tag = position
+
     }
 }

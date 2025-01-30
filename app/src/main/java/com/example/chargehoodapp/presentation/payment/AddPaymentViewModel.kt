@@ -7,6 +7,9 @@ import com.example.chargehoodapp.base.MyApplication
 import com.example.chargehoodapp.data.model.PaymentInfo
 import com.example.chargehoodapp.data.repository.PaymentInfoRepository
 import FirebaseModel
+import android.util.Log
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
 
 class AddPaymentViewModel : ViewModel() {
 
@@ -45,7 +48,15 @@ class AddPaymentViewModel : ViewModel() {
             cardExpiry = expiry
         )
 
-        paymentRepository.addPaymentInfo(paymentData)
-        _successMessage.value = "Card Saved Successfully!"
+        viewModelScope.launch {
+            try {
+                paymentRepository.addPaymentInfo(paymentData)
+                _successMessage.postValue("Card Saved Successfully!")
+                Log.d("TAG", "AddPaymentViewModel-Card Saved Successfully!")
+            } catch (e: Exception) {
+                _errorMessage.postValue("Failed to save card: ${e.message}")
+                Log.d("TAG", "AddPaymentViewModel-Failed to save card: ${e.message}")
+            }
+        }
     }
 }

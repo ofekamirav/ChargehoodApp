@@ -19,4 +19,6 @@ data class ChargingStation(
     val pricePerkW: Double,
     val wazeUrl: String,
     val lastUpdated: Long = System.currentTimeMillis()
-    )
+    ){
+    constructor() : this("", "", 0.0, 0.0, "", "", "", true, "", 0.0, "", 0L)
+}

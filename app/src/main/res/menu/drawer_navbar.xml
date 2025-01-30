@@ -18,9 +18,10 @@
         android:title="Payment Method" />
 
     <item
-        android:title="nav_orders"
+        android:id="@+id/nav_orders"
         android:icon="@drawable/ic_orders"
-        android:iconTint="#02343F"/>
+        android:iconTint="#02343F"
+        android:title="Orders History"/>
 
     <item
         android:id="@+id/nav_settings"

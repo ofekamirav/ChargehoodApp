@@ -1,6 +1,7 @@
 package com.example.chargehoodapp.data.repository
 
 import android.util.Log
+import androidx.lifecycle.LiveData
 import com.example.chargehoodapp.base.Constants.Collections.PAYMENT_INFO
 import com.example.chargehoodapp.base.Constants.Collections.USERS
 import com.example.chargehoodapp.base.MyApplication
@@ -22,6 +23,10 @@ class PaymentInfoRepository(
 
     companion object {
         private const val PAYMENT_LAST_UPDATE_KEY = "last_update_time_payment"
+    }
+
+    fun getPaymentMethods(): LiveData<List<PaymentInfo>> {
+        return paymentInfoDao.getPaymentInfo(userUid ?: "")
     }
 
 
@@ -57,11 +62,11 @@ class PaymentInfoRepository(
         }
     }
 
-    fun addPaymentInfo(paymentInfo: PaymentInfo) {
+    suspend fun addPaymentInfo(paymentInfo: PaymentInfo) {
         try {
             // Create a new document with an auto-generated ID
-                val documentRef = paymentInfoCollection.add(paymentInfo).addOnSuccessListener { document ->
-                val generatedId = document.id
+                val documentRef = paymentInfoCollection.add(paymentInfo).await()
+                val generatedId = documentRef.id
 
                 // Update the payment info locally with the new ID
                 val updatedPaymentInfo = paymentInfo.copy(id = generatedId)
@@ -71,24 +76,30 @@ class PaymentInfoRepository(
                 usersCollection.document(userUid ?: "").update("hasPaymentInfo", true)
 
                 Log.d("TAG", "PaymentInfoRepository-PaymentInfo added successfully with ID: $generatedId")
-            }.addOnFailureListener {
-                Log.e("TAG", "Failed to add PaymentInfo to Firestore: ${it.message}")
-            }
         } catch (e: Exception) {
             Log.e("TAG", "PaymentInfoRepository-Error adding PaymentInfo: ${e.message}")
         }
 
     }
 
-    fun deletePaymentInfo(paymentInfo: PaymentInfo) {
-        paymentInfoCollection.document(userUid ?: "").delete()
-        paymentInfoDao.deletePaymentInfoById(paymentInfo.id.toString())
-        if(paymentInfoDao.getPaymentInfo(userUid ?: "").value == null){
-            usersCollection.document(userUid ?: "").update("hasPaymentInfo", false)
-        }
-        Log.d("TAG", "PaymentInfoRepository-PaymentInfo deleted successfully.")
+    suspend fun deletePaymentInfo(paymentInfo: PaymentInfo) {
+        try {
+            paymentInfoCollection.document(paymentInfo.id).delete().await()
 
+            paymentInfoDao.deletePaymentInfoById(paymentInfo.id)
+
+            val remainingPayments = paymentInfoDao.getPaymentInfo(userUid ?: "").value
+            if (remainingPayments.isNullOrEmpty()) {
+                usersCollection.document(userUid ?: "").update("hasPaymentInfo", false)
+            }
+
+            Log.d("TAG", "Payment deleted successfully")
+        } catch (e: Exception) {
+            Log.e("TAG", "Error deleting payment: ${e.message}")
         }
+    }
+
+
 
 
 }

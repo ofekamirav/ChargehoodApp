@@ -7,26 +7,34 @@ import com.example.chargehoodapp.data.model.ChargingStation
 import com.example.chargehoodapp.databinding.YourStationsListRowBinding
 
 class YourStationListAdapter(
-    private var stations: List<ChargingStation> = listOf(),
-    private val listener: OnStationClick
+    private var stations: List<ChargingStation>?,
+    var listener: OnStationClick? = null,
+    private val onDeleteClick: OnDeleteClick? = null
 ) : RecyclerView.Adapter<YourStationListViewHolder>() {
 
-    fun updateStations(newStations: List<ChargingStation>) {
-        stations = newStations
+    private var DeleteClick: OnDeleteClick? = null
+
+    fun setStations(newStations: List<ChargingStation>?) {
+        this.stations = newStations
         notifyDataSetChanged()
+    }
+
+    fun setOnDeleteClick(onDeleteClick: OnDeleteClick) {
+        this.DeleteClick = onDeleteClick
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): YourStationListViewHolder {
         val binding = YourStationsListRowBinding.inflate(
             LayoutInflater.from(parent.context), parent, false
         )
-        return YourStationListViewHolder(binding, listener)
+        return YourStationListViewHolder(binding, listener, onDeleteClick)
     }
 
-    override fun getItemCount(): Int = stations.size
+    override fun getItemCount(): Int = stations?.size ?: 0
 
     override fun onBindViewHolder(holder: YourStationListViewHolder, position: Int) {
-        holder.bind(stations[position])
+        val station = stations?.get(position)
+        holder.bind(station, position)
     }
 }
 

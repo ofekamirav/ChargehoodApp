@@ -12,75 +12,74 @@ import com.example.chargehoodapp.BuildConfig.CLOUD_NAME
 import com.example.chargehoodapp.BuildConfig.API_KEY
 import com.example.chargehoodapp.BuildConfig.API_SECRET
 import com.example.chargehoodapp.utils.extensions.toFile
+import kotlinx.coroutines.suspendCancellableCoroutine
 import java.io.File
+import kotlin.coroutines.resume
 
 
 class CloudinaryModel {
 
     private var cloudinaryInitialized = false
 
-    fun uploadImage(
+    suspend fun uploadImage(
         bitmap: Bitmap,
         name: String,
         folder: String,
         onSuccess: StringCallback,
         onError: StringCallback
-    ) {
-        //Make sure Cloudinary is initialized just once
-        if (!cloudinaryInitialized) {
+    ): Boolean {
+        return suspendCancellableCoroutine { continuation ->
             val context = MyApplication.Globals.context
             if (context == null) {
-                Log.e("TAG", "Context is null. Cannot upload image.")
-                return
+                Log.e("Cloudinary", "Context is null. Cannot upload image.")
+                continuation.resume(false)
+                return@suspendCancellableCoroutine
             }
 
-            val config = mapOf(
-                "cloud_name" to CLOUD_NAME,
-                "api_key" to API_KEY,
-                "api_secret" to API_SECRET
-            )
-
-            MediaManager.init(context, config)
-            MediaManager.get().globalUploadPolicy = GlobalUploadPolicy.defaultPolicy()
-
-            cloudinaryInitialized = true
-
-            //Starting the upload logic from here
-            if (context == null) {
-                Log.e("TAG", "Context is null. Cannot upload image.")
-                return
+            if (!cloudinaryInitialized) {
+                val config = mapOf(
+                    "cloud_name" to CLOUD_NAME,
+                    "api_key" to API_KEY,
+                    "api_secret" to API_SECRET
+                )
+                MediaManager.init(context, config)
+                MediaManager.get().globalUploadPolicy = GlobalUploadPolicy.defaultPolicy()
+                cloudinaryInitialized = true
             }
+
             val file: File = bitmap.toFile(context, name)
+            Log.d("Cloudinary", "Starting upload to Cloudinary. File path: ${file.path}")
 
-            Log.d("TAG", "Starting upload to Cloudinary. File path: ${file.path}")
             MediaManager.get().upload(file.path)
                 .option("folder", folder)
                 .callback(object : UploadCallback {
-                    override fun onStart(requestId: String?) {
-                        Log.d("TAG", "Cloudinary upload started. Request ID: $requestId")
-                    }
+                    override fun onStart(requestId: String?) {}
 
-                    override fun onProgress(requestId: String?, bytes: Long, totalBytes: Long) {
-                        Log.d("TAG", "Cloudinary upload progress: $bytes / $totalBytes")
-                    }
+                    override fun onProgress(requestId: String?, bytes: Long, totalBytes: Long) {}
 
                     override fun onSuccess(requestId: String?, resultData: Map<*, *>) {
-                        val url = resultData["secure_url"] as? String ?: ""
-                        Log.d("TAG", "Cloudinary upload successful. URL: $url")
-                        onSuccess(url)
+                        val url = resultData["secure_url"] as? String
+                        if (url != null) {
+                            Log.d("Cloudinary", "Upload successful. URL: $url")
+                            onSuccess(url)
+                            continuation.resume(true) // ✅ חזרנו TRUE אם ההעלאה הצליחה
+                        } else {
+                            Log.e("Cloudinary", "Upload failed: No URL returned")
+                            onError("Upload failed: No URL returned")
+                            continuation.resume(false)
+                        }
                     }
 
                     override fun onError(requestId: String?, error: ErrorInfo?) {
-                        Log.e("TAG", "Cloudinary upload failed. Error: ${error?.description}")
+                        Log.e("Cloudinary", "Upload failed. Error: ${error?.description}")
                         onError(error?.description ?: "Unknown error")
+                        continuation.resume(false)
                     }
 
-                    override fun onReschedule(requestId: String?, error: ErrorInfo?) {
-                        Log.w("TAG", "Cloudinary upload rescheduled. Error: ${error?.description}")
-                    }
+                    override fun onReschedule(requestId: String?, error: ErrorInfo?) {}
                 })
                 .dispatch()
         }
-
     }
+
 }

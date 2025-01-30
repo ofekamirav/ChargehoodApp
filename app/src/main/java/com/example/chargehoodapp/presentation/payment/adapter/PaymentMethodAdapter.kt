@@ -7,8 +7,8 @@ import com.example.chargehoodapp.data.model.PaymentInfo
 import com.example.chargehoodapp.databinding.PaymentMethodListRowBinding
 
 class PaymentMethodAdapter(
-    private var paymentMethods: List<PaymentInfo>,
-    private val onDeleteClicked: (PaymentInfo) -> Unit
+    private var paymentMethods: List<PaymentInfo>?,
+    private val onDeleteClicked: OnDeleteClick
 ) : RecyclerView.Adapter<PaymentMethodViewHolder>() {
 
     // initiate the view holder row
@@ -22,13 +22,20 @@ class PaymentMethodAdapter(
     }
 
     override fun onBindViewHolder(holder: PaymentMethodViewHolder, position: Int) {
-        holder.bind(paymentMethods[position])
+        val paymentMethod = paymentMethods?.get(position)
+        if (paymentMethod != null) {
+            holder.bind(paymentMethod)
+
+            holder.binding.deleteCardButton.setOnClickListener {
+                onDeleteClicked.onDeleteClick(paymentMethod)
+            }
+        }
+
     }
 
-    override fun getItemCount(): Int = paymentMethods.size
+    override fun getItemCount(): Int = paymentMethods?.size ?: 0
 
-    fun updateData(newPaymentMethods: List<PaymentInfo>?) {
-        paymentMethods = newPaymentMethods ?: emptyList()
-        notifyDataSetChanged()
+    fun set(newPaymentMethods: List<PaymentInfo>?) {
+        this.paymentMethods = newPaymentMethods
     }
 }

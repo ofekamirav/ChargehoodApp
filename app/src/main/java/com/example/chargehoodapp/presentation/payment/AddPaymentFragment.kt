@@ -19,13 +19,13 @@ import com.example.chargehoodapp.presentation.payment.viewmodel.AddPaymentViewMo
 class AddPaymentFragment : Fragment() {
 
     private var binding: FragmentAddPaymentMethodBinding? = null
-    private lateinit var viewModel: AddPaymentViewModel
+    private var viewModel: AddPaymentViewModel?=null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View {
+    ): View? {
         binding = FragmentAddPaymentMethodBinding.inflate(inflater, container, false)
-        return binding!!.root
+        return binding?.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -47,11 +47,11 @@ class AddPaymentFragment : Fragment() {
             val cardNumber = binding?.cardNumber?.text.toString().replace(" ", "")
             val expiry = binding?.cardExpiry?.text.toString()
 
-            viewModel.savePaymentInfo(cardNumber, expiry)
+            viewModel?.savePaymentInfo(cardNumber, expiry)
         }
 
         // Observe success message
-        viewModel.successMessage.observe(viewLifecycleOwner) { message ->
+        viewModel?.successMessage?.observe(viewLifecycleOwner) { message ->
             message?.let {
                 Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
                 findNavController().navigateUp()
@@ -59,7 +59,7 @@ class AddPaymentFragment : Fragment() {
         }
 
         // Observe error message
-        viewModel.errorMessage.observe(viewLifecycleOwner) { message ->
+        viewModel?.errorMessage?.observe(viewLifecycleOwner) { message ->
             message?.let {
                 Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
             }
@@ -72,20 +72,22 @@ class AddPaymentFragment : Fragment() {
         cardList.forEach { card ->
             card?.setOnClickListener {
                 selectCard(card, cardList)
-                when (card?.id) {
-                    binding?.visaCard?.id -> viewModel.selectCard("Visa")
-                    binding?.amexCard?.id -> viewModel.selectCard("American Express")
-                    binding?.mastercardCard?.id -> viewModel.selectCard("MasterCard")
+                when (card.id) {
+                    binding?.visaCard?.id -> viewModel?.selectCard("Visa")
+                    binding?.amexCard?.id -> viewModel?.selectCard("American Express")
+                    binding?.mastercardCard?.id -> viewModel?.selectCard("MasterCard")
                 }
             }
         }
     }
 
+    //handle ui of selected card
     private fun selectCard(selectedCard: ImageView, cardList: List<ImageView?>) {
         cardList.forEach { it?.alpha = 0.5f } // Make unselected cards transparent
         selectedCard.alpha = 1.0f // Highlight selected card
     }
 
+    //handle card number formatting
     private fun setupCardNumberFormatting() {
         binding?.cardNumber?.filters = arrayOf(InputFilter.LengthFilter(19)) // 16 digits + 3 spaces
         binding?.cardNumber?.addTextChangedListener(object : TextWatcher {
@@ -115,6 +117,7 @@ class AddPaymentFragment : Fragment() {
         })
     }
 
+    //handle expiry date formatting
     private fun setupExpiryDateFormatting() {
         binding?.cardExpiry?.filters = arrayOf(InputFilter.LengthFilter(5)) // MM/YY
         binding?.cardExpiry?.inputType = InputType.TYPE_CLASS_NUMBER

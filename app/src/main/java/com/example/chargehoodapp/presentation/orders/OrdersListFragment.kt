@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.chargehoodapp.databinding.FragmentOrdersListBinding
@@ -49,6 +50,10 @@ class OrdersListFragment: Fragment() {
             adapter?.set(orders)
             adapter?.notifyDataSetChanged()
         }
+
+        binding?.backButton?.setOnClickListener{
+            findNavController().navigateUp()
+        }
     }
 
     override fun onDestroyView() {
@@ -56,6 +61,7 @@ class OrdersListFragment: Fragment() {
         binding = null
     }
 
+    //handle later!!!!!!!
     private fun GetAllOrders(){
 
     }

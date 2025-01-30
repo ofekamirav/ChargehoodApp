@@ -15,6 +15,9 @@ interface ChargingStationDao {
     @Query("SELECT * FROM charging_stations")
     fun getAllChargingStations(): LiveData<List<ChargingStation>>
 
+    @Query("SELECT * FROM charging_stations")
+    fun getAllStationsList(): List<ChargingStation>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun createChargingStation(vararg chargingStation: ChargingStation)
 
@@ -23,6 +26,9 @@ interface ChargingStationDao {
 
     @Query("SELECT * FROM charging_stations WHERE ownerId = :ownerId")
     fun getAllChargingStationsByOwnerId(ownerId: String): LiveData<List<ChargingStation>>
+
+    @Query("DELETE FROM charging_stations")
+    fun clearAllStations()
 
     @Query("SELECT * FROM charging_stations WHERE id = :id")
     fun getChargingStation(id: String): ChargingStation?

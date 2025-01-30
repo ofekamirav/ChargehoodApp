@@ -69,6 +69,14 @@ class HomepageFragment : Fragment(), OnMapReadyCallback {
             }
         }
 
+        // Add markers to the map when data is ready
+        viewModel?.chargingStations?.observe(viewLifecycleOwner) { stations ->
+            googleMap?.clear()
+            stations?.forEach { station ->
+                addStationMarker(station)
+            }
+        }
+
         binding?.hamburgerButton?.setOnClickListener {
             val drawerLayout = requireActivity().findViewById<DrawerLayout>(R.id.drawer_layout)
             drawerLayout.openDrawer(GravityCompat.START)
@@ -143,16 +151,9 @@ class HomepageFragment : Fragment(), OnMapReadyCallback {
     override fun onMapReady(map: GoogleMap) {
         googleMap = map
         googleMap?.mapType = GoogleMap.MAP_TYPE_NORMAL
+        enableMyLocation()
 
         viewModel?.syncStations()
-
-        // Add markers to the map when data is ready
-        viewModel?.chargingStations?.observe(viewLifecycleOwner) { stations ->
-            stations?.forEach { station ->
-                Log.d("TAG", "HomepageFragment-Adding marker for station: ${station.id}")
-                addStationMarker(station)
-            }
-        }
 
         // Handle Marker click
         googleMap?.setOnMarkerClickListener { marker ->
@@ -164,8 +165,6 @@ class HomepageFragment : Fragment(), OnMapReadyCallback {
             }
             true
         }
-
-        enableMyLocation()
 
         googleMap?.uiSettings?.isMyLocationButtonEnabled = false
 

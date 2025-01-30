@@ -47,5 +47,14 @@
 
     </LinearLayout>
 
+        <ImageButton
+            android:id="@+id/deleteCardButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="4dp"
+            android:src="@drawable/ic_delete"
+            android:background="@null"
+            android:scaleType="fitCenter" />
+
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
