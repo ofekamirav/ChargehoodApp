@@ -3,38 +3,41 @@ package com.example.chargehoodapp.presentation.payment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.chargehoodapp.base.MyApplication
 import com.example.chargehoodapp.data.model.PaymentInfo
+import com.example.chargehoodapp.data.repository.ChargingStationRepository
+import com.example.chargehoodapp.data.repository.PaymentInfoRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class PaymentMethodViewModel : ViewModel() {
 
-    private val _paymentInfoList = MutableLiveData<List<PaymentInfo>?>()
-    val paymentInfoList: LiveData<List<PaymentInfo>?> get() = _paymentInfoList
+    private val repository: PaymentInfoRepository =
+        (MyApplication.Globals.context?.applicationContext as MyApplication).paymentInfoRepository
 
-    init {
-        loadDummyData()
+    //Local list of payment methods
+    val paymentInfoList: LiveData<List<PaymentInfo>> = repository.getPaymentMethodsSync()
+
+
+
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> get() = _isLoading
+
+    fun syncPayments() {
+        viewModelScope.launch(Dispatchers.IO) {
+            _isLoading.postValue(true)
+            repository.syncPaymentInfo()
+            _isLoading.postValue(false)
+        }
     }
 
-    private fun loadDummyData() {
-        val dummyData = listOf(
-            PaymentInfo(
-                userId = "123",
-                cardLastFour = "4242",
-                cardType = "Visa",
-                cardExpiry = "12/25",
-            ),
-            PaymentInfo(
-                userId = "123",
-                cardLastFour = "5678",
-                cardType = "MasterCard",
-                cardExpiry = "11/24",
-            )
-        )
-        _paymentInfoList.value = dummyData
-    }
 
     fun deletePaymentInfo(paymentInfo: PaymentInfo) {
-        val updatedList = _paymentInfoList.value?.toMutableList()
-        updatedList?.remove(paymentInfo)
-        _paymentInfoList.value = updatedList
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.deletePaymentInfo(paymentInfo)
+        }
     }
+
 }

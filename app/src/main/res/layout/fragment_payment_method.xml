@@ -8,6 +8,17 @@
     android:background="#E8FCF1"
     android:layoutDirection="ltr">
 
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:indeterminateTint="#77BFBE"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:visibility="gone" />
+
     <ImageButton
         android:id="@+id/back_button"
         android:layout_width="50dp"
@@ -36,8 +47,10 @@
         android:layout_height="wrap_content"
         android:text="You don’t have any saved payment methods.\nAdd one to continue"
         android:textAlignment="center"
-        android:textSize="16sp"
+        android:textSize="18sp"
+        android:textStyle="bold"
         android:visibility="gone"
+        android:textColor="#77BFBE"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/addCardButton"
         app:layout_constraintStart_toStartOf="parent"

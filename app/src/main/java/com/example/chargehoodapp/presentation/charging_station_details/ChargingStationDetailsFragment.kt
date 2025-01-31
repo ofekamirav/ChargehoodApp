@@ -1,6 +1,7 @@
 package com.example.chargehoodapp.presentation.charging_station_details
 
 import android.app.Dialog
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -9,15 +10,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
+import com.example.chargehoodapp.R
 import com.example.chargehoodapp.base.MyApplication
 import com.example.chargehoodapp.data.model.ChargingStation
 import com.example.chargehoodapp.databinding.StationDetailsCardBinding
 import com.example.chargehoodapp.presentation.charging_page.ChargingPageViewModel
+import com.example.chargehoodapp.presentation.charging_page.DialogNavigationListener
 
 class ChargingStationDetailsFragment: DialogFragment() {
 
@@ -25,6 +30,7 @@ class ChargingStationDetailsFragment: DialogFragment() {
     private var binding: StationDetailsCardBinding? = null
     private var viewModel: ChargingStationDetailsViewModel? = null
     private val chargingPageViewModel: ChargingPageViewModel by activityViewModels()
+    private var navigationListener: DialogNavigationListener? = null
 
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -39,7 +45,12 @@ class ChargingStationDetailsFragment: DialogFragment() {
         return dialog
     }
 
-
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is DialogNavigationListener) {
+            navigationListener = context
+        }
+    }
 
 
     override fun onCreateView(
@@ -47,8 +58,6 @@ class ChargingStationDetailsFragment: DialogFragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = StationDetailsCardBinding.inflate(inflater, container, false)
-
-
         return binding?.root
     }
 
@@ -58,12 +67,20 @@ class ChargingStationDetailsFragment: DialogFragment() {
         // Initialize the ViewModel
         viewModel = ViewModelProvider(this)[ChargingStationDetailsViewModel::class.java]
 
+        binding?.stationDetailsCard?.visibility = View.VISIBLE
+        binding?.progressBar?.visibility = View.VISIBLE
+        binding?.contentGroup?.visibility = View.GONE
+
+
         //Set the station from the shared preferences
         MyApplication.Globals.selectedStation?.let { station ->
+            Log.d("TAG", "ChargingStationDetailsFragment-Station: $station")
             viewModel?.setStation(station)
+            viewModel?.loadOwnerDetails(station)
+            viewModel?.setUserPaymentBoolean()
             chargingPageViewModel.setStation(station)
-            viewModel?.loadOwnerDetails()
         }
+
         viewModel?.chargingStation?.observe(viewLifecycleOwner) { station ->
             station?.let { bindStationDetails(it) }
         }
@@ -74,6 +91,16 @@ class ChargingStationDetailsFragment: DialogFragment() {
 
         viewModel?.ownerPhoneNumber?.observe(viewLifecycleOwner) { phoneNumber ->
             binding?.SMSLinkTextView?.text = phoneNumber ?: "Unknown Phone Number"
+        }
+
+        viewModel?.isLoading?.observe(viewLifecycleOwner) { isLoading ->
+            if (isLoading) {
+                binding?.progressBar?.visibility = View.VISIBLE
+                binding?.contentGroup?.visibility = View.GONE
+            } else {
+                binding?.progressBar?.visibility = View.GONE
+                binding?.contentGroup?.visibility = View.VISIBLE
+            }
         }
 
         binding?.SMSLinkTextView?.setOnClickListener{
@@ -100,12 +127,25 @@ class ChargingStationDetailsFragment: DialogFragment() {
     private fun checkAndStartCharging() {
         val station = viewModel?.chargingStation?.value ?: return
         val isPaymentValid = viewModel?.currentUserPaymentBoolean?.value ?: false
+        val currentUserUid = viewModel?.currentUserId?.value ?: ""
+        Log.d("TAG", "ChargingStationDetailsFragment-Station availability: ${station.availability} - Payment valid: $isPaymentValid")
 
-        if (station.availability && isPaymentValid) {
-            val action = ChargingStationDetailsFragmentDirections.actionChargingStationDetailsFragmentToChargingPageFragment()
-            findNavController().navigate(action)
-        } else {
-            Toast.makeText(requireContext(), "Station unavailable or missing payment info.", Toast.LENGTH_SHORT).show()
+        if(currentUserUid == station.ownerId) {
+            Toast.makeText(requireContext(), "You cannot charge your own station.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        else {
+            if (station.availability && isPaymentValid) {
+                Log.d("TAG", "ChargingStationDetailsFragment-Start charging button clicked")
+                dismiss()
+                navigationListener?.onNavigateToChargingPage()
+            } else {
+                Toast.makeText(
+                    requireContext(),
+                    "Station unavailable or missing payment info.",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
     }
 
@@ -115,8 +155,10 @@ class ChargingStationDetailsFragment: DialogFragment() {
             Glide.with(requireContext()).load(station.imageUrl).into(imageView)
             addressTextView.text = station.addressName
             availabilityTextView.text = if (station.availability) "Available" else "Unavailable"
+            val colorRes = if (station.availability) R.color.green else R.color.red
+            availabilityTextView.setTextColor(ContextCompat.getColor(requireContext(), colorRes))
             chargingSpeedTextView.text = station.chargingSpeed
-            priceTextView.text = station.pricePerkW.toString()
+            priceTextView.text = "${station.pricePerkW} $"
         }
     }
 

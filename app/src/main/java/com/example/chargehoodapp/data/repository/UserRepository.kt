@@ -29,21 +29,25 @@ class UserRepository {
 
     //Get user by UID
     suspend fun getUserByUid(uid: String): User? {
+        if (uid.isBlank()) {
+            Log.e("TAG", "UserRepository - Error: UID is empty!")
+            return null
+        }
         return try {
             val documentSnapshot = usersCollection.document(uid).get().await()
             val user = documentSnapshot.toObject(User::class.java)
             if (user != null) {
-                Log.d("TAG", "UserRepository-User retrieved: ${user.name}")
+                Log.d("TAG", "UserRepository - User retrieved: ${user.name}")
             } else {
-                Log.d("TAG", "UserRepository-User not found for UID: $uid")
+                Log.d("TAG", "UserRepository - User not found for UID: $uid")
             }
             user
         } catch (e: Exception) {
-            //Connection error
-            Log.e("TAG", "UserRepository-Error getting user by UID: ${e.message}")
+            Log.e("TAG", "UserRepository - Error getting user by UID: ${e.message}")
             null
         }
     }
+
 
     //Update user profile
     suspend fun updateUser(updates: Map<String, Any>): Boolean {

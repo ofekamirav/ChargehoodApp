@@ -1,12 +1,13 @@
 package com.example.chargehoodapp.data.model
 
+
 data class Booking(
-    val bookingId: String,
-    val userId: String,
-    val stationId: String,
+    val bookingId: String? = null,
+    val userId: String? = null,
+    val stationId: String? = null,
     val time: Long,
-    val status: String,
+    val status: String? = null,
     val energyCharged: Double,
     val chargingCost: Double,
-    val date: Long
+    val date: Long = System.currentTimeMillis()
 )

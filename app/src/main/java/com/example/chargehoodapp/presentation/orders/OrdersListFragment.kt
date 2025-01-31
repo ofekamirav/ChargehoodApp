@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.chargehoodapp.databinding.FragmentOrdersListBinding
@@ -34,20 +35,31 @@ class OrdersListFragment: Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         viewModel = ViewModelProvider(this)[OrdersListViewModel::class.java]
-        viewModel?.fetchOrders()
 
         recyclerView = binding?.OrdersRecyclerList
         recyclerView?.setHasFixedSize(true)
+        recyclerView?.layoutManager = LinearLayoutManager(context)
 
-        val layoutManager = LinearLayoutManager(context)
-        recyclerView?.layoutManager = layoutManager
-
-        adapter = OrdersListAdapter(emptyList())
+        adapter = OrdersListAdapter(emptyList(), viewModel!!)
         recyclerView?.adapter = adapter
 
-        viewModel?.orders?.observe(viewLifecycleOwner) { orders ->
-            adapter?.set(orders)
-            adapter?.notifyDataSetChanged()
+        viewModel?.completedBookings?.observe(viewLifecycleOwner) { bookings ->
+            adapter?.set(bookings)
+            updateUI(bookings.isEmpty())
+        }
+
+        //viewModel?.loadCompletedBookings()
+
+        binding?.backButton?.setOnClickListener {
+            findNavController().navigateUp()
+        }
+    }
+
+    // Update UI based on the list being empty or not
+    private fun updateUI(isEmpty: Boolean) {
+        binding?.apply {
+            OrdersRecyclerList.visibility = if (isEmpty) View.GONE else View.VISIBLE
+            noCardsTextView.visibility = if (isEmpty) View.VISIBLE else View.GONE
         }
     }
 
@@ -56,7 +68,4 @@ class OrdersListFragment: Fragment() {
         binding = null
     }
 
-    private fun GetAllOrders(){
-
-    }
 }

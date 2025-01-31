@@ -4,6 +4,10 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/welcomeFragment">
 
+    <action
+        android:id="@+id/action_global_chargingPageFragment"
+        app:destination="@id/chargingPageFragment" />
+
     <fragment
         android:id="@+id/welcomeFragment"
         android:name="com.example.chargehoodapp.presentation.WelcomeFragment"
@@ -71,9 +75,6 @@
         android:id="@+id/chargingStationDetailsFragment"
         android:name="com.example.chargehoodapp.presentation.charging_station_details.ChargingStationDetailsFragment"
         android:label="ChargingStationDetailsFragment" >
-        <action
-            android:id="@+id/action_chargingStationDetailsFragment_to_chargingPageFragment"
-            app:destination="@id/chargingPageFragment" />
     </dialog>
 
     <fragment
@@ -108,4 +109,8 @@
         android:id="@+id/addStationFragment"
         android:name="com.example.chargehoodapp.presentation.your_station.AddStationFragment"
         android:label="AddStationFragment" />
+    <fragment
+        android:id="@+id/helpCenterFragment"
+        android:name="com.example.chargehoodapp.presentation.help_center.HelpCenterFragment"
+        android:label="HelpCenterFragment" />
 </navigation>

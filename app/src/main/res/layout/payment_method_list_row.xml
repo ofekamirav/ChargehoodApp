@@ -44,7 +44,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:textColor="@color/black"
+                android:textColor="#77BFBE"
                 android:textStyle=""
                 android:textSize="14sp"
                 tools:text="Expiry: 12/25" />

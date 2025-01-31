@@ -8,24 +8,21 @@
     <item
         android:id="@+id/nav_stations"
         android:icon="@drawable/find_stations_icon"
-        android:iconTint="#02343F"
         android:iconTintMode="src_in"
         android:title="Your Stations" />
     <item
         android:id="@+id/nav_payments"
         android:icon="@drawable/ic_payments"
-        android:iconTint="#02343F"
         android:title="Payment Method" />
 
     <item
-        android:title="nav_orders"
+        android:id="@+id/nav_orders"
         android:icon="@drawable/ic_orders"
-        android:iconTint="#02343F"/>
+        android:title="Orders History"/>
 
     <item
-        android:id="@+id/nav_settings"
-        android:icon="@drawable/ic_settings"
-        android:iconTint="#02343F"
-        android:title="Settings" />
+        android:id="@+id/nav_help"
+        android:icon="@drawable/ic_help_center"
+        android:title="Help Center" />
 
 </menu>

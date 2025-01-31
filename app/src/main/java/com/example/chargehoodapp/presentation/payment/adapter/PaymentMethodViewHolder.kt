@@ -7,10 +7,11 @@ import com.example.chargehoodapp.data.model.PaymentInfo
 import com.example.chargehoodapp.databinding.PaymentMethodListRowBinding
 
 class PaymentMethodViewHolder(
-    private val binding: PaymentMethodListRowBinding,
-    private val onDeleteClicked: (PaymentInfo) -> Unit
+    val binding: PaymentMethodListRowBinding,
+    private val onDeleteClicked: OnDeleteClick
 ) : RecyclerView.ViewHolder(binding.root) {
 
+    // Bind the data into the row
     fun bind(paymentInfo: PaymentInfo) {
         // Set card type icon
         val cardTypeIcon = when (paymentInfo.cardType) {
@@ -26,10 +27,5 @@ class PaymentMethodViewHolder(
         // Set last 4 digits and expiry date
         binding.cardLast4.text = "•••• ${paymentInfo.cardLastFour}"
         binding.expiryDate.text = "Expiry: ${paymentInfo.cardExpiry}"
-
-        // Handle delete button click
-        binding.deleteCardButton.setOnClickListener {
-            onDeleteClicked(paymentInfo)
-        }
     }
 }

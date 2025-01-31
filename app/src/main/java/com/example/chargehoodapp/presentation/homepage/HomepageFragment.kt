@@ -23,6 +23,7 @@ import com.example.chargehoodapp.base.MyApplication
 import com.example.chargehoodapp.data.model.ChargingStation
 import com.example.chargehoodapp.databinding.HomepageFragmentBinding
 import com.example.chargehoodapp.presentation.charging_station_details.ChargingStationDetailsFragment
+import com.example.chargehoodapp.presentation.charging_station_details.ChargingStationDetailsViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapView
@@ -66,6 +67,14 @@ class HomepageFragment : Fragment(), OnMapReadyCallback {
         viewModel?.currentLocation?.observe(viewLifecycleOwner) { location ->
             location?.let {
                 googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(it, 15f))
+            }
+        }
+
+        // Add markers to the map when data is ready
+        viewModel?.chargingStations?.observe(viewLifecycleOwner) { stations ->
+            googleMap?.clear()
+            stations?.forEach { station ->
+                addStationMarker(station)
             }
         }
 
@@ -143,16 +152,9 @@ class HomepageFragment : Fragment(), OnMapReadyCallback {
     override fun onMapReady(map: GoogleMap) {
         googleMap = map
         googleMap?.mapType = GoogleMap.MAP_TYPE_NORMAL
+        enableMyLocation()
 
         viewModel?.syncStations()
-
-        // Add markers to the map when data is ready
-        viewModel?.chargingStations?.observe(viewLifecycleOwner) { stations ->
-            stations?.forEach { station ->
-                Log.d("TAG", "HomepageFragment-Adding marker for station: ${station.id}")
-                addStationMarker(station)
-            }
-        }
 
         // Handle Marker click
         googleMap?.setOnMarkerClickListener { marker ->
@@ -160,12 +162,12 @@ class HomepageFragment : Fragment(), OnMapReadyCallback {
             station?.let {
                 MyApplication.Globals.selectedStation = it
                 Log.d("TAG", "HomepageFragment-Marker clicked: ${station.id}")
-                showStationDetailsDialog()
+
+                val dialogFragment = ChargingStationDetailsFragment()
+                dialogFragment.show(parentFragmentManager, "ChargingStationDetailsFragment")
             }
             true
         }
-
-        enableMyLocation()
 
         googleMap?.uiSettings?.isMyLocationButtonEnabled = false
 

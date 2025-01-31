@@ -1,18 +1,28 @@
 package com.example.chargehoodapp.presentation.your_station
 
 import android.graphics.Bitmap
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.chargehoodapp.base.MyApplication
 import com.example.chargehoodapp.data.model.ChargingStation
 import com.example.chargehoodapp.data.repository.ChargingStationRepository
+import com.example.chargehoodapp.data.repository.PaymentInfoRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-class AddStationViewModel(private val repository: ChargingStationRepository) : ViewModel() {
+class AddStationViewModel() : ViewModel() {
+
+    private val repository: ChargingStationRepository =
+        (MyApplication.Globals.context?.applicationContext as MyApplication).StationRepository
 
     private val _stationImage = MutableLiveData<Bitmap?>()
     val stationImage: LiveData<Bitmap?> = _stationImage
+
+    private val ownerId = FirebaseModel.getCurrentUser()?.uid ?: ""
 
     private val _chargingSpeed = MutableLiveData<String?>()
     val chargingSpeed: LiveData<String?> = _chargingSpeed
@@ -26,46 +36,50 @@ class AddStationViewModel(private val repository: ChargingStationRepository) : V
     private val _stationAdded = MutableLiveData<Boolean>()
     val stationAdded: LiveData<Boolean> = _stationAdded
 
+    private val _errorMessage = MutableLiveData<String?>()
+    val errorMessage: LiveData<String?> = _errorMessage
+
     fun setStationImage(bitmap: Bitmap) {
-        _stationImage.value = bitmap
+        _stationImage.postValue(bitmap)
     }
 
+
     fun setChargingSpeed(speed: String) {
-        _chargingSpeed.value = speed
+        _chargingSpeed.postValue(speed)
     }
 
     fun setConnectionType(type: String) {
-        _connectionType.value = type
+        _connectionType.postValue(type)
     }
 
     fun setPrice(price: String) {
-        _pricePerKW.value = price
+        _pricePerKW.postValue(price)
     }
 
-    fun createChargingStation(ownerId: String, latitude: Double, longitude: Double, addressName: String) {
-        val speed = _chargingSpeed.value ?: return
-        val type = _connectionType.value ?: return
-        val price = _pricePerKW.value?.toDoubleOrNull() ?: return
-        val image = _stationImage.value
+    fun createChargingStation(latitude: Double, longitude: Double, addressName: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val success = repository.createChargingStation(
+                ChargingStation(
+                    id = "",
+                    ownerId = ownerId,
+                    latitude = latitude,
+                    longitude = longitude,
+                    addressName = addressName,
+                    connectionType = _connectionType.value ?: "",
+                    chargingSpeed = _chargingSpeed.value ?: "",
+                    availability = true,
+                    imageUrl = "",
+                    pricePerkW = _pricePerKW.value?.toDoubleOrNull() ?: 0.0,
+                    wazeUrl = "",
+                    lastUpdated = System.currentTimeMillis()
+                ),
+                _stationImage.value
+            )
 
-        val newStation = ChargingStation(
-            id = "",
-            ownerId = ownerId,
-            latitude = latitude,
-            longitude = longitude,
-            addressName = addressName,
-            connectionType = type,
-            chargingSpeed = speed,
-            availability = true,
-            imageUrl = "",
-            pricePerkW = price,
-            wazeUrl = "",
-            lastUpdated = System.currentTimeMillis()
-        )
-
-        viewModelScope.launch {
-            val success = repository.createChargingStation(newStation, image)
-            _stationAdded.value = success
+            withContext(Dispatchers.Main) {
+                _stationAdded.value = success
+            }
         }
     }
+
 }

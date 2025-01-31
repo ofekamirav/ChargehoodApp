@@ -1,5 +1,6 @@
 package com.example.chargehoodapp.data.local.dao
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
@@ -17,7 +18,10 @@ interface PaymentInfoDao {
     fun addPaymentInfoList(paymentInfoList: List<PaymentInfo>)
 
     @Query("SELECT * FROM payment_info WHERE userId = :userId")
-    fun getPaymentInfo(userId: String): LiveData<PaymentInfo?>
+    fun getPaymentInfoSync(userId: String): LiveData<List<PaymentInfo>>
+
+    @Query("SELECT * FROM payment_info WHERE userId = :userId")
+    fun getPaymentInfo(userId: String): LiveData<List<PaymentInfo>>
 
     //Delete payment card by id
     @Query("DELETE FROM payment_info WHERE id = :id")

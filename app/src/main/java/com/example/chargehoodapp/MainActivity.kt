@@ -14,13 +14,15 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.navigateUp
 import com.example.chargehoodapp.databinding.ActivityMainBinding
+import com.example.chargehoodapp.presentation.charging_page.DialogNavigationListener
 import com.google.android.material.navigation.NavigationView
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), DialogNavigationListener {
 
 
     private var binding: ActivityMainBinding?=null
@@ -28,6 +30,11 @@ class MainActivity : AppCompatActivity() {
     private var navHostFragment: NavHostFragment?=null
     private var drawerLayout: DrawerLayout? = null
     private var navigationView: NavigationView? = null
+
+    override fun onNavigateToChargingPage() {
+        val navController = findNavController(R.id.main_nav_host)
+        navController.navigate(R.id.action_global_chargingPageFragment)
+    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -80,7 +87,12 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_payments->{
                     navController?.navigate(R.id.paymentMethodFragment)
                 }
-                // Add other menu items here
+                R.id.nav_orders->{
+                    navController?.navigate(R.id.ordersListFragment)
+                }
+                R.id.nav_help->{
+                    navController?.navigate(R.id.helpCenterFragment)
+                }
             }
             drawerLayout?.closeDrawer(GravityCompat.START) // Close drawer after selection
             true
