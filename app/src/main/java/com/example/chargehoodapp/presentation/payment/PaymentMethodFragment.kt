@@ -49,6 +49,21 @@ class PaymentMethodFragment : Fragment() {
 
         recyclerView?.adapter = adapter
 
+        //Observe the LiveData
+        viewModel?.paymentInfoList?.observe(viewLifecycleOwner) { paymentMethods ->
+            Log.d("TAG", "PaymentMethodsFragment-UI - Received ${paymentMethods.size} payment methods")
+            adapter?.set(paymentMethods)
+            updateUI(paymentMethods.isEmpty())
+        }
+
+        viewModel?.isLoading?.observe(viewLifecycleOwner) { isLoading ->
+            binding?.progressBar?.visibility = if (isLoading) View.VISIBLE else View.GONE
+        }
+
+        if (viewModel?.paymentInfoList?.value.isNullOrEmpty()) {
+            viewModel?.syncPayments()
+        }
+
 
         binding?.backButton?.setOnClickListener {
             findNavController().navigateUp()
@@ -59,18 +74,7 @@ class PaymentMethodFragment : Fragment() {
             findNavController().navigate(action)
         }
 
-        binding?.progressBar?.visibility = View.VISIBLE
-        //Observe the LiveData
-        viewModel?.paymentInfoList?.observe(viewLifecycleOwner) { paymentMethods ->
-            Log.d("TAG", "PaymentMethodsFragment - Loaded payment methods: $paymentMethods")
-            binding?.progressBar?.visibility = View.GONE
-            adapter?.set(paymentMethods)
-            updateUI(paymentMethods.isEmpty())
-        }
 
-        if (viewModel?.paymentInfoList?.value.isNullOrEmpty()) {
-            viewModel?.syncPayments()
-        }
     }
 
     // Update UI based on the list being empty or not

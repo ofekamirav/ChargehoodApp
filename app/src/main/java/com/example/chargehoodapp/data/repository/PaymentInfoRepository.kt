@@ -40,44 +40,32 @@ class PaymentInfoRepository(
 
                 val snapshot = paymentInfoCollection
                     .whereEqualTo("userId", userUid)
-                    .whereGreaterThan("lastUpdated", lastUpdateTime)
                     .get()
                     .await()
-                Log.d("TAG", "PaymentInfoRepository-Fetched from Firestore: ${snapshot.documents.map { it.data }}")
+
+                Log.d("TAG", "PaymentInfoRepository-Firestore - Fetched ${snapshot.documents.size} documents")
 
                 val paymentInfoList = snapshot.documents.mapNotNull { doc ->
                     val payment = doc.toObject(PaymentInfo::class.java)
                     payment?.copy(id = doc.id)
                 }
 
+                Log.d("TAG", "PaymentInfoRepository-Firestore - Converted to objects: $paymentInfoList")
+
                 if (paymentInfoList.isNotEmpty()) {
-                    Log.d("TAG", "PaymentInfoRepository-Syncing ${paymentInfoList.size} PaymentInfo records from Firestore.")
-
                     paymentInfoDao.addPaymentInfoList(paymentInfoList)
-
-                    val latestUpdateTime = paymentInfoList.maxOfOrNull { it.lastUpdated } ?: lastUpdateTime
-                    MyApplication.saveLastUpdateTime(PAYMENT_LAST_UPDATE_KEY, latestUpdateTime)
-
-                    //Get cards from ROOM after syncing
                     val updatedList = paymentInfoDao.getPaymentInfoSync(userUid ?: "")
-                    Log.d("TAG", "PaymentInfoRepository-Updated Room records: $updatedList")
+                    Log.d("TAG", "PaymentInfoRepository-Room - Saved to database: $updatedList")
+                } else{
+                    Log.d("TAG", "PaymentInfoRepository-Firestore - No documents found")
                 }
 
-                val ids = paymentInfoList.map { it.id }
-
-                if (ids.isNotEmpty()) {
-                    paymentInfoDao.deletePaymentInfoNotIn(ids)
-                } else {
-                    Log.d("TAG", "PaymentInfoRepository-Skipping deletion: No new payment info fetched from Firestore.")
-                }
-
-
-                Log.d("TAG", "PaymentInfoRepository-PaymentInfo synced successfully.")
             } catch (e: Exception) {
                 Log.e("TAG", "PaymentInfoRepository-Error syncing PaymentInfo: ${e.message}")
             }
         }
     }
+
 
 
     suspend fun addPaymentInfo(paymentInfo: PaymentInfo) {
@@ -102,8 +90,13 @@ class PaymentInfoRepository(
 
 
     fun getPaymentMethodsSync(): LiveData<List<PaymentInfo>> {
-        return paymentInfoDao.getPaymentInfoSync(userUid ?: "")
+        val data = paymentInfoDao.getPaymentInfo(userUid ?: "")
+        data.observeForever {
+            Log.d("TAG", "PaymentInfoRepository-Room - LiveData updated: $it")
+        }
+        return data
     }
+
 
 
     suspend fun deletePaymentInfo(paymentInfo: PaymentInfo) {

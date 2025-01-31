@@ -38,5 +38,6 @@ class PaymentMethodAdapter(
 
     fun set(newPaymentMethods: List<PaymentInfo>?) {
         this.paymentMethods = newPaymentMethods
+        notifyDataSetChanged()
     }
 }

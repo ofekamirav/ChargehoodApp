@@ -20,11 +20,19 @@ class PaymentMethodViewModel : ViewModel() {
     //Local list of payment methods
     val paymentInfoList: LiveData<List<PaymentInfo>> = repository.getPaymentMethodsSync()
 
+
+
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> get() = _isLoading
+
     fun syncPayments() {
         viewModelScope.launch(Dispatchers.IO) {
+            _isLoading.postValue(true)
             repository.syncPaymentInfo()
+            _isLoading.postValue(false)
         }
     }
+
 
     fun deletePaymentInfo(paymentInfo: PaymentInfo) {
         viewModelScope.launch(Dispatchers.IO) {

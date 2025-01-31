@@ -31,6 +31,5 @@ class YourStationListViewHolder(
         binding.stationAddress.text = station?.addressName
         binding.stationChargingSpeed.text = station?.chargingSpeed
         binding.deleteCardButton.tag = position
-
     }
 }

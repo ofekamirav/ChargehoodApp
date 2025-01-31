@@ -24,6 +24,9 @@ class ChargingStationDetailsViewModel: ViewModel() {
     private val _currentUserPaymentBoolean = MutableLiveData<Boolean?>()
     val currentUserPaymentBoolean: LiveData<Boolean?> = _currentUserPaymentBoolean
 
+    private val _currentUserId = MutableLiveData<String?>()
+    val currentUserId: LiveData<String?> = _currentUserId
+
     private val _chargingStation = MutableLiveData<ChargingStation?>()
     val chargingStation: LiveData<ChargingStation?> = _chargingStation
 
@@ -47,6 +50,7 @@ class ChargingStationDetailsViewModel: ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             val boolean = userRepository.getUserByUid(userUid)?.hasPaymentInfo
             _currentUserPaymentBoolean.postValue(boolean)
+            _currentUserId.postValue(userUid)
         }
     }
 

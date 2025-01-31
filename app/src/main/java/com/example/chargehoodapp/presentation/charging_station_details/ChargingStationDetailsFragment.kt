@@ -116,14 +116,26 @@ class ChargingStationDetailsFragment: DialogFragment() {
     private fun checkAndStartCharging() {
         val station = viewModel?.chargingStation?.value ?: return
         val isPaymentValid = viewModel?.currentUserPaymentBoolean?.value ?: false
+        val currentUserUid = viewModel?.currentUserId?.value ?: ""
         Log.d("TAG", "ChargingStationDetailsFragment-Station availability: ${station.availability} - Payment valid: $isPaymentValid")
 
-        if (station.availability && isPaymentValid) {
-            Log.d("TAG", "ChargingStationDetailsFragment-Start charging button clicked")
-            val action = ChargingStationDetailsFragmentDirections.actionChargingStationDetailsFragmentToChargingPageFragment()
-            findNavController().navigate(action)
-        } else {
-            Toast.makeText(requireContext(), "Station unavailable or missing payment info.", Toast.LENGTH_SHORT).show()
+        if(currentUserUid == station.ownerId) {
+            Toast.makeText(requireContext(), "You cannot charge your own station.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        else {
+            if (station.availability && isPaymentValid) {
+                Log.d("TAG", "ChargingStationDetailsFragment-Start charging button clicked")
+                val action =
+                    ChargingStationDetailsFragmentDirections.actionChargingStationDetailsFragmentToChargingPageFragment()
+                findNavController().navigate(action)
+            } else {
+                Toast.makeText(
+                    requireContext(),
+                    "Station unavailable or missing payment info.",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
     }
 
@@ -136,7 +148,7 @@ class ChargingStationDetailsFragment: DialogFragment() {
             val colorRes = if (station.availability) R.color.green else R.color.red
             availabilityTextView.setTextColor(ContextCompat.getColor(requireContext(), colorRes))
             chargingSpeedTextView.text = station.chargingSpeed
-            priceTextView.text = station.pricePerkW.toString()
+            priceTextView.text = "${station.pricePerkW} $"
         }
     }
 
