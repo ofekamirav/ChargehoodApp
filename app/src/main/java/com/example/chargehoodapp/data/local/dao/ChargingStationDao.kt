@@ -31,13 +31,13 @@ interface ChargingStationDao {
     fun clearAllStations()
 
     @Query("SELECT * FROM charging_stations WHERE id = :id")
-    fun getChargingStation(id: String): ChargingStation?
+    fun getChargingStation(id: String): LiveData<ChargingStation?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun updateChargingStations(stations: List<ChargingStation>)
 
     @Query("UPDATE charging_stations SET availability = :status WHERE id = :id")
-    fun updateStationStatus(id: String, status: String)
+    fun updateStationStatus(id: String, status: Boolean)
 
     @Query("DELETE FROM charging_stations WHERE id NOT IN (:ids)")
     fun deleteStationsNotIn(ids: List<String?>)

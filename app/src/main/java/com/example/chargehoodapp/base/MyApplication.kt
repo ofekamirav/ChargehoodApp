@@ -5,6 +5,7 @@ import android.content.Context
 import com.example.chargehoodapp.BuildConfig
 import com.example.chargehoodapp.data.local.AppLocalDB
 import com.example.chargehoodapp.data.model.ChargingStation
+import com.example.chargehoodapp.data.repository.BookingRepository
 import com.example.chargehoodapp.data.repository.ChargingStationRepository
 import com.example.chargehoodapp.data.repository.PaymentInfoRepository
 import com.google.android.libraries.places.api.Places
@@ -13,8 +14,9 @@ import com.google.android.libraries.places.api.Places
 class MyApplication : Application() {
 
     val database by lazy { AppLocalDB.database }
-    val StationRepository by lazy { ChargingStationRepository(database.ChargingStationDao()) }
-    val paymentInfoRepository by lazy { PaymentInfoRepository(database.PaymentInfoDao()) }
+    val StationRepository by lazy { ChargingStationRepository(database.chargingStationDao()) }
+    val paymentInfoRepository by lazy { PaymentInfoRepository(database.paymentInfoDao()) }
+    //val bookingRepository by lazy { BookingRepository(database.bookingDao()) }
 
 
     object Globals {

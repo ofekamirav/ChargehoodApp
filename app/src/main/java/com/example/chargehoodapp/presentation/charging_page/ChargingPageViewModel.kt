@@ -1,5 +1,6 @@
 package com.example.chargehoodapp.presentation.charging_page
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -10,6 +11,7 @@ import com.example.chargehoodapp.data.model.Booking
 import com.example.chargehoodapp.data.model.ChargingStation
 import com.example.chargehoodapp.data.repository.BookingRepository
 import com.example.chargehoodapp.data.repository.ChargingStationRepository
+import com.example.chargehoodapp.data.repository.PaymentInfoRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -21,14 +23,15 @@ import kotlin.math.round
 
 class ChargingPageViewModel: ViewModel() {
 
-    private val MAX_CHARGING_TIME_MINUTES = 300 // 5 hours
+    private val MAX_CHARGING_TIME_SECONDS = 4 * 60 * 60 // 4 hours
 
     private val BookingRepository = BookingRepository()
 
-    private val currentUserId = FirebaseModel.getCurrentUser()?.uid
 
-    private val StationRepository: ChargingStationRepository =
+    private val Stationrepository: ChargingStationRepository =
         (MyApplication.Globals.context?.applicationContext as MyApplication).StationRepository
+
+    private val currentUserId = FirebaseModel.getCurrentUser()?.uid
 
     private val _station = MutableLiveData<ChargingStation>()
     val station: LiveData<ChargingStation> get() = _station
@@ -39,14 +42,21 @@ class ChargingPageViewModel: ViewModel() {
     private val _progress = MutableLiveData<Int>(0)
     val progress: LiveData<Int> get() = _progress
 
+    val formattedTimeLiveData = MutableLiveData<String>()
+    val formattedTime: LiveData<String> get() = formattedTimeLiveData
+
+
+    private val _isLoading = MutableLiveData<Boolean>(true)
+    val isLoading: LiveData<Boolean> get() = _isLoading
+
     private val _energyCharged = MutableLiveData<Double>(0.0)
     val energyCharged: LiveData<Double> get() = _energyCharged
 
     private val _chargingCost = MutableLiveData<Double>(0.0)
     val chargingCost: LiveData<Double> get() = _chargingCost
 
-    private val _elapsedMinutes = MutableLiveData<Int>(0)
-    val elapsedMinutes: LiveData<Int> get() = _elapsedMinutes
+    private val _elapsedSeconds = MutableLiveData<Int>(0)
+    val elapsedSeconds: LiveData<Int> get() = _elapsedSeconds
 
     private var timerJob: Job? = null
 
@@ -55,9 +65,10 @@ class ChargingPageViewModel: ViewModel() {
     }
 
     fun startCharging() {
+        _isLoading.value = true
         _energyCharged.value = 0.0
         _chargingCost.value = 0.0
-        _elapsedMinutes.value = 0
+        _elapsedSeconds.value = 0
         _progress.value = 0
 
         val currentDate = System.currentTimeMillis()
@@ -67,42 +78,55 @@ class ChargingPageViewModel: ViewModel() {
             userId = currentUserId.toString(),
             stationId = station.value?.id.toString(),
             time = 0,
-            status = "In use",
+            status = "Charging",
             energyCharged = 0.0,
             chargingCost = 0.0,
             date = currentDate
         )
 
-        BookingRepository.createBooking(booking)
+        viewModelScope.launch(Dispatchers.IO) {
+            val createdBookingId = BookingRepository.createBooking(booking)
 
-        //Timer runs in side thread
-        timerJob = viewModelScope.launch(Dispatchers.IO){
-            while (isActive && (_elapsedMinutes.value ?: 0) < MAX_CHARGING_TIME_MINUTES){
-                delay(60_000)
-
-                //In main thread
-                withContext(Dispatchers.Main){
-                    val chargingSpeed = station.value?.chargingSpeed?.split(" ")?.get(0)?.toDoubleOrNull() ?: 0.0
-                    val pricePerkWh = station.value?.pricePerkW ?: 0.0
-
-                    _elapsedMinutes.value = (_elapsedMinutes.value ?: 0) + 1
-                    val newEnergy = (_energyCharged.value ?: 0.0) + (chargingSpeed / 60.0)
-                    val newCost = newEnergy * pricePerkWh
-
-                    _energyCharged.value = round(newEnergy * 100) / 100
-                    _chargingCost.value = round(newCost * 100) / 100
-
-                    //Update the progress bar
-                    val progressValue = (_elapsedMinutes.value ?: 0) * 100 / MAX_CHARGING_TIME_MINUTES
-                    _progress.value = progressValue.coerceIn(0, 100)
-
-                    if ((_elapsedMinutes.value ?: 0) >= MAX_CHARGING_TIME_MINUTES) {
-                        stopCharging()
-                    }
-
-                }
+            withContext(Dispatchers.Main) {
+                _booking.value = booking.copy(bookingId = createdBookingId)
+                Log.d("TAG", "ChargingPageViewModel - Booking created with ID: $createdBookingId")
+                _isLoading.value = false
             }
         }
+
+        //Change the station availability to false
+        viewModelScope.launch(Dispatchers.IO) {
+            Stationrepository.updateStationStatus(station.value?.id, false)
+        }
+
+        // Timer runs in side thread
+        timerJob = viewModelScope.launch(Dispatchers.IO) {
+            var totalSeconds = 0
+            while (isActive && totalSeconds < MAX_CHARGING_TIME_SECONDS) {
+                delay(1_000)
+                totalSeconds++
+
+                val hours = totalSeconds / 3600
+                val minutes = (totalSeconds % 3600) / 60
+                val seconds = totalSeconds % 60
+                val progressbarValue = ((totalSeconds.toFloat() / MAX_CHARGING_TIME_SECONDS) * 100).toInt()
+
+                withContext(Dispatchers.Main) {
+                    _elapsedSeconds.value = totalSeconds
+                    _progress.value = progressbarValue.coerceIn(0, 100)
+
+                    formattedTimeLiveData.value = String.format("%02d:%02d:%02d", hours, minutes, seconds)
+                    Log.d("TAG", "Progress: ${_progress.value}")
+
+
+                    if (totalSeconds >= MAX_CHARGING_TIME_SECONDS) {
+                        stopCharging()
+                    }
+                }
+
+            }
+        }
+
     }
 
 
@@ -111,25 +135,32 @@ class ChargingPageViewModel: ViewModel() {
 
         val finalEnergyCharged = _energyCharged.value ?: 0.0
         val finalCost = _chargingCost.value ?: 0.0
-        val totalTimeMinutes = _elapsedMinutes.value ?: 0
+        val totalTimeSeconds = _elapsedSeconds.value ?: 0
 
-        _booking.value?.let{ booking ->
-            BookingRepository.updateBookingChargeCostAndTime(booking.bookingId, finalCost, finalEnergyCharged, totalTimeMinutes.toLong())
-            BookingRepository.updateBookingStatus(booking.bookingId, "completed")
+        val updatedBooking = _booking.value?.copy(
+            energyCharged = finalEnergyCharged,
+            chargingCost = finalCost,
+            time = totalTimeSeconds.toLong(),
+            status = "Completed"
+        )
+
+        if (updatedBooking != null) {
+            viewModelScope.launch(Dispatchers.IO) {
+                BookingRepository.updateBooking(updatedBooking.bookingId.toString(), updatedBooking)
+                Log.d("TAG", "ChargingPageViewModel - Booking updated: $updatedBooking")
+
+                Stationrepository.updateStationStatus(station.value?.id, true)
+                Log.d("TAG", "ChargingPageViewModel - Station status updated: TRUE")
+            }
+        } else {
+            Log.e("TAG", "ChargingPageViewModel - ERROR: Booking is null, update failed!")
         }
 
-        viewModelScope.launch(Dispatchers.IO) {
-            StationRepository.updateStationStatus(station.value?.id, "available")
-        }
-
-        //for the next charge
+        // Reset values for the next charge
         _energyCharged.value = 0.0
         _chargingCost.value = 0.0
-        _elapsedMinutes.value = 0
+        _elapsedSeconds.value = 0
         _progress.value = 0
-
     }
-
-
 
 }

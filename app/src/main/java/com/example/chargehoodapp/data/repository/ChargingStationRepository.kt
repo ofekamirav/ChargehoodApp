@@ -168,15 +168,28 @@ class ChargingStationRepository(
     }
 
 
-    fun getChargingStationById(id: String): ChargingStation? = chargingStationDao.getChargingStation(id)
+    fun getChargingStationById(id: String): LiveData<ChargingStation?> = chargingStationDao.getChargingStation(id)
 
 
-    fun updateStationStatus(stationId: String?, status: String) {
-        if(stationId != null){
-            stationsCollection.document(stationId).update("availability", status)
-            chargingStationDao.updateStationStatus(stationId, status)
-            Log.d("TAG", "ChargingStationRepository-Charging station status updated: $status")
+     fun updateStationStatus(stationId: String?, status: Boolean) {
+        if (stationId == null) return
+
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                stationsCollection.document(stationId)
+                    .update("availability", status)
+                    .await()
+
+                Log.d("TAG", "ChargingStationRepository - Charging station status updated in Firestore: $status")
+
+                chargingStationDao.updateStationStatus(stationId, status)
+                Log.d("TAG", "ChargingStationRepository - Charging station status updated in Room: $status")
+
+            } catch (e: Exception) {
+                Log.e("TAG", "ChargingStationRepository-Error updating station status: ${e.message}")
+            }
         }
     }
+
 
 }

@@ -55,6 +55,16 @@
             app:layout_constraintTop_toBottomOf="@+id/stationAddress"
             tools:text="14/03/2025" />
 
+        <TextView
+            android:id="@+id/Time"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            app:layout_constraintEnd_toEndOf="@id/Date"
+            app:layout_constraintStart_toStartOf="@id/Date"
+            app:layout_constraintTop_toBottomOf="@+id/Date"
+            tools:text="00:35" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </com.google.android.material.card.MaterialCardView>

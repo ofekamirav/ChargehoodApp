@@ -35,23 +35,22 @@ class OrdersListFragment: Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         viewModel = ViewModelProvider(this)[OrdersListViewModel::class.java]
-        viewModel?.fetchOrders()
 
         recyclerView = binding?.OrdersRecyclerList
         recyclerView?.setHasFixedSize(true)
+        recyclerView?.layoutManager = LinearLayoutManager(context)
 
-        val layoutManager = LinearLayoutManager(context)
-        recyclerView?.layoutManager = layoutManager
-
-        adapter = OrdersListAdapter(emptyList())
+        adapter = OrdersListAdapter(emptyList(), viewModel!!)
         recyclerView?.adapter = adapter
 
-        viewModel?.orders?.observe(viewLifecycleOwner) { orders ->
-            adapter?.set(orders)
-            adapter?.notifyDataSetChanged()
+        viewModel?.completedBookings?.observe(viewLifecycleOwner) { bookings ->
+            adapter?.set(bookings)
+            updateUI(bookings.isEmpty())
         }
 
-        binding?.backButton?.setOnClickListener{
+        //viewModel?.loadCompletedBookings()
+
+        binding?.backButton?.setOnClickListener {
             findNavController().navigateUp()
         }
     }
@@ -69,8 +68,4 @@ class OrdersListFragment: Fragment() {
         binding = null
     }
 
-    //handle later!!!!!!!
-    private fun GetAllOrders(){
-
-    }
 }

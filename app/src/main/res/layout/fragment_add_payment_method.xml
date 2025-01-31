@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layoutDirection="ltr"
+    android:background="#E8FCF1"
     android:padding="16dp">
 
     <ImageButton
@@ -24,6 +25,7 @@
         android:layout_height="wrap_content"
         app:cardCornerRadius="8dp"
         app:cardElevation="4dp"
+        app:cardBackgroundColor="@color/white"
         app:layout_constraintTop_toBottomOf="@id/back_button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -84,6 +86,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Credit Card Number"
+                app:boxStrokeColor="#02343F"
+                android:textColorHint="#77BFBE"
+                android:textColor="#02343F"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -103,6 +108,9 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    app:boxStrokeColor="#02343F"
+                    android:textColorHint="#77BFBE"
+                    android:textColor="#02343F"
                     android:hint="Expiry Date"
                     android:layout_marginEnd="10dp"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
@@ -119,6 +127,9 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    app:boxStrokeColor="#02343F"
+                    android:textColorHint="#77BFBE"
+                    android:textColor="#02343F"
                     android:hint="CVV"
                     android:layout_marginStart="10dp"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">

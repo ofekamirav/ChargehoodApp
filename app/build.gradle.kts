@@ -51,6 +51,7 @@ android {
         viewBinding = true
         buildConfig = true
     }
+
 }
 
 dependencies {
@@ -68,11 +69,9 @@ dependencies {
 
     implementation(libs.cloudinary.android)
 
-
-    implementation(libs.room.runtime)
-    kapt(libs.androidx.room.compiler)
-    implementation(libs.androidx.room.ktx)
-    implementation (libs.kotlinx.metadata.jvm)
+    implementation(libs.androidx.room.runtime)
+    kapt (libs.androidx.room.compiler)
+    implementation (libs.androidx.room.ktx)
 
 
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -86,7 +85,7 @@ dependencies {
 
 
     implementation (libs.github.glide)
-    annotationProcessor(libs.glide.compiler)
+    kapt (libs.glide.compiler)
 
 
     implementation(libs.androidx.navigation.fragment.ktx)

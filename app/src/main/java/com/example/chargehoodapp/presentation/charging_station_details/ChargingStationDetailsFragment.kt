@@ -1,6 +1,7 @@
 package com.example.chargehoodapp.presentation.charging_station_details
 
 import android.app.Dialog
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -13,6 +14,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.example.chargehoodapp.R
@@ -20,6 +22,7 @@ import com.example.chargehoodapp.base.MyApplication
 import com.example.chargehoodapp.data.model.ChargingStation
 import com.example.chargehoodapp.databinding.StationDetailsCardBinding
 import com.example.chargehoodapp.presentation.charging_page.ChargingPageViewModel
+import com.example.chargehoodapp.presentation.charging_page.DialogNavigationListener
 
 class ChargingStationDetailsFragment: DialogFragment() {
 
@@ -27,6 +30,7 @@ class ChargingStationDetailsFragment: DialogFragment() {
     private var binding: StationDetailsCardBinding? = null
     private var viewModel: ChargingStationDetailsViewModel? = null
     private val chargingPageViewModel: ChargingPageViewModel by activityViewModels()
+    private var navigationListener: DialogNavigationListener? = null
 
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -39,6 +43,13 @@ class ChargingStationDetailsFragment: DialogFragment() {
             )
         }
         return dialog
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is DialogNavigationListener) {
+            navigationListener = context
+        }
     }
 
 
@@ -126,9 +137,8 @@ class ChargingStationDetailsFragment: DialogFragment() {
         else {
             if (station.availability && isPaymentValid) {
                 Log.d("TAG", "ChargingStationDetailsFragment-Start charging button clicked")
-                val action =
-                    ChargingStationDetailsFragmentDirections.actionChargingStationDetailsFragmentToChargingPageFragment()
-                findNavController().navigate(action)
+                dismiss()
+                navigationListener?.onNavigateToChargingPage()
             } else {
                 Toast.makeText(
                     requireContext(),

@@ -58,10 +58,6 @@ class OwnerStationDetailsFragment : DialogFragment() {
             bindStationDetails(station)
         }
 
-//        viewModel?.chargingStation?.observe(viewLifecycleOwner) { station ->
-//            Log.d("TAG", "OwnerStationDetailsFragment-Station: $station")
-//            station?.let { bindStationDetails(it) }
-//        }
 
 
         binding?.cancelButton?.setOnClickListener {

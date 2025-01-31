@@ -9,6 +9,25 @@
     android:padding="16dp"
     android:layoutDirection="ltr">
 
+    <ProgressBar
+        android:id="@+id/FirstprogressBar"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:indeterminate="true"
+        android:indeterminateTint="#77BFBE"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/contentGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids="StopButton,chargingTitleTextView,timerCard,chargingPowerLabel,chargingPowerTextView,locationLabel,staticMapImageView,connectionTypeLabel,connectionTypeTextView,pricePerkWLabel,priceTextView," />
+
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/chargingTitleTextView"
         android:layout_width="wrap_content"
@@ -28,8 +47,8 @@
         android:layout_height="200dp"
         android:layout_marginTop="32dp"
         app:cardCornerRadius="100dp"
-        app:cardBackgroundColor="@android:color/transparent"
         app:cardElevation="4dp"
+        app:cardBackgroundColor="#E8FCF1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/chargingTitleTextView">
@@ -47,7 +66,7 @@
                 android:progress="0"
                 app:indicatorColor="#77BFBE"
                 app:indicatorSize="200dp"
-                app:trackColor="#e0e0e0"
+                app:trackColor="#DADADA"
                 app:trackCornerRadius="8dp"
                 app:trackThickness="15dp"
                 tools:progress="75" />
@@ -57,10 +76,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="#02343F"
+                android:textSize="30dp"
                 android:layout_gravity="center"
-                android:textAppearance="?attr/textAppearanceHeadline4"
                 android:textStyle="bold"
-                tools:text="00:00" />
+                tools:text="00:00:00" />
         </FrameLayout>
 
     </com.google.android.material.card.MaterialCardView>
@@ -82,7 +101,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:textAppearance="?attr/textAppearanceBody2"
+        android:textColor="#02343F"
         app:layout_constraintBaseline_toBaselineOf="@id/chargingPowerLabel"
         app:layout_constraintStart_toEndOf="@id/chargingPowerLabel"
         tools:text="7.2 kW" />
@@ -105,52 +124,53 @@
         android:layout_width="0dp"
         android:layout_height="150dp"
         android:layout_marginTop="8dp"
+        android:scaleType="fitCenter"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/locationLabel" />
 
     <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/energyChargedLabel"
+        android:id="@+id/connectionTypeLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:textSize="16sp"
         android:textColor="#02343F"
-        android:text="Energy Charged:"
+        android:text="Connection Type:"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/staticMapImageView" />
 
     <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/energyChargedTextView"
+        android:id="@+id/connectionTypeTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:textAppearance="?attr/textAppearanceBody2"
-        app:layout_constraintBaseline_toBaselineOf="@id/energyChargedLabel"
-        app:layout_constraintStart_toEndOf="@id/energyChargedLabel"
-        tools:text="5.4 kWh" />
+        android:textColor="#02343F"
+        app:layout_constraintBaseline_toBaselineOf="@id/connectionTypeLabel"
+        app:layout_constraintStart_toEndOf="@id/connectionTypeLabel"
+        tools:text="Type 1" />
 
     <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/costLabel"
+        android:id="@+id/pricePerkWLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:textSize="16sp"
         android:textColor="#02343F"
-        android:text="Cost:"
+        android:text="Price per kW:"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/energyChargedLabel" />
+        app:layout_constraintTop_toBottomOf="@id/connectionTypeLabel" />
 
     <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/costTextView"
+        android:id="@+id/priceTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:textAppearance="?attr/textAppearanceBody2"
-        app:layout_constraintBaseline_toBaselineOf="@id/costLabel"
-        app:layout_constraintStart_toEndOf="@id/costLabel"
+        android:textColor="#02343F"
+        app:layout_constraintBaseline_toBaselineOf="@id/pricePerkWLabel"
+        app:layout_constraintStart_toEndOf="@id/pricePerkWLabel"
         tools:text="$2.50" />
 
     <com.google.android.material.button.MaterialButton
@@ -167,7 +187,7 @@
         app:strokeWidth="2dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/costTextView"
+        app:layout_constraintTop_toBottomOf="@id/priceTextView"
         app:layout_constraintBottom_toBottomOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

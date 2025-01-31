@@ -3,7 +3,6 @@ package com.example.chargehoodapp.data.model
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.example.chargehoodapp.base.Constants.Collections.CHARGING_STATIONS
-import com.google.firebase.firestore.GeoPoint
 
 @Entity(tableName = CHARGING_STATIONS)
 data class ChargingStation(
