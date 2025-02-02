@@ -48,7 +48,7 @@ class OrdersListFragment: Fragment() {
             updateUI(bookings.isEmpty())
         }
 
-        //viewModel?.loadCompletedBookings()
+        viewModel?.loadCompletedBookings()
 
         binding?.backButton?.setOnClickListener {
             findNavController().navigateUp()

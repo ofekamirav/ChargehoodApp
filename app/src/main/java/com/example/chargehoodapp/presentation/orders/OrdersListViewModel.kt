@@ -1,5 +1,6 @@
 package com.example.chargehoodapp.presentation.orders
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -13,8 +14,7 @@ import kotlinx.coroutines.launch
 
 class OrdersListViewModel: ViewModel() {
 
-//    private val bookingRepository: BookingRepository =
-//        (MyApplication.Globals.context?.applicationContext as MyApplication).bookingRepository
+    private val bookingRepository = BookingRepository()
 
     private val stationRepository: ChargingStationRepository =
         (MyApplication.Globals.context?.applicationContext as MyApplication).StationRepository
@@ -22,14 +22,17 @@ class OrdersListViewModel: ViewModel() {
     private val _completedBookings = MutableLiveData<List<Booking>>()
     val completedBookings: LiveData<List<Booking>> get() = _completedBookings
 
+    private val _station = MutableLiveData<ChargingStation>()
+    val station: LiveData<ChargingStation> get() = _station
 
-//    fun loadCompletedBookings() {
-//        viewModelScope.launch {
-//            val bookings = bookingRepository.getCompletedBookings()
-//            _completedBookings.postValue(bookings) // עדכון רשימת ההזמנות
-//        }
-//    }
-//
+
+    fun loadCompletedBookings() {
+        bookingRepository.getCompletedBookingsLive().observeForever { bookings ->
+            _completedBookings.postValue(bookings)
+            Log.d("TAG", "OrdersListViewModel-Completed bookings loaded: $bookings")
+        }
+    }
+
     fun getStationById(stationId: String): LiveData<ChargingStation?> {
         return stationRepository.getChargingStationById(stationId)
     }

@@ -23,10 +23,9 @@ import kotlin.math.round
 
 class ChargingPageViewModel: ViewModel() {
 
-    private val MAX_CHARGING_TIME_SECONDS = 4 * 60 * 60 // 4 hours
+    private val MAX_CHARGING_TIME_SECONDS = 1 * 60 * 60 // 1 hours
 
     private val BookingRepository = BookingRepository()
-
 
     private val Stationrepository: ChargingStationRepository =
         (MyApplication.Globals.context?.applicationContext as MyApplication).StationRepository
@@ -45,15 +44,8 @@ class ChargingPageViewModel: ViewModel() {
     val formattedTimeLiveData = MutableLiveData<String>()
     val formattedTime: LiveData<String> get() = formattedTimeLiveData
 
-
     private val _isLoading = MutableLiveData<Boolean>(true)
     val isLoading: LiveData<Boolean> get() = _isLoading
-
-    private val _energyCharged = MutableLiveData<Double>(0.0)
-    val energyCharged: LiveData<Double> get() = _energyCharged
-
-    private val _chargingCost = MutableLiveData<Double>(0.0)
-    val chargingCost: LiveData<Double> get() = _chargingCost
 
     private val _elapsedSeconds = MutableLiveData<Int>(0)
     val elapsedSeconds: LiveData<Int> get() = _elapsedSeconds
@@ -66,8 +58,6 @@ class ChargingPageViewModel: ViewModel() {
 
     fun startCharging() {
         _isLoading.value = true
-        _energyCharged.value = 0.0
-        _chargingCost.value = 0.0
         _elapsedSeconds.value = 0
         _progress.value = 0
 
@@ -77,6 +67,7 @@ class ChargingPageViewModel: ViewModel() {
             bookingId = "",
             userId = currentUserId.toString(),
             stationId = station.value?.id.toString(),
+            stationName = station.value?.addressName.toString(),
             time = 0,
             status = "Charging",
             energyCharged = 0.0,
@@ -133,9 +124,9 @@ class ChargingPageViewModel: ViewModel() {
     fun stopCharging() {
         timerJob?.cancel()
 
-        val finalEnergyCharged = _energyCharged.value ?: 0.0
-        val finalCost = _chargingCost.value ?: 0.0
         val totalTimeSeconds = _elapsedSeconds.value ?: 0
+        val finalEnergyCharged = calculateEnergyCharged(totalTimeSeconds)
+        val finalCost = calculateChargingCost(finalEnergyCharged)
 
         val updatedBooking = _booking.value?.copy(
             energyCharged = finalEnergyCharged,
@@ -157,10 +148,20 @@ class ChargingPageViewModel: ViewModel() {
         }
 
         // Reset values for the next charge
-        _energyCharged.value = 0.0
-        _chargingCost.value = 0.0
         _elapsedSeconds.value = 0
         _progress.value = 0
     }
+
+
+    private fun calculateEnergyCharged(totalTimeSeconds: Int): Double {
+        val chargingSpeed = _station.value?.chargingSpeed?.split(" ")?.get(0)?.toDoubleOrNull() ?: 0.0
+        return round((chargingSpeed * totalTimeSeconds / 3600.0) * 100) / 100
+    }
+
+    private fun calculateChargingCost(energyCharged: Double): Double {
+        val pricePerKWh = _station.value?.pricePerkW ?: 0.0
+        return round((energyCharged * pricePerKWh) * 100) / 100
+    }
+
 
 }

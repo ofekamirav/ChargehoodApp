@@ -72,6 +72,7 @@ class PaymentMethodFragment : Fragment() {
         binding?.addCardButton?.setOnClickListener {
             val action = PaymentMethodFragmentDirections.actionPaymentMethodFragmentToAddPaymentFragment()
             findNavController().navigate(action)
+            viewModel?.syncPayments()
         }
 
 
