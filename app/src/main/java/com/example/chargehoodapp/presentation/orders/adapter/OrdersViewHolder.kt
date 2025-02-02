@@ -20,35 +20,26 @@ class OrdersViewHolder(
     private val binding: OrdersListRowBinding
 ) : RecyclerView.ViewHolder(binding.root) {
 
-    private val repository: ChargingStationRepository =
-        (MyApplication.Globals.context?.applicationContext as MyApplication).StationRepository
-
 
     //Bind the data into the row
     fun bind(booking: Booking, viewModel: OrdersListViewModel) {
-//        CoroutineScope(Dispatchers.Main).launch {
-//            val station = viewModel.getStationById(booking.stationId.toString())
-//            if (station != null) {
-//                val userUid = FirebaseModel.getCurrentUser()?.uid
-//                val iconRes = if (userUid == station.ownerId) R.drawable.ic_order_plus else R.drawable.ic_order_minus
-//                Glide.with(binding.root.context).load(iconRes).circleCrop().into(binding.StatusIcon)
-//
-//                binding.stationAddress.text = station.addressName
-//            } else {
-//                binding.stationAddress.text = "Unknown Station"
-//            }
-//        }
-//
-//        val date = Date(booking.date)
-//        val formattedDate = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(date)
-//
-//        val hours = booking.time / 60
-//        val minutes = booking.time % 60
-//        val formattedTime = String.format("%02d:%02d", hours, minutes)
-//
-//        binding.TotalCost.text = "${booking.chargingCost}$"
-//        binding.Date.text = formattedDate
-//        binding.Time.text = formattedTime
+        viewModel.getStationById(booking.stationId.toString()).observeForever { station ->
+            val userid = booking.userId
+            val iconRes = if (userid == station?.ownerId) R.drawable.ic_order_plus else R.drawable.ic_order_minus
+            Glide.with(binding.root.context).load(iconRes).circleCrop().into(binding.StatusIcon)
+            binding.stationAddress.text = station?.addressName ?: "Unknown Location"
+
+            val date = Date(booking.date)
+            val formattedDate = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(date)
+            val hours = booking.time / 60
+            val minutes = booking.time % 60
+            val formattedTime = String.format("%02d:%02d", hours, minutes)
+
+            binding.TotalCost.text = "${booking.chargingCost}$"
+            binding.Date.text = formattedDate
+            binding.Time.text = formattedTime
+        }
     }
+
 
 }

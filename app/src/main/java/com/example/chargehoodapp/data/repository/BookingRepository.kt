@@ -2,6 +2,7 @@ package com.example.chargehoodapp.data.repository
 
 import android.util.Log
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.example.chargehoodapp.base.Constants.Collections.BOOKING
 import com.example.chargehoodapp.data.local.dao.ChargingStationDao
 import com.example.chargehoodapp.data.model.Booking
@@ -19,20 +20,23 @@ class BookingRepository {
     private val currentUserId = FirebaseModel.getCurrentUser()?.uid ?: ""
 
 
-    suspend fun getAllCompletedBookings(): List<Booking> {
-        return try {
-            val snapshot = bookingsCollection
-                .whereEqualTo("userId", currentUserId)
-                .whereEqualTo("status", "Completed")
-                .orderBy("date", Query.Direction.DESCENDING)
-                .get()
-                .await()
+    fun getCompletedBookingsLive(): LiveData<List<Booking>?> {
+        val bookingsLiveData = MutableLiveData<List<Booking>?>()
+        firestore.collection("bookings")
+            .whereEqualTo("status", "completed")
+            .whereEqualTo("userId", currentUserId)
+            .orderBy("date", Query.Direction.DESCENDING)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    return@addSnapshotListener
+                }
+                val bookings = snapshot?.toObjects(Booking::class.java)
+                bookingsLiveData.postValue(bookings)
 
-            snapshot.toObjects(Booking::class.java)
-        } catch (e: Exception) {
-            emptyList()
-        }
+            }
+        return bookingsLiveData
     }
+
 
     fun createBooking(booking: Booking): String {
         //Generate a unique ID for the booking
