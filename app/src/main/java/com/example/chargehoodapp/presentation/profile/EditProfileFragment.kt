@@ -189,7 +189,7 @@ class EditProfileFragment : Fragment() {
             binding?.emailInputLayout?.error = "Invalid email format"
             isValid = false
         }
-        if (phone != null && phone.length < 10) {
+        if (phone != null && phone.length != 10) {
             binding?.phoneInputLayout?.error = "Phone number is not valid"
             isValid = false
         }

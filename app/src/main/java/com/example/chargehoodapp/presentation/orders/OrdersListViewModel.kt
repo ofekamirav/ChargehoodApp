@@ -14,21 +14,24 @@ import kotlinx.coroutines.launch
 
 class OrdersListViewModel: ViewModel() {
 
-    private val bookingRepository = BookingRepository()
+    private val BookingRepository: BookingRepository =
+        (MyApplication.Globals.context?.applicationContext as MyApplication).bookingRepository
 
     private val stationRepository: ChargingStationRepository =
         (MyApplication.Globals.context?.applicationContext as MyApplication).StationRepository
 
-    private val _completedBookings = MutableLiveData<List<Booking>>()
-    val completedBookings: LiveData<List<Booking>> get() = _completedBookings
+    private val _completedBookings = MutableLiveData<List<Booking>?>()
+    val completedBookings: LiveData<List<Booking>?> get() = _completedBookings
 
     private val _station = MutableLiveData<ChargingStation>()
     val station: LiveData<ChargingStation> get() = _station
 
 
     fun loadCompletedBookings() {
-        bookingRepository.getCompletedBookingsLive().observeForever { bookings ->
-            _completedBookings.postValue(bookings)
+        BookingRepository.getCompletedBookingsLive().observeForever { bookings ->
+            if (bookings != null) {
+                _completedBookings.postValue(bookings)
+            }
             Log.d("TAG", "OrdersListViewModel-Completed bookings loaded: $bookings")
         }
     }

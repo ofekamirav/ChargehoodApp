@@ -178,7 +178,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Start Charging"
+                android:text="Charge"
                 android:textSize="16sp"
                 android:textColor="#02343F"
                 app:backgroundTint="#77BFBE"
