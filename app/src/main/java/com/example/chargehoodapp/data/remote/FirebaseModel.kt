@@ -1,4 +1,5 @@
 import android.util.Log
+import com.example.chargehoodapp.base.MyApplication
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
@@ -6,10 +7,13 @@ import com.google.firebase.firestore.firestoreSettings
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.memoryCacheSettings
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 object FirebaseModel {
 
-    private val database: FirebaseFirestore by lazy {
+    val database: FirebaseFirestore by lazy {
         Firebase.firestore.apply {
             // Configure Firebase settings - No local cache because we use ROOM
             val settings = firestoreSettings {
@@ -20,8 +24,22 @@ object FirebaseModel {
     }
 
     private val auth: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
-    private val user: FirebaseUser?
-        get() = auth.currentUser
+    private var user: FirebaseUser? = auth.currentUser
+
+    // Listeners for authentication state changes
+    private val authStateListeners = mutableListOf<() -> Unit>()
+
+
+    init {
+        auth.addAuthStateListener { firebaseAuth ->
+            val newUser = firebaseAuth.currentUser
+            if (user?.uid != newUser?.uid) {
+                user = newUser
+                Log.d("TAG", "FirebaseModel - User switched to: ${user?.email}")
+                notifyAuthStateChanged()
+            }
+        }
+    }
 
     fun updatePassword(newPassword: String) {
         user?.updatePassword(newPassword)?.addOnCompleteListener { task ->
@@ -36,7 +54,16 @@ object FirebaseModel {
 
     fun logout() {
         auth.signOut()
+        clearLocalData()
         Log.d("TAG", "AuthRepository-User logged out")
+    }
+
+    private fun clearLocalData() {
+        CoroutineScope(Dispatchers.IO).launch {
+            val appContext = MyApplication.Globals.context?.applicationContext as? MyApplication
+            appContext?.database?.clearAllTables()
+            Log.d("TAG", "FirebaseModel-Local Room database cleared after logout")
+        }
     }
 
     fun getCurrentUser(): FirebaseUser? {
@@ -52,5 +79,13 @@ object FirebaseModel {
                 Log.e("TAG", "AuthRepository-Email update failed: $exception")
             }
         }
+    }
+
+    fun addAuthStateListener(listener: () -> Unit) {
+        authStateListeners.add(listener)
+    }
+
+    private fun notifyAuthStateChanged() {
+        authStateListeners.forEach { it.invoke() }
     }
 }

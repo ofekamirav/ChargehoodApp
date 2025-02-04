@@ -24,11 +24,10 @@ import javax.inject.Singleton
 class ChargingStationRepository(
     private val chargingStationDao: ChargingStationDao,
 ) {
-    private val firestore = FirebaseFirestore.getInstance()
+    private val firestore = FirebaseModel.database
     private val stationsCollection = firestore.collection(CHARGING_STATIONS)
     private val usersCollection = firestore.collection(USERS)
     private val cloudinaryModel = CloudinaryModel()
-    private val userUid = FirebaseModel.getCurrentUser()?.uid
 
     private val _chargingStations = MutableLiveData<List<ChargingStation>>()
     val chargingStations: LiveData<List<ChargingStation>> get() = _chargingStations
@@ -92,6 +91,7 @@ class ChargingStationRepository(
     suspend fun createChargingStation(chargingStation: ChargingStation, image: Bitmap?): Boolean {
         return withContext(Dispatchers.IO) {
             try {
+                val userUid = getCurrentUserId()
                 Log.d("TAG", "ChargingStationRepository-Starting station creation...")
 
                 val wazeUrl = "https://waze.com/ul?ll=${chargingStation.latitude},${chargingStation.longitude}&navigate=yes"
@@ -125,6 +125,7 @@ class ChargingStationRepository(
 
                 chargingStationDao.createChargingStation(finalStation)
 
+
                 userUid?.let {
                     usersCollection.document(it).update("isStationOwner", true).await()
                 }
@@ -141,6 +142,7 @@ class ChargingStationRepository(
 
     fun deleteChargingStation(chargingStation: ChargingStation) {
         try {
+            val userUid = getCurrentUserId()?:""
                 CoroutineScope(Dispatchers.IO).launch {
                     chargingStationDao.deleteChargingStation(chargingStation)
                     stationsCollection.document(chargingStation.id).delete()
@@ -148,7 +150,7 @@ class ChargingStationRepository(
 
 
             val remainingStations =
-                chargingStationDao.getAllChargingStationsByOwnerId(userUid ?: "").value
+                chargingStationDao.getAllChargingStationsByOwnerId(userUid ).value
             if (remainingStations.isNullOrEmpty()) {
                 userUid?.let {
                     usersCollection.document(it).update("isStationOwner", false)
@@ -190,6 +192,11 @@ class ChargingStationRepository(
             }
         }
     }
+
+    private fun getCurrentUserId(): String? {
+        return FirebaseModel.getCurrentUser()?.uid
+    }
+
 
 
 }

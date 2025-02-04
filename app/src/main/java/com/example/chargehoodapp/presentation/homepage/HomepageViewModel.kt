@@ -29,6 +29,7 @@ class HomepageViewModel : ViewModel() {
     val currentLocation: LiveData<LatLng> = _currentLocation
 
     val chargingStations: LiveData<List<ChargingStation>> = repository.chargingStations
+    var lastUserId: String? = null
 
 
     private val _locationPermissionGranted = MutableLiveData<Boolean>()

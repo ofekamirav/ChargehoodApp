@@ -20,10 +20,14 @@ class PaymentMethodViewModel : ViewModel() {
     //Local list of payment methods
     val paymentInfoList: LiveData<List<PaymentInfo>> = repository.getPaymentMethodsSync()
 
-
-
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> get() = _isLoading
+
+    init {
+        FirebaseModel.addAuthStateListener {
+            refreshUserData()
+        }
+    }
 
     fun syncPayments() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -32,6 +36,13 @@ class PaymentMethodViewModel : ViewModel() {
             _isLoading.postValue(false)
         }
     }
+
+    fun refreshUserData() {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.syncPaymentInfo()
+        }
+    }
+
 
 
     fun deletePaymentInfo(paymentInfo: PaymentInfo) {

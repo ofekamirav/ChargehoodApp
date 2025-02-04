@@ -30,9 +30,8 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:textColor="#02343F"
-            android:textSize="16sp"
+            android:textSize="13sp"
             android:textStyle="bold"
-            app:layout_constraintEnd_toStartOf="@+id/TotalCost"
             app:layout_constraintStart_toEndOf="@+id/StatusIcon"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Burale 28, Rishon Lezion" />
@@ -41,6 +40,10 @@
             android:id="@+id/TotalCost"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:textColor="#02343F"
+            android:textSize="13sp"
+            android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="20$" />

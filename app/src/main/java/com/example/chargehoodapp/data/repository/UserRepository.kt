@@ -11,7 +11,7 @@ import java.lang.Exception
 //Connect the ViewModel with the database- local and remote
 class UserRepository {
 
-    private val firestore = FirebaseFirestore.getInstance()
+    private val firestore = FirebaseModel.database
     private val usersCollection = firestore.collection(USERS)
     private val user = FirebaseModel.getCurrentUser()
 

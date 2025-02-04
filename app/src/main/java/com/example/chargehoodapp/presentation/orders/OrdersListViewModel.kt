@@ -10,6 +10,7 @@ import com.example.chargehoodapp.data.model.Booking
 import com.example.chargehoodapp.data.model.ChargingStation
 import com.example.chargehoodapp.data.repository.BookingRepository
 import com.example.chargehoodapp.data.repository.ChargingStationRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class OrdersListViewModel: ViewModel() {
@@ -26,6 +27,12 @@ class OrdersListViewModel: ViewModel() {
     private val _station = MutableLiveData<ChargingStation>()
     val station: LiveData<ChargingStation> get() = _station
 
+    init {
+        FirebaseModel.addAuthStateListener {
+            refreshBookings()
+        }
+    }
+
 
     fun loadCompletedBookings() {
         BookingRepository.getCompletedBookingsLive().observeForever { bookings ->
@@ -35,6 +42,14 @@ class OrdersListViewModel: ViewModel() {
             Log.d("TAG", "OrdersListViewModel-Completed bookings loaded: $bookings")
         }
     }
+
+    fun refreshBookings() {
+        viewModelScope.launch {
+            BookingRepository.syncBookings()
+        }
+    }
+
+
 
     fun getStationById(stationId: String): LiveData<ChargingStation?> {
         return stationRepository.getChargingStationById(stationId)

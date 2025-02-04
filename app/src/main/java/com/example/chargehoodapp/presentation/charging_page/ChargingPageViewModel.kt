@@ -30,8 +30,6 @@ class ChargingPageViewModel: ViewModel() {
     private val Stationrepository: ChargingStationRepository =
         (MyApplication.Globals.context?.applicationContext as MyApplication).StationRepository
 
-    private val currentUserId = FirebaseModel.getCurrentUser()?.uid
-
     private val _station = MutableLiveData<ChargingStation>()
     val station: LiveData<ChargingStation> get() = _station
 
@@ -52,6 +50,11 @@ class ChargingPageViewModel: ViewModel() {
 
     private var timerJob: Job? = null
 
+    private fun getCurrentUserId(): String {
+        return FirebaseModel.getCurrentUser()?.uid ?: ""
+    }
+
+
     fun setStation(station: ChargingStation) {
         _station.value = station
     }
@@ -65,7 +68,7 @@ class ChargingPageViewModel: ViewModel() {
 
         val booking = Booking(
             bookingId = "",
-            userId = currentUserId.toString(),
+            userId = getCurrentUserId(),
             stationId = station.value?.id.toString(),
             stationName = station.value?.addressName.toString(),
             time = 0,
