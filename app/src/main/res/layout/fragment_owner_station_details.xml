@@ -22,7 +22,7 @@
             android:layout_height="40dp"
             android:text="Emil Zula 26, Tel-Aviv"
             android:textColor="#02343F"
-            android:textSize="18sp" />
+            android:textSize="16sp" />
 
 
         <com.google.android.material.imageview.ShapeableImageView

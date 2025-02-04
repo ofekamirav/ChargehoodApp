@@ -1,5 +1,6 @@
 package com.example.chargehoodapp.presentation.orders.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -13,6 +14,7 @@ class OrdersListAdapter(
 ): RecyclerView.Adapter<OrdersViewHolder>() {
 
     fun set(orders: List<Booking>?){
+        Log.d("TAG", "OrdersListAdapter - Setting new list with ${orders?.size} items")
         this.ordersList = orders
         notifyDataSetChanged()
     }

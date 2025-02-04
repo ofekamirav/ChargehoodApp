@@ -28,7 +28,7 @@ class ProfileViewModel: ViewModel() {
 
     fun logout() {
         FirebaseModel.logout()
-        _currentUser.value = null
+        _currentUser.postValue(null)
         Log.d("TAG", "UserViewModel-User logged out")
     }
 

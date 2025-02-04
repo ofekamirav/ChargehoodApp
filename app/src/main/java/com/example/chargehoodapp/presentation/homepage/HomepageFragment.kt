@@ -24,6 +24,9 @@ import com.example.chargehoodapp.data.model.ChargingStation
 import com.example.chargehoodapp.databinding.HomepageFragmentBinding
 import com.example.chargehoodapp.presentation.charging_station_details.ChargingStationDetailsFragment
 import com.example.chargehoodapp.presentation.charging_station_details.ChargingStationDetailsViewModel
+import com.example.chargehoodapp.presentation.orders.OrdersListViewModel
+import com.example.chargehoodapp.presentation.payment.PaymentMethodViewModel
+import com.example.chargehoodapp.presentation.your_station.YourStationListViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapView
@@ -38,6 +41,9 @@ class HomepageFragment : Fragment(), OnMapReadyCallback {
     private var viewModel: HomepageViewModel? = null
     private var mapView: MapView? = null
     private var googleMap: GoogleMap? = null
+    private var yourStationListViewModel: YourStationListViewModel? = null
+    private var paymentMethodViewModel: PaymentMethodViewModel? = null
+    private var ordersListViewModel: OrdersListViewModel? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -52,6 +58,9 @@ class HomepageFragment : Fragment(), OnMapReadyCallback {
 
         // Initialize ViewModel
         viewModel = ViewModelProvider(requireActivity())[HomepageViewModel::class.java]
+        yourStationListViewModel = ViewModelProvider(requireActivity())[YourStationListViewModel::class.java]
+        paymentMethodViewModel = ViewModelProvider(requireActivity())[PaymentMethodViewModel::class.java]
+        ordersListViewModel = ViewModelProvider(requireActivity())[OrdersListViewModel::class.java]
         viewModel?.initLocationProvider(requireContext())
 
         // Observe location permission
@@ -225,7 +234,22 @@ class HomepageFragment : Fragment(), OnMapReadyCallback {
     override fun onResume() {
         super.onResume()
         mapView?.onResume()
+
+        val currentUserId = FirebaseModel.getCurrentUser()?.uid
+        val lastUserId = viewModel?.lastUserId
+
+        if (currentUserId == lastUserId) {
+            Log.d("TAG", "HomepageFragment - Same user, no need to refresh data")
+        } else {
+            Log.d("TAG", "HomepageFragment - User switched, refreshing data")
+            viewModel?.lastUserId = currentUserId
+
+            yourStationListViewModel?.refreshChargingStations()
+            paymentMethodViewModel?.syncPayments()
+            ordersListViewModel?.refreshBookings()
+        }
     }
+
 
     override fun onPause() {
         super.onPause()

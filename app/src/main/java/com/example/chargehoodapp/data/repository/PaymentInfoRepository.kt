@@ -18,22 +18,30 @@ class PaymentInfoRepository(
     private val paymentInfoDao: PaymentInfoDao
 ) {
 
-    private val firestore = FirebaseFirestore.getInstance()
+    private val firestore = FirebaseModel.database
     private val paymentInfoCollection = firestore.collection(PAYMENT_INFO)
-    private val userUid = FirebaseModel.getCurrentUser()?.uid
     private val usersCollection = firestore.collection(USERS)
 
     companion object {
         private const val PAYMENT_LAST_UPDATE_KEY = "last_update_time_payment"
     }
 
+    private fun getCurrentUserId(): String? {
+        return FirebaseModel.getCurrentUser()?.uid
+    }
+
+
     fun getPaymentMethods(): LiveData<List<PaymentInfo>> {
+        val userUid = getCurrentUserId()
         Log.d("TAG", "PaymentInfoRepository-Fetching from Room for user: $userUid")
         return paymentInfoDao.getPaymentInfo(userUid ?: "")
     }
 
 
     suspend fun syncPaymentInfo() {
+        val userUid = getCurrentUserId()
+        Log.d("TAG", "PaymentInfoRepository-Syncing PaymentInfo for user: $userUid")
+
         withContext(Dispatchers.IO) {
             try {
                 val lastUpdateTime = MyApplication.getLastUpdateTime(PAYMENT_LAST_UPDATE_KEY)
@@ -69,6 +77,8 @@ class PaymentInfoRepository(
 
 
     suspend fun addPaymentInfo(paymentInfo: PaymentInfo) {
+        val userUid = getCurrentUserId()
+
         withContext(Dispatchers.IO) {
             try {
                 val documentRef= paymentInfoCollection.document()
@@ -90,6 +100,7 @@ class PaymentInfoRepository(
 
 
     fun getPaymentMethodsSync(): LiveData<List<PaymentInfo>> {
+        val userUid = getCurrentUserId()
         val data = paymentInfoDao.getPaymentInfo(userUid ?: "")
         data.observeForever {
             Log.d("TAG", "PaymentInfoRepository-Room - LiveData updated: $it")
@@ -100,6 +111,7 @@ class PaymentInfoRepository(
 
 
     suspend fun deletePaymentInfo(paymentInfo: PaymentInfo) {
+        val userUid = getCurrentUserId()
         try {
             paymentInfoCollection.document(paymentInfo.id).delete().await()
 

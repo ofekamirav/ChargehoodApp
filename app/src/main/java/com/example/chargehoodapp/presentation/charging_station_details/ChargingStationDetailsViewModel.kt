@@ -17,8 +17,6 @@ class ChargingStationDetailsViewModel: ViewModel() {
 
     private var userRepository = UserRepository()
 
-    private val userUid = FirebaseModel.getCurrentUser()?.uid ?:""
-
     private val _currentUserPaymentBoolean = MutableLiveData<Boolean?>()
     val currentUserPaymentBoolean: LiveData<Boolean?> = _currentUserPaymentBoolean
 
@@ -44,8 +42,13 @@ class ChargingStationDetailsViewModel: ViewModel() {
         _chargingStation.postValue(station)
     }
 
+    private fun getCurrentUserId(): String {
+        return FirebaseModel.getCurrentUser()?.uid ?: ""
+    }
+
     fun setUserPaymentBoolean() {
         viewModelScope.launch(Dispatchers.IO) {
+            val userUid = getCurrentUserId()
             val boolean = userRepository.getUserByUid(userUid)?.hasPaymentInfo
             _currentUserPaymentBoolean.postValue(boolean)
             _currentUserId.postValue(userUid)

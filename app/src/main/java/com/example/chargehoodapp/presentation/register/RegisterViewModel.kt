@@ -62,7 +62,7 @@ class RegisterViewModel: ViewModel() {
             _passwordError.value = null
         }
 
-        if (phoneNumber.length < 10) {
+        if (phoneNumber.length != 10) {
             _phoneError.value = "Phone number is not valid"
             isValid = false
         } else {

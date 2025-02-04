@@ -11,7 +11,6 @@ import com.example.chargehoodapp.data.model.Booking
 import com.example.chargehoodapp.data.model.ChargingStation
 import com.example.chargehoodapp.data.repository.BookingRepository
 import com.example.chargehoodapp.data.repository.ChargingStationRepository
-import com.example.chargehoodapp.data.repository.PaymentInfoRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -25,12 +24,11 @@ class ChargingPageViewModel: ViewModel() {
 
     private val MAX_CHARGING_TIME_SECONDS = 1 * 60 * 60 // 1 hours
 
-    private val BookingRepository = BookingRepository()
+    private val BookingRepository: BookingRepository =
+        (MyApplication.Globals.context?.applicationContext as MyApplication).bookingRepository
 
     private val Stationrepository: ChargingStationRepository =
         (MyApplication.Globals.context?.applicationContext as MyApplication).StationRepository
-
-    private val currentUserId = FirebaseModel.getCurrentUser()?.uid
 
     private val _station = MutableLiveData<ChargingStation>()
     val station: LiveData<ChargingStation> get() = _station
@@ -52,6 +50,11 @@ class ChargingPageViewModel: ViewModel() {
 
     private var timerJob: Job? = null
 
+    private fun getCurrentUserId(): String {
+        return FirebaseModel.getCurrentUser()?.uid ?: ""
+    }
+
+
     fun setStation(station: ChargingStation) {
         _station.value = station
     }
@@ -65,7 +68,7 @@ class ChargingPageViewModel: ViewModel() {
 
         val booking = Booking(
             bookingId = "",
-            userId = currentUserId.toString(),
+            userId = getCurrentUserId(),
             stationId = station.value?.id.toString(),
             stationName = station.value?.addressName.toString(),
             time = 0,

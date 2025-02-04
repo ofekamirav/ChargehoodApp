@@ -25,6 +25,12 @@ class YourStationListViewModel : ViewModel() {
     private val _isEmpty = MutableLiveData<Boolean>()
     val isEmpty: LiveData<Boolean> get() = _isEmpty
 
+    init {
+        FirebaseModel.addAuthStateListener {
+            refreshChargingStations()
+        }
+    }
+
     fun loadStations() {
         viewModelScope.launch {
             if (userUid.isNotEmpty()) {
@@ -51,5 +57,12 @@ class YourStationListViewModel : ViewModel() {
             }
         }
     }
+
+    fun refreshChargingStations() {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.syncChargingStations()
+        }
+    }
+
 
 }

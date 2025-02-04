@@ -1,6 +1,7 @@
 package com.example.chargehoodapp.presentation.orders
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -44,8 +45,11 @@ class OrdersListFragment: Fragment() {
         recyclerView?.adapter = adapter
 
         viewModel?.completedBookings?.observe(viewLifecycleOwner) { bookings ->
+            Log.d("TAG", "OrdersListFragment - Updating adapter with ${bookings?.size} items")
             adapter?.set(bookings)
-            updateUI(bookings.isEmpty())
+            if (bookings != null) {
+                updateUI(bookings.isEmpty())
+            }
         }
 
         viewModel?.loadCompletedBookings()

@@ -4,38 +4,95 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.chargehoodapp.base.Constants.Collections.BOOKING
+import com.example.chargehoodapp.data.local.dao.BookingDao
 import com.example.chargehoodapp.data.local.dao.ChargingStationDao
 import com.example.chargehoodapp.data.model.Booking
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.SetOptions
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
-class BookingRepository {
+class BookingRepository(private val bookingDao: BookingDao) {
 
-    private val firestore = FirebaseFirestore.getInstance()
+    private val firestore = FirebaseModel.database
     private val bookingsCollection = firestore.collection(BOOKING)
-    private val currentUserId = FirebaseModel.getCurrentUser()?.uid ?: ""
+
+    private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
 
-    fun getCompletedBookingsLive(): LiveData<List<Booking>?> {
-        val bookingsLiveData = MutableLiveData<List<Booking>?>()
-        firestore.collection("bookings")
-            .whereEqualTo("status", "completed")
-            .whereEqualTo("userId", currentUserId)
-            .orderBy("date", Query.Direction.DESCENDING)
-            .addSnapshotListener { snapshot, error ->
-                if (error != null) {
-                    return@addSnapshotListener
+    fun getCompletedBookingsLive(): LiveData<List<Booking>> {
+        val currentUserId = getCurrentUserId()
+        Log.d("TAG", "BookingRepository - currentUserId: $currentUserId")
+        val bookingsLiveData = MutableLiveData<List<Booking>>()
+        Log.d("TAG", "BookingRepository - Fetching completed bookings for userId: $currentUserId")
+
+        coroutineScope.launch {
+            val localBookings = bookingDao.getCompletedBookings(currentUserId.toString())
+            bookingsLiveData.postValue(localBookings)
+
+            bookingsCollection
+                .whereEqualTo("status", "Completed")
+                .whereEqualTo("userId", currentUserId)
+                .orderBy("date", Query.Direction.DESCENDING)
+                .get()
+                .addOnSuccessListener { snapshot ->
+                    val bookings = snapshot.toObjects(Booking::class.java)
+                    Log.d("TAG", "Fetched ${bookings.size} bookings from Firestore")
+
+                    coroutineScope.launch {
+                        val existingIds = bookingDao.getCompletedBookings(currentUserId.toString()).map { it.bookingId }
+                        val newBookings = bookings.filter { it.bookingId !in existingIds }
+
+                        if (newBookings.isNotEmpty()) {
+                            bookingDao.insertAll(newBookings)
+                            Log.d("TAG", "Inserted ${newBookings.size} new bookings to Room")
+                        }
+
+                        bookingsLiveData.postValue(bookingDao.getCompletedBookings(currentUserId.toString()))
+                    }
                 }
-                val bookings = snapshot?.toObjects(Booking::class.java)
-                bookingsLiveData.postValue(bookings)
+        }
 
-            }
         return bookingsLiveData
     }
+
+
+    suspend fun syncBookings() {
+        withContext(Dispatchers.IO) {
+            val currentUserId = getCurrentUserId() ?: ""
+            Log.d("TAG", "BookingRepository - Syncing bookings for userId: $currentUserId")
+
+            try {
+                val snapshot = bookingsCollection
+                    .whereEqualTo("status", "Completed")
+                    .whereEqualTo("userId", currentUserId)
+                    .orderBy("date", Query.Direction.DESCENDING)
+                    .get()
+                    .await()
+
+                val bookings = snapshot.toObjects(Booking::class.java)
+                Log.d("TAG", "BookingRepository-Fetched ${bookings.size} completed bookings from Firestore")
+
+                val existingIds = bookingDao.getCompletedBookings(currentUserId).map { it.bookingId }
+                val newBookings = bookings.filter { it.bookingId !in existingIds }
+
+                if (newBookings.isNotEmpty()) {
+                    bookingDao.insertAll(newBookings)
+                    Log.d("TAG", "BookingRepository - Inserted ${newBookings.size} new bookings to Room")
+                } else {
+                    Log.d("TAG", "BookingRepository - No new bookings to insert")
+                }
+
+            } catch (e: Exception) {
+                Log.e("TAG", "BookingRepository - Error syncing bookings: ${e.message}")
+            }
+        }
+    }
+
 
 
     fun createBooking(booking: Booking): String {
@@ -61,6 +118,11 @@ class BookingRepository {
                 Log.e("TAG", "Error updating booking: ${e.message}")
             }
     }
+
+    private fun getCurrentUserId(): String? {
+        return FirebaseModel.getCurrentUser()?.uid
+    }
+
 
 
 

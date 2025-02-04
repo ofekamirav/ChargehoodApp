@@ -16,7 +16,7 @@ class MyApplication : Application() {
     val database by lazy { AppLocalDB.database }
     val StationRepository by lazy { ChargingStationRepository(database.chargingStationDao()) }
     val paymentInfoRepository by lazy { PaymentInfoRepository(database.paymentInfoDao()) }
-    //val bookingRepository by lazy { BookingRepository(database.bookingDao()) }
+    val bookingRepository by lazy { BookingRepository(database.bookingDao()) }
 
 
     object Globals {
