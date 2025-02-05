@@ -5,7 +5,7 @@
   },
   {
     "question": "How do I pay for charging?",
-    "answer": "First enter a payment method, select a charging station and tap \"**Start Charging**\". The charge will be calculated based on charging duration, type, speed, and price per KW."
+    "answer": "First enter a payment method, select a charging station and tap \"Charge\". The charge will be calculated based on charging duration, type, speed, and price per KW."
   },
   {
     "question": "How can I view my previous orders?",
@@ -13,7 +13,7 @@
   },
   {
     "question": "What should I do if there is an issue with a charging station?",
-    "answer": "If you encounter a problem or malfunction with a station, contact us via email, and we’ll be happy to help: help@chargehood.io."
+    "answer": "If you encounter a problem or malfunction with a station, contact us via email, and we’ll be happy to help: help@chargehood.com."
   },
   {
     "question": "How do I log out of my account?",
