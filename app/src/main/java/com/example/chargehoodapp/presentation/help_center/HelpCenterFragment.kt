@@ -45,4 +45,9 @@ class HelpCenterFragment : Fragment() {
         binding = FragmentHelpCenterBinding.inflate(inflater, container, false)
         return binding?.root
     }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding = null
+    }
 }
