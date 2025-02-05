@@ -1,6 +1,6 @@
 // Loads JSON data into a list of HelpCenterItem objects.
 
-package com.example.chargehoodapp.presentation.help_center.utils
+package com.example.chargehoodapp.utils.extensions
 
 import android.content.Context
 import android.util.Log
@@ -17,7 +17,8 @@ object HelpCenterUtils {
             val reader = InputStreamReader(inputStream)
             val helpCenterType = object : TypeToken<List<HelpCenterItem>>() {}.type
             return Gson().fromJson(reader, helpCenterType)
-        } catch (e: Exception){
+        }
+        catch (e: Exception){
             Log.e("HelpCenterUtils", "Error loading Help Center data", e)
             emptyList()
         }
