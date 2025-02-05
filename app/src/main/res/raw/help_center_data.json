@@ -1,0 +1,50 @@
+[
+  {
+    "question": "How can I find a nearby charging \"station?\"",
+    "answer": "Open the Map, view nearby stations, and tap on a pin to get more information, click the Waze icon to navigate."
+  },
+  {
+    "question": "How do I pay for charging?",
+    "answer": "First enter a payment method, select a charging station and tap \"Charge\". The charge will be calculated based on charging duration, type, speed, and price per KW."
+  },
+  {
+    "question": "How can I view my previous orders?",
+    "answer": "Go to the Orders page in the app, where you can see all completed orders, including the date and the amount paid."
+  },
+  {
+    "question": "What should I do if there is an issue with a charging station?",
+    "answer": "If you encounter a problem or malfunction with a station, contact us via email, and we’ll be happy to help: help@chargehood.com."
+  },
+  {
+    "question": "How do I log out of my account?",
+    "answer": "Go to Profile, scroll down, and tap \"Log Out\"."
+  },
+  {
+    "question": "How do I add a charging station to the app?",
+    "answer": "Simply go to the \"Your Stations\" page, tap \"Add a new station\", fill in the details (address, connector type, price per kWh, and a photo), and save."
+  },
+  {
+    "question": "How can I update the kWh capacity of my station?",
+    "answer": "To update station data, you need to delete the station via \"Your Stations\", re-add it, and select the correct settings."
+  },
+  {
+    "question": "How do I change the connector type of my station (Type 1 / Type 2)?",
+    "answer": "Just like updating the kWh capacity – delete the station and re-add it with the correct settings."
+  },
+  {
+    "question": "How do I delete a charging station from the app?",
+    "answer": "Go to the \"Your Stations\" page, select the station, and tap \"Delete\"."
+  },
+  {
+    "question": "How do I add or remove a payment method?",
+    "answer": "To add a payment method, go to the \"Payment Method\" page and tap the + button. To remove a payment method, tap the 🗑️ icon next to the existing payment method."
+  },
+  {
+    "question": "Can I contact the owner of a specific charging station?",
+    "answer": "Absolutely! Find the station on the map, tap on it, and in the information card, tap the station owner's phone number to start a call."
+  },
+  {
+    "question": "Where can I contact support for other questions?",
+    "answer": "For any questions or issues, feel free to contact us via email: help@chargehood.io."
+  }
+]
