@@ -20,29 +20,22 @@ class YourStationListViewModel : ViewModel() {
     private val userUid = FirebaseModel.getCurrentUser()?.uid?: ""
 
     private val _stations = MutableLiveData<List<ChargingStation>?>()
-    val stations: LiveData<List<ChargingStation>?> get() = _stations
+    val stations: LiveData<List<ChargingStation>> = repository.userStations
 
     private val _isEmpty = MutableLiveData<Boolean>()
     val isEmpty: LiveData<Boolean> get() = _isEmpty
 
-    init {
-        FirebaseModel.addAuthStateListener {
-            refreshChargingStations()
-        }
-    }
 
-    fun loadStations() {
-        viewModelScope.launch {
-            if (userUid.isNotEmpty()) {
-                repository.getAllChargingStationsByOwnerId(userUid).observeForever { stationList ->
-                    _stations.postValue(stationList)
-                    _isEmpty.postValue(stationList.isNullOrEmpty())
-                }
-            } else {
-                Log.d("TAG", "YourStationListViewModel - User UID is empty or null")
+    init {
+        if (userUid.isEmpty()) {
+            Log.e("TAG", "YourStationListViewModel - No user UID found!")
+        } else {
+            FirebaseModel.addAuthStateListener {
+                refreshChargingStations()
             }
         }
     }
+
 
     fun deleteStation(station: ChargingStation) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -60,9 +53,12 @@ class YourStationListViewModel : ViewModel() {
 
     fun refreshChargingStations() {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.syncChargingStations()
+            Log.d("TAG", "YourStationListViewModel-Refreshing charging stations for user: $userUid")
+            repository.chargingStationDao.clearUserStations(userUid)
+            repository.syncUserStations()
         }
     }
+
 
 
 }

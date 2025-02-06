@@ -32,19 +32,4 @@ class MyApplication : Application() {
         }
     }
 
-    companion object {
-        private const val SYNC_PREFS_KEY = "sync_prefs"
-
-        fun saveLastUpdateTime(key: String, timestamp: Long) {
-            val sharedPreferences = Globals.context!!
-                .getSharedPreferences(SYNC_PREFS_KEY, Context.MODE_PRIVATE)
-            sharedPreferences.edit().putLong(key, timestamp).apply()
-        }
-
-        fun getLastUpdateTime(key: String): Long {
-            val sharedPreferences = Globals.context!!
-                .getSharedPreferences(SYNC_PREFS_KEY, Context.MODE_PRIVATE)
-            return sharedPreferences.getLong(key, 0L)
-        }
-    }
 }

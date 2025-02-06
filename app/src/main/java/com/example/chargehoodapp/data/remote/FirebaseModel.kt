@@ -36,6 +36,7 @@ object FirebaseModel {
             if (user?.uid != newUser?.uid) {
                 user = newUser
                 Log.d("TAG", "FirebaseModel - User switched to: ${user?.email}")
+                clearLocalData()
                 notifyAuthStateChanged()
             }
         }
@@ -66,6 +67,7 @@ object FirebaseModel {
         }
     }
 
+
     fun getCurrentUser(): FirebaseUser? {
         return user
     }
@@ -87,5 +89,7 @@ object FirebaseModel {
 
     private fun notifyAuthStateChanged() {
         authStateListeners.forEach { it.invoke() }
+        (MyApplication.Globals.context?.applicationContext as MyApplication).StationRepository.clearLiveData()
+
     }
 }

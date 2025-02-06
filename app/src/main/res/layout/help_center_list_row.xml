@@ -19,7 +19,7 @@
             android:id="@+id/questionText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
+            android:textSize="14sp"
             android:textStyle="bold"
             android:textColor="#02343F"
             app:layout_constraintStart_toStartOf="parent"
@@ -35,15 +35,14 @@
             android:background="@null"
             android:contentDescription="Expand Answer"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/answerText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:textColor="#02343F"
-            android:textSize="13sp"
+            android:textSize="12sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/questionText"

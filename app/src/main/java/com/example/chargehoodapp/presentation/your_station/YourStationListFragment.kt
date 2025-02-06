@@ -76,8 +76,6 @@ class YourStationListFragment : Fragment() {
         }
 
         observeViewModel()
-        viewModel?.loadStations()
-
     }
 
     //Show delete confirmation dialog
@@ -95,11 +93,11 @@ class YourStationListFragment : Fragment() {
     //Update UI based on the station list
     private fun observeViewModel() {
         viewModel?.stations?.observe(viewLifecycleOwner) { stationList ->
-            adapter?.setStations(stationList)
-            if (stationList != null) {
-                updateUI(stationList.isEmpty())
-            }
+            Log.d("TAG", "YourStationListFragment-Observed stations: ${stationList.size}")
+            adapter?.setStations(stationList ?: emptyList())
+            updateUI(stationList.isNullOrEmpty())
         }
+
 
         viewModel?.isEmpty?.observe(viewLifecycleOwner) { isEmpty ->
             updateUI(isEmpty)
@@ -114,10 +112,15 @@ class YourStationListFragment : Fragment() {
     }
 
 
-
     override fun onDestroyView() {
         super.onDestroyView()
         binding = null
     }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel?.refreshChargingStations()
+    }
+
 
 }

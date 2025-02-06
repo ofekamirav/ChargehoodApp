@@ -60,10 +60,7 @@ class PaymentMethodFragment : Fragment() {
             binding?.progressBar?.visibility = if (isLoading) View.VISIBLE else View.GONE
         }
 
-        if (viewModel?.paymentInfoList?.value.isNullOrEmpty()) {
-            viewModel?.syncPayments()
-        }
-
+        viewModel?.syncPayments()
 
         binding?.backButton?.setOnClickListener {
             findNavController().navigateUp()
@@ -72,7 +69,6 @@ class PaymentMethodFragment : Fragment() {
         binding?.addCardButton?.setOnClickListener {
             val action = PaymentMethodFragmentDirections.actionPaymentMethodFragmentToAddPaymentFragment()
             findNavController().navigate(action)
-            viewModel?.syncPayments()
         }
 
 
