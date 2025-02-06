@@ -29,7 +29,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
             android:textColor="#02343F"
-            android:textSize="16sp"
+            android:textSize="14sp"
             android:textStyle="bold"
             app:layout_constraintStart_toEndOf="@+id/StatusIcon"
             app:layout_constraintEnd_toEndOf="parent"

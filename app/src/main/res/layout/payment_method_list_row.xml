@@ -35,7 +35,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="#02343F"
-                android:textSize="16sp"
+                android:textSize="14sp"
                 android:textStyle="bold"
                 tools:text="•••• 4242" />
 
@@ -46,7 +46,7 @@
                 android:layout_marginTop="4dp"
                 android:textColor="#77BFBE"
                 android:textStyle=""
-                android:textSize="14sp"
+                android:textSize="12sp"
                 tools:text="Expiry: 12/25" />
         </LinearLayout>
 

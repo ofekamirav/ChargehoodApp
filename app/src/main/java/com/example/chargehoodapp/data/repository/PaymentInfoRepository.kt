@@ -2,6 +2,7 @@ package com.example.chargehoodapp.data.repository
 
 import android.util.Log
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.example.chargehoodapp.base.Constants.Collections.PAYMENT_INFO
 import com.example.chargehoodapp.base.Constants.Collections.USERS
 import com.example.chargehoodapp.base.MyApplication
@@ -22,30 +23,21 @@ class PaymentInfoRepository(
     private val paymentInfoCollection = firestore.collection(PAYMENT_INFO)
     private val usersCollection = firestore.collection(USERS)
 
-    companion object {
-        private const val PAYMENT_LAST_UPDATE_KEY = "last_update_time_payment"
-    }
+    private val _paymentInfoLists = MutableLiveData<List<PaymentInfo>>()
+    val paymentInfoLists: LiveData<List<PaymentInfo>> get() = _paymentInfoLists
+
 
     private fun getCurrentUserId(): String? {
         return FirebaseModel.getCurrentUser()?.uid
     }
 
 
-    fun getPaymentMethods(): LiveData<List<PaymentInfo>> {
-        val userUid = getCurrentUserId()
-        Log.d("TAG", "PaymentInfoRepository-Fetching from Room for user: $userUid")
-        return paymentInfoDao.getPaymentInfo(userUid ?: "")
-    }
-
-
     suspend fun syncPaymentInfo() {
-        val userUid = getCurrentUserId()
+        val userUid = getCurrentUserId() ?: return
         Log.d("TAG", "PaymentInfoRepository-Syncing PaymentInfo for user: $userUid")
 
         withContext(Dispatchers.IO) {
             try {
-                val lastUpdateTime = MyApplication.getLastUpdateTime(PAYMENT_LAST_UPDATE_KEY)
-
                 val snapshot = paymentInfoCollection
                     .whereEqualTo("userId", userUid)
                     .get()
@@ -54,17 +46,19 @@ class PaymentInfoRepository(
                 Log.d("TAG", "PaymentInfoRepository-Firestore - Fetched ${snapshot.documents.size} documents")
 
                 val paymentInfoList = snapshot.documents.mapNotNull { doc ->
-                    val payment = doc.toObject(PaymentInfo::class.java)
-                    payment?.copy(id = doc.id)
+                    val payment = doc.toObject(PaymentInfo::class.java)?.copy(id = doc.id)
+                    payment
                 }
 
                 Log.d("TAG", "PaymentInfoRepository-Firestore - Converted to objects: $paymentInfoList")
 
+                paymentInfoDao.deletePaymentInfoByUserId(userUid)
+
                 if (paymentInfoList.isNotEmpty()) {
                     paymentInfoDao.addPaymentInfoList(paymentInfoList)
-                    val updatedList = paymentInfoDao.getPaymentInfoSync(userUid ?: "")
-                    Log.d("TAG", "PaymentInfoRepository-Room - Saved to database: $updatedList")
-                } else{
+                    _paymentInfoLists.postValue(paymentInfoList)
+                    Log.d("TAG", "PaymentInfoRepository-Room - Saved to database: $paymentInfoList")
+                } else {
                     Log.d("TAG", "PaymentInfoRepository-Firestore - No documents found")
                 }
 
@@ -72,6 +66,10 @@ class PaymentInfoRepository(
                 Log.e("TAG", "PaymentInfoRepository-Error syncing PaymentInfo: ${e.message}")
             }
         }
+    }
+
+    private fun clearLiveData() {
+        _paymentInfoLists.postValue(emptyList())
     }
 
 
@@ -88,6 +86,7 @@ class PaymentInfoRepository(
                 val updatedPaymentInfo = paymentInfo.copy(id = generatedId)
                 documentRef.set(updatedPaymentInfo).await()
                 paymentInfoDao.addPaymentInfo(updatedPaymentInfo)
+                _paymentInfoLists.postValue(listOf(updatedPaymentInfo))
 
                 usersCollection.document(userUid ?: "").update("hasPaymentInfo", true).await()
 
@@ -118,8 +117,9 @@ class PaymentInfoRepository(
             paymentInfoDao.deletePaymentInfoById(paymentInfo.id)
 
             val remainingPayments = paymentInfoDao.getPaymentInfo(userUid ?: "").value
+            Log.d("TAG", "PaymentInfoRepository-Remaining payments after delete: $remainingPayments")
             if (remainingPayments.isNullOrEmpty()) {
-                usersCollection.document(userUid ?: "").update("hasPaymentInfo", false)
+                usersCollection.document(userUid ?: "").update("hasPaymentInfo", false).await()
             }
 
             Log.d("TAG", "Payment deleted successfully")

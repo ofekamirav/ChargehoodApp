@@ -28,9 +28,7 @@ class HomepageViewModel : ViewModel() {
     private val _currentLocation = MutableLiveData<LatLng>()
     val currentLocation: LiveData<LatLng> = _currentLocation
 
-    val chargingStations: LiveData<List<ChargingStation>> = repository.chargingStations
-    var lastUserId: String? = null
-
+    val chargingStations: LiveData<List<ChargingStation>> = repository.allStations
 
     private val _locationPermissionGranted = MutableLiveData<Boolean>()
     val locationPermissionGranted: LiveData<Boolean> = _locationPermissionGranted
@@ -68,7 +66,7 @@ class HomepageViewModel : ViewModel() {
 
     fun syncStations() {
         viewModelScope.launch {
-            repository.syncChargingStations()
+            repository.syncAllStations()
         }
     }
 }

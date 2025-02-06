@@ -68,7 +68,6 @@ class ChargingPageFragment : Fragment() {
             if (LocationUrl != null) {
                 Glide.with(this)
                     .load(LocationUrl)
-                    .placeholder(R.drawable.default_station_pic)
                     .into(binding?.staticMapImageView!!)
             }
         }
