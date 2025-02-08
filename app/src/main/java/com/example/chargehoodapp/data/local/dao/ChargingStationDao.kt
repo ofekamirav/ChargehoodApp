@@ -12,6 +12,9 @@ import com.example.chargehoodapp.data.model.ChargingStation
 @Dao
 interface ChargingStationDao {
 
+    @Query("DELETE FROM charging_stations WHERE ownerId = :ownerId")
+    fun clearUserStations(ownerId: String)
+
     @Query("SELECT * FROM charging_stations")
     fun getAllChargingStations(): LiveData<List<ChargingStation>>
 

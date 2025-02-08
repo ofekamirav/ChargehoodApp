@@ -101,6 +101,7 @@
             android:layout_marginEnd="16dp"
             android:text="Register"
             android:textSize="20sp"
+            android:paddingVertical="2dp"
             android:textColor="#02343F"
             app:rippleColor="#77BFBE"
             app:strokeColor="#77BFBE"
@@ -111,13 +112,14 @@
             style="@style/Widget.Material3.Button.IconButton.Outlined"
             android:layout_width="180dp"
             android:layout_height="55dp"
+            android:paddingVertical="2dp"
             android:text="Login"
-            android:textSize="20sp"
             android:textColor="#02343F"
+            android:textSize="20sp"
             app:backgroundTint="#77BFBE"
-            app:strokeColor="#77BFBE"
             app:rippleColor="#A6D8D7"
-            app:strokeWidth="2dp"/>
+            app:strokeColor="#77BFBE"
+            app:strokeWidth="2dp" />
 
     </LinearLayout>
 

@@ -82,9 +82,7 @@ class HomepageFragment : Fragment(), OnMapReadyCallback {
         // Add markers to the map when data is ready
         viewModel?.chargingStations?.observe(viewLifecycleOwner) { stations ->
             googleMap?.clear()
-            stations?.forEach { station ->
-                addStationMarker(station)
-            }
+            stations.forEach { addStationMarker(it) }
         }
 
         binding?.hamburgerButton?.setOnClickListener {
@@ -234,20 +232,7 @@ class HomepageFragment : Fragment(), OnMapReadyCallback {
     override fun onResume() {
         super.onResume()
         mapView?.onResume()
-
-        val currentUserId = FirebaseModel.getCurrentUser()?.uid
-        val lastUserId = viewModel?.lastUserId
-
-        if (currentUserId == lastUserId) {
-            Log.d("TAG", "HomepageFragment - Same user, no need to refresh data")
-        } else {
-            Log.d("TAG", "HomepageFragment - User switched, refreshing data")
-            viewModel?.lastUserId = currentUserId
-
-            yourStationListViewModel?.refreshChargingStations()
-            paymentMethodViewModel?.syncPayments()
-            ordersListViewModel?.refreshBookings()
-        }
+        viewModel?.syncStations()
     }
 
 

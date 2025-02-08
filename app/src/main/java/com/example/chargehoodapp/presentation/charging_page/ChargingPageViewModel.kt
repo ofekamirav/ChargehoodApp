@@ -22,7 +22,7 @@ import kotlin.math.round
 
 class ChargingPageViewModel: ViewModel() {
 
-    private val MAX_CHARGING_TIME_SECONDS = 1 * 60 * 60 // 1 hours
+    private val MAX_CHARGING_TIME_SECONDS = 0.8 * 60 * 60 // 50 mins
 
     private val BookingRepository: BookingRepository =
         (MyApplication.Globals.context?.applicationContext as MyApplication).bookingRepository

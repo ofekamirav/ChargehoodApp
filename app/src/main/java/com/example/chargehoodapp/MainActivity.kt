@@ -59,46 +59,59 @@ class MainActivity : AppCompatActivity(), DialogNavigationListener {
         drawerLayout = binding?.drawerLayout
         navigationView = binding?.navigationView
 
-        navController?.let {
-            NavigationUI.setupWithNavController(navigationView!!, navController!!)
-        }
 
+        setupNavigationMenu()
+        handleInitialNavigation()
+    }
 
-        //Show the navigation drawer when the hamburger icon is clicked
+    private fun setupNavigationMenu() {
+        navController?.let { NavigationUI.setupWithNavController(navigationView!!, it) }
+
+        // Lock drawer for certain screens
         navController?.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
                 R.id.loginFragment, R.id.registerFragment, R.id.welcomeFragment -> {
                     drawerLayout?.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
                 }
-
                 else -> {
                     drawerLayout?.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
                 }
             }
         }
 
-            navController?.navigate(R.id.welcomeFragment)
-
+        // Handle navigation item clicks
         navigationView?.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
-                R.id.nav_stations -> {
-                    navController?.navigate(R.id.yourStationListFragment)
-                }
-                R.id.nav_payments->{
-                    navController?.navigate(R.id.paymentMethodFragment)
-                }
-                R.id.nav_orders->{
-                    navController?.navigate(R.id.ordersListFragment)
-                }
-                R.id.nav_help->{
-                    navController?.navigate(R.id.helpCenterFragment)
-                }
+                R.id.nav_stations -> navController?.navigate(R.id.yourStationListFragment)
+                R.id.nav_payments -> navController?.navigate(R.id.paymentMethodFragment)
+                R.id.nav_orders -> navController?.navigate(R.id.ordersListFragment)
+                R.id.nav_help -> navController?.navigate(R.id.helpCenterFragment)
             }
-            drawerLayout?.closeDrawer(GravityCompat.START) // Close drawer after selection
+            drawerLayout?.closeDrawer(GravityCompat.START)
             true
         }
+    }
 
+    private fun handleInitialNavigation() {
+        val sharedPreferences = getSharedPreferences("app_prefs", MODE_PRIVATE)
+        val isFirstLaunch = sharedPreferences.getBoolean("is_first_launch", true)
+        val currentUser = FirebaseModel.getCurrentUser()
 
+        when {
+            isFirstLaunch -> {
+                // Navigate to Welcome screen on first app launch
+                navController?.navigate(R.id.welcomeFragment)
+                sharedPreferences.edit().putBoolean("is_first_launch", false).apply()
+            }
+            currentUser != null -> {
+                // If user is logged in, navigate to Homepage
+                navController?.navigate(R.id.homepageFragment)
+            }
+            else -> {
+                // If user is not logged in, navigate to Login
+                navController?.navigate(R.id.loginFragment)
+            }
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

@@ -22,45 +22,59 @@ import javax.inject.Singleton
 @Singleton
 //Connect the ViewModel with the database- local and remote
 class ChargingStationRepository(
-    private val chargingStationDao: ChargingStationDao,
+    val chargingStationDao: ChargingStationDao,
 ) {
     private val firestore = FirebaseModel.database
     private val stationsCollection = firestore.collection(CHARGING_STATIONS)
     private val usersCollection = firestore.collection(USERS)
     private val cloudinaryModel = CloudinaryModel()
 
-    private val _chargingStations = MutableLiveData<List<ChargingStation>>()
-    val chargingStations: LiveData<List<ChargingStation>> get() = _chargingStations
+    private val _allStations = MutableLiveData<List<ChargingStation>>()
+    val allStations: LiveData<List<ChargingStation>> get() = _allStations
 
-    companion object {
-        private const val LAST_UPDATE_KEY = "last_update_time_charging_stations"
-    }
+    private val _userStations = MutableLiveData<List<ChargingStation>>()
+    val userStations: LiveData<List<ChargingStation>> get() = _userStations
+
+
 
     init {
         listenForFirestoreUpdates()
     }
 
     //Update charging stations in local database from Firestore
-    suspend fun syncChargingStations() {
+    suspend fun syncAllStations() {
         try {
             val snapshot = stationsCollection.get().await()
-            val updatedStations = snapshot.toObjects(ChargingStation::class.java)
+            val allStations = snapshot.toObjects(ChargingStation::class.java)
 
             withContext(Dispatchers.IO) {
                 chargingStationDao.clearAllStations()
-                chargingStationDao.updateChargingStations(updatedStations)
+                chargingStationDao.updateChargingStations(allStations)
             }
 
-            _chargingStations.postValue(updatedStations)
-
-            Log.d("TAG", "ChargingStationRepository - Station sync: ${updatedStations.size}")
+            _allStations.postValue(allStations)
+            Log.d("TAG", "ChargingStationRepository - Synced all stations: ${allStations.size}")
         } catch (e: Exception) {
-            Log.e("TAG", "ChargingStationRepository - SyncError: ${e.message}")
+            Log.e("TAG", "ChargingStationRepository - Error syncing all stations: ${e.message}")
         }
     }
 
-    fun getAllChargingStationsByOwnerId(ownerId: String): LiveData<List<ChargingStation>> {
-        return chargingStationDao.getAllChargingStationsByOwnerId(ownerId)
+    suspend fun syncUserStations() {
+        try {
+            val userUid = getCurrentUserId() ?: return
+            val snapshot = stationsCollection.whereEqualTo("ownerId", userUid).get().await()
+            val userStations = snapshot.toObjects(ChargingStation::class.java)
+
+            withContext(Dispatchers.IO) {
+                chargingStationDao.clearUserStations(userUid)
+                chargingStationDao.updateChargingStations(userStations)
+            }
+
+            _userStations.postValue(userStations)
+            Log.d("TAG", "ChargingStationRepository - Synced user stations: ${userStations.size}")
+        } catch (e: Exception) {
+            Log.e("TAG", "ChargingStationRepository - Error syncing user stations: ${e.message}")
+        }
     }
 
 
@@ -78,13 +92,12 @@ class ChargingStationRepository(
                     chargingStationDao.updateChargingStations(updatedStations)
 
                     withContext(Dispatchers.Main) {
-                        _chargingStations.postValue(updatedStations)
+                        _allStations.postValue(updatedStations)
                     }
                 }
             }
         }
     }
-
 
 
     //Create station in side thread
@@ -94,7 +107,8 @@ class ChargingStationRepository(
                 val userUid = getCurrentUserId()
                 Log.d("TAG", "ChargingStationRepository-Starting station creation...")
 
-                val wazeUrl = "https://waze.com/ul?ll=${chargingStation.latitude},${chargingStation.longitude}&navigate=yes"
+                val wazeUrl =
+                    "https://waze.com/ul?ll=${chargingStation.latitude},${chargingStation.longitude}&navigate=yes"
                 var imageUrl: String? = null
 
                 if (image != null) {
@@ -107,7 +121,10 @@ class ChargingStationRepository(
                     )
 
                     if (!uploadSuccess) {
-                        Log.e("TAG", "ChargingStationRepository-Image upload failed, station not created.")
+                        Log.e(
+                            "TAG",
+                            "ChargingStationRepository-Image upload failed, station not created."
+                        )
                         return@withContext false
                     }
                 }
@@ -130,73 +147,79 @@ class ChargingStationRepository(
                     usersCollection.document(it).update("isStationOwner", true).await()
                 }
 
-                Log.d("TAG", "ChargingStationRepository-Station created successfully with ID: $generatedId")
+                Log.d(
+                    "TAG",
+                    "ChargingStationRepository-Station created successfully with ID: $generatedId"
+                )
                 true
             } catch (e: Exception) {
-                Log.e("TAG", "ChargingStationRepository-Error creating charging station: ${e.message}")
+                Log.e(
+                    "TAG",
+                    "ChargingStationRepository-Error creating charging station: ${e.message}"
+                )
                 false
             }
         }
     }
 
+    fun clearLiveData() {
+        _allStations.postValue(emptyList())
+        _userStations.postValue(emptyList())
+    }
+
+
 
     fun deleteChargingStation(chargingStation: ChargingStation) {
-        try {
-            val userUid = getCurrentUserId()?:""
-                CoroutineScope(Dispatchers.IO).launch {
-                    chargingStationDao.deleteChargingStation(chargingStation)
-                    stationsCollection.document(chargingStation.id).delete()
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                chargingStationDao.deleteChargingStation(chargingStation)
+                stationsCollection.document(chargingStation.id).delete().await()
+
+                val remainingStations = chargingStationDao.getAllChargingStationsByOwnerId(
+                    getCurrentUserId() ?: ""
+                ).value
+                if (remainingStations.isNullOrEmpty()) {
+                    usersCollection.document(getCurrentUserId() ?: "")
+                        .update("isStationOwner", false).await()
                 }
 
-
-            val remainingStations =
-                chargingStationDao.getAllChargingStationsByOwnerId(userUid ).value
-            if (remainingStations.isNullOrEmpty()) {
-                userUid?.let {
-                    usersCollection.document(it).update("isStationOwner", false)
-                        .addOnSuccessListener {
-                            Log.d("TAG", "ChargingStationRepository-User isStationOwner updated to false")
-                        }
-
-                    Log.d(
-                        "TAG",
-                        "ChargingStationRepository-Charging station deleted: ${chargingStation.id}"
-                    )
-                }
+                Log.d(
+                    "TAG",
+                    "ChargingStationRepository - Station deleted successfully: ${chargingStation.id}"
+                )
+            } catch (e: Exception) {
+                Log.e("TAG", "ChargingStationRepository - Error deleting station: ${e.message}")
             }
-        } catch (e: Exception) {
-            Log.e("TAG", "ChargingStationRepository-Error deleting charging station: ${e.message}")
         }
     }
 
 
-    fun getChargingStationById(id: String): LiveData<ChargingStation?> = chargingStationDao.getChargingStation(id)
+    fun getChargingStationById(id: String): LiveData<ChargingStation?> =
+        chargingStationDao.getChargingStation(id)
 
 
-     fun updateStationStatus(stationId: String?, status: Boolean) {
-        if (stationId == null) return
+    fun updateStationStatus(stationId: String?, status: Boolean) {
+        if (stationId.isNullOrEmpty()) return
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                stationsCollection.document(stationId)
-                    .update("availability", status)
-                    .await()
-
-                Log.d("TAG", "ChargingStationRepository - Charging station status updated in Firestore: $status")
-
+                stationsCollection.document(stationId).update("availability", status).await()
                 chargingStationDao.updateStationStatus(stationId, status)
-                Log.d("TAG", "ChargingStationRepository - Charging station status updated in Room: $status")
 
+                Log.d("TAG", "ChargingStationRepository - Station status updated to: $status")
             } catch (e: Exception) {
-                Log.e("TAG", "ChargingStationRepository-Error updating station status: ${e.message}")
+                Log.e(
+                    "TAG",
+                    "ChargingStationRepository - Failed to update station status: ${e.message}"
+                )
             }
         }
     }
+
 
     private fun getCurrentUserId(): String? {
         return FirebaseModel.getCurrentUser()?.uid
     }
-
 
 
 }
