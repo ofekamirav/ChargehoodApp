@@ -16,14 +16,34 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/addressTextView"
-            android:layout_width="300dp"
-            android:layout_height="40dp"
-            android:text="Emil Zula 26, Tel-Aviv"
-            android:textColor="#02343F"
-            android:textSize="16sp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
 
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/addressTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Emil Zula 26, Tel-Aviv"
+                android:textColor="#02343F"
+                android:textSize="16sp"
+                android:maxLines="1"
+                android:ellipsize="end" />
+
+            <ImageButton
+                android:id="@+id/EditButton"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@null"
+                android:contentDescription="Open Edit Station"
+                android:scaleType="fitCenter"
+                android:src="@drawable/edit_icon"
+                android:layout_marginStart="8dp" />
+        </LinearLayout>
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/imageView"
@@ -31,7 +51,6 @@
             android:layout_width="match_parent"
             android:layout_height="150dp"
             android:scaleType="fitCenter" />
-
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/availabilityTextView"
@@ -62,8 +81,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
                 android:text=""
-                android:textColor="#02343F"
-                />
+                android:textColor="#02343F" />
         </LinearLayout>
 
         <LinearLayout
@@ -88,13 +106,13 @@
                 android:layout_marginEnd="16dp"
                 android:text=""
                 android:textColor="#02343F" />
-            </LinearLayout>
+        </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:orientation="horizontal">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/priceLabelTextView"
@@ -110,9 +128,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text=""
-                android:textColor="#02343F"
-                />
-       </LinearLayout>
+                android:textColor="#02343F" />
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
