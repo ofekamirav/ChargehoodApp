@@ -121,6 +121,7 @@ class ChargingStationDetailsFragment: DialogFragment() {
             checkAndStartCharging()
         }
 
+
     }
 
 
