@@ -63,7 +63,6 @@ class OwnerStationDetailsFragment : DialogFragment() {
         binding?.cancelButton?.setOnClickListener {
             dismiss()
         }
-
     }
 
     // Bind the station details to the UI
