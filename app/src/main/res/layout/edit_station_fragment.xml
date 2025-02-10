@@ -69,7 +69,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/UpdateStationPic"
-            app:layout_constraintBottom_toTopOf="@+id/Updateautocomplete_fragment"
+            app:layout_constraintBottom_toTopOf="@+id/addressTextView"
             android:layout_marginTop="16dp">
 
             <ImageButton
@@ -91,15 +91,19 @@
                 android:contentDescription="Open Gallery"/>
         </LinearLayout>
 
-        <fragment
-            android:id="@+id/Updateautocomplete_fragment"
-            android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
-            android:layout_width="match_parent"
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/addressTextView"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:hint="Update your station location"
+            android:text="Station Name"
+            android:textColor="#02343F"
+            android:textSize="16sp"
+            android:textStyle="bold"
             app:layout_constraintTop_toBottomOf="@id/buttonsLayout"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="16dp"/>
+
 
 
 
@@ -111,7 +115,7 @@
             android:textColor="#02343F"
             android:textSize="16sp"
             android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@id/Updateautocomplete_fragment"
+            app:layout_constraintTop_toBottomOf="@id/addressTextView"
             app:layout_constraintStart_toStartOf="parent"
             android:layout_marginTop="16dp"/>
 

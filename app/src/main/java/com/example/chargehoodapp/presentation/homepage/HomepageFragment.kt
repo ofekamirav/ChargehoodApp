@@ -212,14 +212,6 @@ class HomepageFragment : Fragment(), OnMapReadyCallback {
     }
 
 
-    // Show the station details card fragment above the map
-    private fun showStationDetailsDialog() {
-        val dialogFragment = ChargingStationDetailsFragment()
-        dialogFragment.show(parentFragmentManager, "ChargingStationDetailsFragment")
-    }
-
-
-
     override fun onDestroyView() {
         super.onDestroyView()
         binding = null
