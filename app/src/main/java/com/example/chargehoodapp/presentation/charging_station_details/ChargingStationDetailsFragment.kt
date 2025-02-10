@@ -159,6 +159,7 @@ class ChargingStationDetailsFragment: DialogFragment() {
             val colorRes = if (station.availability) R.color.green else R.color.red
             availabilityTextView.setTextColor(ContextCompat.getColor(requireContext(), colorRes))
             chargingSpeedTextView.text = station.chargingSpeed
+            chargingTypeTextView.text = station.connectionType
             priceTextView.text = "${station.pricePerkW} $"
         }
     }

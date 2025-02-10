@@ -18,6 +18,7 @@ import com.example.chargehoodapp.data.model.ChargingStation
 import com.example.chargehoodapp.databinding.YourStationRecycledListBinding
 import com.example.chargehoodapp.databinding.YourStationsListRowBinding
 import com.example.chargehoodapp.presentation.charging_station_details.ChargingStationDetailsFragment
+import com.example.chargehoodapp.presentation.edit_station_details.EditStationViewModel
 import com.example.chargehoodapp.presentation.owner_station_details.OwnerStationDetailsFragment
 import com.example.chargehoodapp.presentation.your_station.adapter.OnDeleteClick
 import com.example.chargehoodapp.presentation.your_station.adapter.OnStationClick

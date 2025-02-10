@@ -216,6 +216,34 @@ class ChargingStationRepository(
         }
     }
 
+    suspend fun updateChargingStation(stationId: String, updates: Map<String, Any>): Boolean {
+        if (stationId.isEmpty()) {
+            Log.e("TAG", "ChargingStationRepository - Error: Station ID is empty!")
+            return false
+        }
+
+        return try {
+            stationsCollection.document(stationId).update(updates).await()
+
+            val updatedStationSnapshot = stationsCollection.document(stationId).get().await()
+            val updatedStation = updatedStationSnapshot.toObject(ChargingStation::class.java)
+
+            if (updatedStation != null) {
+                withContext(Dispatchers.IO) {
+                    chargingStationDao.updateChargingStations(listOf(updatedStation))
+                }
+                Log.d("TAG", "ChargingStationRepository - Charging station updated: $stationId")
+            }
+
+            true
+        } catch (e: Exception) {
+            Log.e("TAG", "ChargingStationRepository - Error updating charging station: ${e.message}")
+            false
+        }
+    }
+
+
+
 
     private fun getCurrentUserId(): String? {
         return FirebaseModel.getCurrentUser()?.uid

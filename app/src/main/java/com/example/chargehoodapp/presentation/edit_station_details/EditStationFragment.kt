@@ -16,9 +16,12 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.bumptech.glide.Glide
 import com.example.chargehoodapp.R
+import com.example.chargehoodapp.data.model.ChargingStation
+import com.example.chargehoodapp.data.model.User
 import com.example.chargehoodapp.databinding.EditStationFragmentBinding
-import com.example.chargehoodapp.presentation.your_station.edit.EditStationViewModel
+import com.example.chargehoodapp.presentation.edit_station_details.EditStationViewModel
 import com.google.android.gms.common.api.Status
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment
@@ -48,7 +51,6 @@ class EditStationFragment : Fragment() {
         binding = EditStationFragmentBinding.inflate(inflater, container, false)
 
         setupCameraAndGallery()
-        setupRadioButtons()
 
         return binding?.root
     }
@@ -59,8 +61,55 @@ class EditStationFragment : Fragment() {
         viewModel = ViewModelProvider(requireActivity())[EditStationViewModel::class.java]
 
         setupObservers()
-        setupEditStationButton()
-        setupAutoComplete()
+
+        val stationId = arguments?.getString("stationId")
+        stationId?.let {
+            viewModel?.getChargingStationById(it)?.observe(viewLifecycleOwner) { station ->
+                if (station != null) {
+                    viewModel?.setOriginalStation(station)
+                    populateFields(station)
+                } else {
+                    Log.e("TAG", "Station not found with ID: $it")
+                }
+            }
+        }
+
+
+        binding?.UpdateStationButton?.setOnClickListener {
+            binding?.progressBar?.visibility = View.VISIBLE
+
+            val connectionType = when (binding?.UpdateConnectionTypeGroup?.checkedRadioButtonId) {
+                binding?.Type1?.id -> "Type 1 (SAE J1772)"
+                binding?.Type2?.id -> "Type 2 (IEC 62196-2)"
+                else -> null
+            }
+
+            val chargingSpeed = when (binding?.UpdatechargingSpeedGroup?.checkedRadioButtonId) {
+                binding?.speedSlow?.id -> "3.7 kW"
+                binding?.speedMedium?.id -> "11 kW"
+                binding?.MaxSpeed?.id -> "22 kW"
+                else -> null
+            }
+
+            val price = binding?.UpdatePriceEditText?.text.toString().toDoubleOrNull()
+
+            viewModel?.updateChargingStation(
+                lat = selectedLat,
+                long = selectedLng,
+                address = selectedAddress,
+                connectionType = connectionType,
+                chargingSpeed = chargingSpeed,
+                price = price,
+                imageUrl = chosenPic
+            )
+        }
+
+        binding?.UpdatecameraButton?.setOnClickListener {
+            cameraLauncher?.launch(null)
+        }
+        binding?.UpdategalleryButton?.setOnClickListener {
+            galleryLauncher?.launch("image/*")
+        }
 
         binding?.UpdateBackButton?.setOnClickListener {
             findNavController().navigateUp()
@@ -68,7 +117,7 @@ class EditStationFragment : Fragment() {
     }
 
     private fun setupObservers() {
-        viewModel?.stationUpdated?.observe(viewLifecycleOwner) { success ->
+        viewModel?.updateStatus?.observe(viewLifecycleOwner) { success ->
             binding?.progressBar?.visibility = View.GONE
             if (success) {
                 Toast.makeText(requireContext(), "Station updated successfully!", Toast.LENGTH_SHORT).show()
@@ -93,7 +142,6 @@ class EditStationFragment : Fragment() {
                         chosenPic = imageBitmap
                         binding?.UpdateStationPic?.setImageBitmap(chosenPic)
                         didSetPic = true
-                        viewModel?.setStationImage(imageBitmap)
                     }
                 }
             }
@@ -109,100 +157,41 @@ class EditStationFragment : Fragment() {
                         chosenPic = bitmap
                         binding?.UpdateStationPic?.setImageBitmap(bitmap)
                         didSetPic = true
-                        viewModel?.setStationImage(bitmap)
                     }
                 }
             }
         }
-
-        binding?.UpdatecameraButton?.setOnClickListener { cameraLauncher?.launch(null) }
-        binding?.UpdategalleryButton?.setOnClickListener { galleryLauncher?.launch("image/*") }
     }
 
-    private fun setupRadioButtons() {
-        binding?.UpdateConnectionTypeGroup?.setOnCheckedChangeListener { _, checkedId ->
-            val type = when (checkedId) {
-                binding?.Type1?.id -> "Type 1 (SAE J1772)"
-                binding?.Type2?.id -> "Type 2 (IEC 62196-2)"
-                else -> null
-            }
-            type?.let { viewModel?.setConnectionType(it) }
-        }
+    //Set the current station details in fields--------------------------------------------------------------------------------
+    private fun populateFields(station: ChargingStation) {
+        Log.d("TAG", "EditStationFragment-populateFields called with station: $station")
 
-        binding?.UpdatechargingSpeedGroup?.setOnCheckedChangeListener { _, checkedId ->
-            val speed = when (checkedId) {
-                binding?.speedSlow?.id -> "3.7 kW"
-                binding?.speedMedium?.id -> "11 kW"
-                binding?.MaxSpeed?.id -> "22 kW"
-                else -> null
+        binding?.apply {
+            if (station.imageUrl.isNotEmpty()) {
+                Glide.with(this@EditStationFragment)
+                    .load(station.imageUrl)
+                    .placeholder(R.drawable.default_station_pic)
+                    .into(UpdateStationPic)
             }
-            speed?.let { viewModel?.setChargingSpeed(it) }
-        }
-    }
+            addressTextView.text = station.addressName
 
-    private fun setupEditStationButton() {
-        binding?.UpdateStationButton?.setOnClickListener {
-            if (selectedAddress == null || selectedLat == null || selectedLng == null) {
-                Toast.makeText(requireContext(), "Please select a location", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
+            when (station.connectionType) {
+                "Type 1 (SAE J1772)" -> UpdateConnectionTypeGroup.check(Type1.id)
+                "Type 2 (IEC 62196-2)" -> UpdateConnectionTypeGroup.check(Type2.id)
             }
 
-            val price = binding?.UpdatePriceEditText?.text.toString()
-            viewModel?.setPrice(price)
-
-            if (didSetPic) {
-                binding?.progressBar?.visibility = View.VISIBLE
-                viewModel?.updateChargingStation(
-                    latitude = selectedLat ?: 0.0,
-                    longitude = selectedLng ?: 0.0,
-                    addressName = selectedAddress ?: ""
-                )
-            } else {
-                Toast.makeText(requireContext(), "Please select a picture", Toast.LENGTH_SHORT).show()
+            when (station.chargingSpeed) {
+                "3.7 kW" -> UpdatechargingSpeedGroup.check(speedSlow.id)
+                "11 kW" -> UpdatechargingSpeedGroup.check(speedMedium.id)
+                "22 kW" -> UpdatechargingSpeedGroup.check(MaxSpeed.id)
             }
+
+            UpdatePriceEditText.setText(station.pricePerkW.toString())
         }
     }
 
-    private fun setupAutoComplete() {
-        val autocompleteFragment =
-            childFragmentManager.findFragmentById(R.id.autocomplete_fragment) as AutocompleteSupportFragment
-        customizeAutoCompleteUI(autocompleteFragment)
-
-        autocompleteFragment.setPlaceFields(
-            listOf(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG, Place.Field.ADDRESS)
-        )
-
-        autocompleteFragment.setOnPlaceSelectedListener(object : PlaceSelectionListener {
-            override fun onPlaceSelected(place: Place) {
-                selectedAddress = place.address
-                selectedLat = place.latLng?.latitude
-                selectedLng = place.latLng?.longitude
-
-                Log.d("GooglePlaces", "Address: $selectedAddress, Lat: $selectedLat, Lng: $selectedLng")
-            }
-
-            override fun onError(status: Status) {
-                Log.e("GooglePlaces", "Error: $status")
-            }
-        })
-    }
-
-    private fun customizeAutoCompleteUI(fragment: AutocompleteSupportFragment) {
-        fragment.view?.let { autoCompleteView ->
-            autoCompleteView.setBackgroundColor(Color.TRANSPARENT)
-
-            autoCompleteView.viewTreeObserver.addOnGlobalLayoutListener {
-                val editText = autoCompleteView.findViewWithTag<EditText>("SearchInput")
-                editText?.apply {
-                    setBackgroundColor(Color.TRANSPARENT)
-                    setHintTextColor(Color.GRAY)
-                    setTextColor(Color.BLACK)
-                    background = null
-                }
-            }
-        }
-    }
-
+//------------------------------------------------------------------------------------------------------------------------------
 
     override fun onDestroyView() {
         super.onDestroyView()

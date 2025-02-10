@@ -8,6 +8,11 @@
         android:id="@+id/action_global_chargingPageFragment"
         app:destination="@id/chargingPageFragment" />
 
+    <action
+        android:id="@+id/action_global_editStationFragment"
+        app:destination="@id/editStationFragment" />
+
+
     <fragment
         android:id="@+id/welcomeFragment"
         android:name="com.example.chargehoodapp.presentation.WelcomeFragment"
@@ -113,4 +118,16 @@
         android:id="@+id/helpCenterFragment"
         android:name="com.example.chargehoodapp.presentation.help_center.HelpCenterFragment"
         android:label="HelpCenterFragment" />
+    <fragment
+        android:id="@+id/editStationFragment"
+        android:name="com.example.chargehoodapp.presentation.your_station.EditStationFragment"
+        android:label="EditStationFragment">
+    <argument
+        android:name="stationId"
+        app:argType="string" />
+    </fragment>
+    <dialog
+        android:id="@+id/ownerStationDetailsFragment"
+        android:name="com.example.chargehoodapp.presentation.owner_station_details.OwnerStationDetailsFragment"
+        android:label="OwnerStationDetailsFragment" />
 </navigation>
