@@ -26,8 +26,8 @@ class ProfileViewModel: ViewModel() {
     private val _currentUser = MutableLiveData<User?>()
     val currentUser: LiveData<User?> get() = _currentUser
 
-    private val _updateStatus = MutableLiveData<String>()
-    val updateStatus: LiveData<String> get() = _updateStatus
+    private val _updateStatus = MutableLiveData<String?>()
+    val updateStatus: LiveData<String?> get() = _updateStatus
 
     private val uid = FirebaseModel.getCurrentUser()?.uid
 
@@ -56,13 +56,17 @@ class ProfileViewModel: ViewModel() {
         }
     }
 
-
-    fun updateUserProfile(name: String?, email: String?, phone: String?, image: Bitmap?) {
-        viewModelScope.launch {
+    fun updateUserProfile(name: String?, email: String?, phone: String?, image: Bitmap?, currentPassword: String? = null, newPassword: String? = null) {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
+                if (currentPassword != null && (newPassword != null || email != null)) {
+                    reauthenticateUser(currentPassword)
+                    newPassword?.let { FirebaseModel.updatePassword(it) }
+                    email?.let { FirebaseModel.updateEmail(it) }
+                }
+
                 val updates = mutableMapOf<String, Any>()
                 name?.let { updates["name"] = it }
-                email?.let { updates["email"] = it }
                 phone?.let { updates["phoneNumber"] = it }
 
                 if (image != null) {
@@ -75,15 +79,14 @@ class ProfileViewModel: ViewModel() {
                             if (!imageUrl.isNullOrEmpty()) {
                                 updates["profilePictureUrl"] = imageUrl
                             }
-                            updateFirestore(updates, email)
+                            updateFirestore(updates)
                         },
                         onError = { errorMessage ->
-                            Log.e("TAG", "ProfileViewModel-Error uploading image: $errorMessage")
                             handleUpdateResult(false, "Error uploading image: $errorMessage")
                         }
                     )
                 } else {
-                    updateFirestore(updates, email)
+                    updateFirestore(updates)
                 }
             } catch (e: Exception) {
                 Log.e("TAG", "ProfileViewModel-Error updating profile: ${e.message}")
@@ -93,13 +96,10 @@ class ProfileViewModel: ViewModel() {
     }
 
 
-    private fun updateFirestore(updates: Map<String, Any>, email: String?) {
+
+    private fun updateFirestore(updates: Map<String, Any>) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                email?.let {
-                    FirebaseModel.updateEmail(it)
-                }
-
                 val success = userRepository.updateUser(updates)
                 withContext(Dispatchers.Main) {
                     if (success) {
@@ -118,7 +118,6 @@ class ProfileViewModel: ViewModel() {
     }
 
 
-
     private fun handleUpdateResult(success: Boolean, message: String) {
         viewModelScope.launch(Dispatchers.Main) {
             _updateStatus.value = if (success) {
@@ -130,31 +129,8 @@ class ProfileViewModel: ViewModel() {
     }
 
     fun resetUpdateStatus() {
-        _updateStatus.value = null
+        _updateStatus.postValue(null)
     }
-
-
-    fun reauthenticateAndUpdateCredentials(currentPassword: String, newPassword: String?, newEmail: String?) {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                reauthenticateUser(currentPassword)
-
-                newPassword?.let { FirebaseModel.updatePassword(it) }
-                newEmail?.let { FirebaseModel.updateEmail(it) }
-
-                withContext(Dispatchers.Main) {
-                    _updateStatus.value = "Credentials updated successfully."
-                }
-            } catch (e: Exception) {
-                Log.e("TAG", "ProfileViewModel-Update failed: ${e.message}")
-                withContext(Dispatchers.Main) {
-                    _updateStatus.value = "Update failed: ${e.message}"
-                }
-            }
-        }
-    }
-
-
 
 
     suspend fun reauthenticateUser(currentPassword: String) {

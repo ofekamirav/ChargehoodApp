@@ -63,28 +63,10 @@ class EditProfileFragment : Fragment() {
         }
 
         binding?.SaveButton?.setOnClickListener {
-            val newPassword = binding?.passwordEditText?.text?.toString()?.takeIf { it.isNotEmpty() }
-            val newEmail = binding?.emailEditText?.text?.toString()?.takeIf { it.isNotEmpty() }
-
-            var credentialsUpdatedSuccessfully = false
-
-            if (newPassword != null || newEmail != null) {
-                promptForCurrentPassword { currentPassword ->
-                    viewLifecycleOwner.lifecycleScope.launch {
-                        try {
-                            viewModel?.reauthenticateAndUpdateCredentials(currentPassword, newPassword, newEmail)
-                            credentialsUpdatedSuccessfully = true
-                            updateUserDetails(credentialsUpdatedSuccessfully)
-                        } catch (e: Exception) {
-                            binding?.progressBar?.visibility = View.GONE
-                            showErrorDialog("Re-authentication failed: ${e.message}")
-                        }
-                    }
-                }
-            } else {
-                updateUserDetails(credentialsUpdatedSuccessfully)
-            }
+            val currentUser = viewModel?.currentUser?.value
+            updateUserDetails(currentUser)
         }
+
 
     }
 
@@ -133,7 +115,6 @@ class EditProfileFragment : Fragment() {
     private fun navigateToHomepage() {
         binding?.progressBar?.visibility = View.GONE
         findNavController().navigate(EditProfileFragmentDirections.actionEditProfileFragmentToHomepageFragment())
-        findNavController().popBackStack(R.id.editProfileFragment, true)
     }
 
     private fun showErrorDialog(message: String) {
@@ -195,32 +176,53 @@ class EditProfileFragment : Fragment() {
         return binding?.root
     }
 
-    private fun updateUserDetails(credentialsUpdatedSuccessfully: Boolean) {
-        binding?.progressBar?.visibility = View.VISIBLE
+    private fun updateUserDetails(currentUser: User?) {
         val name = binding?.nameEditText?.text?.toString()?.takeIf { it.isNotEmpty() }
         val email = binding?.emailEditText?.text?.toString()?.takeIf { it.isNotEmpty() }
         val phone = binding?.phoneEditText?.text?.toString()?.takeIf { it.isNotEmpty() }
-        val password = binding?.passwordEditText?.text?.toString()?.takeIf { it.isNotEmpty() }
+        val newPassword = binding?.passwordEditText?.text?.toString()?.takeIf { it.isNotEmpty() }
 
-        if (!validateInputIfExist(name, email, phone, password)) {
+        if (!validateInputIfExist(name, email, phone, newPassword)) {
             binding?.progressBar?.visibility = View.GONE
             return
         }
 
-        val currentUser = viewModel?.currentUser?.value
-        val updatesNeeded = (name != currentUser?.name || phone != currentUser?.phoneNumber || didSetProfileImage)
+        val isProfileChanged = name != currentUser?.name || phone != currentUser?.phoneNumber || didSetProfileImage
+        val isSensitiveDataChanged = newPassword != null || email != currentUser?.email
 
-        if (!updatesNeeded && credentialsUpdatedSuccessfully) {
-            binding?.progressBar?.visibility = View.GONE
-            return
-        } else if (!updatesNeeded) {
+        if (!isProfileChanged && !isSensitiveDataChanged) {
             showErrorDialog("No changes detected.")
             binding?.progressBar?.visibility = View.GONE
             return
         }
 
-        viewModel?.updateUserProfile(name, email, phone, selectedImageBitmap)
+        binding?.progressBar?.visibility = View.VISIBLE
+
+        if (isSensitiveDataChanged) {
+            promptForCurrentPassword { currentPassword ->
+                viewLifecycleOwner.lifecycleScope.launch {
+                    viewModel?.updateUserProfile(
+                        name = name ?: currentUser?.name,
+                        email = email ?: currentUser?.email,
+                        phone = phone ?: currentUser?.phoneNumber,
+                        image = if (didSetProfileImage) selectedImageBitmap else null,
+                        currentPassword = currentPassword,
+                        newPassword = newPassword
+                    )
+                }
+            }
+        } else {
+            viewLifecycleOwner.lifecycleScope.launch {
+                viewModel?.updateUserProfile(
+                    name = name ?: currentUser?.name,
+                    email = currentUser?.email,
+                    phone = phone ?: currentUser?.phoneNumber,
+                    image = if (didSetProfileImage) selectedImageBitmap else null
+                )
+            }
+        }
     }
+
 
 
 
@@ -249,6 +251,7 @@ class EditProfileFragment : Fragment() {
         return isValid
     }
 
+    //Prompt for current password
     private fun promptForCurrentPassword(onPasswordEntered: (String) -> Unit) {
         val input = EditText(requireContext()).apply {
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
