@@ -34,6 +34,14 @@ class OrdersListViewModel: ViewModel() {
     }
 
 
+    fun loadOrders() {
+        viewModelScope.launch(Dispatchers.IO) {
+             val bookings = BookingRepository.getAllBookings()
+            _allRelevantBookings.postValue(bookings)
+            }
+        }
+
+
     fun loadAllRelevantBookings() {
         viewModelScope.launch {
             BookingRepository.getAllRelevantBookings().observeForever { bookings ->

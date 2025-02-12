@@ -59,6 +59,14 @@ class ChargingStationRepository(
         }
     }
 
+    fun getAllStations(): List<ChargingStation>? {
+        var allStations: List<ChargingStation>? = null
+        CoroutineScope(Dispatchers.IO).launch {
+            allStations = chargingStationDao.getAllChargingStations()
+        }
+        return allStations
+    }
+
     suspend fun syncUserStations() {
         try {
             val userUid = getCurrentUserId() ?: return

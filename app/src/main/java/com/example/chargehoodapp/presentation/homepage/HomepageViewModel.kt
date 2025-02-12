@@ -35,6 +35,7 @@ class HomepageViewModel : ViewModel() {
 
     private var fusedLocationClient: FusedLocationProviderClient? = null
 
+
     fun initLocationProvider(context: Context) {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
         checkLocationPermission(context)
@@ -66,6 +67,7 @@ class HomepageViewModel : ViewModel() {
 
     fun syncStations() {
         viewModelScope.launch {
+            repository.getAllStations()
             repository.syncAllStations()
         }
     }

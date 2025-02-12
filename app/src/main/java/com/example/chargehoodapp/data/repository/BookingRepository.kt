@@ -22,6 +22,7 @@ class BookingRepository(private val bookingDao: BookingDao) {
     private val firestore = FirebaseModel.database
     private val bookingsCollection = firestore.collection(BOOKING)
 
+
     private val chargingStationRepository: ChargingStationRepository =
         (MyApplication.Globals.context?.applicationContext as MyApplication).StationRepository
 
@@ -34,6 +35,8 @@ class BookingRepository(private val bookingDao: BookingDao) {
                 val currentUserId = getCurrentUserId()
 
                 val localBookings = bookingDao.getAllBookings()
+                Log.d("TAG", "BookingRepository - Loaded ${localBookings.size} bookings from Room DB")
+
                 resultLiveData.postValue(localBookings)
                 Log.d("TAG", "BookingRepository - Loaded ${localBookings.size} bookings from Room DB")
 
@@ -74,6 +77,9 @@ class BookingRepository(private val bookingDao: BookingDao) {
         return resultLiveData
     }
 
+    fun getAllBookings(): List<Booking>{
+        return bookingDao.getAllBookings()
+    }
 
 
     fun createBooking(booking: Booking): String {

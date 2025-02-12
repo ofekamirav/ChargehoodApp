@@ -50,7 +50,7 @@ class OrdersListFragment: Fragment() {
             updateUI(bookings.isNullOrEmpty())
         }
 
-        viewModel?.loadAllRelevantBookings()
+        viewModel?.loadOrders()
 
         binding?.backButton?.setOnClickListener {
             findNavController().navigateUp()
