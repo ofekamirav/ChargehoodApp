@@ -25,7 +25,6 @@ class BookingRepository(private val bookingDao: BookingDao) {
     private val chargingStationRepository: ChargingStationRepository =
         (MyApplication.Globals.context?.applicationContext as MyApplication).StationRepository
 
-
     suspend fun getAllRelevantBookings(): LiveData<List<Booking>> {
         Log.d("TAG", "BookingRepository - Fetching all relevant bookings")
         val resultLiveData = MutableLiveData<List<Booking>>()
@@ -33,26 +32,25 @@ class BookingRepository(private val bookingDao: BookingDao) {
         withContext(Dispatchers.IO) {
             try {
                 val currentUserId = getCurrentUserId()
+
+                val localBookings = bookingDao.getAllBookings()
+                resultLiveData.postValue(localBookings)
+                Log.d("TAG", "BookingRepository - Loaded ${localBookings.size} bookings from Room DB")
+
                 val ownerStations = chargingStationRepository.getAllOwnerStations()
-                Log.d("TAG", "BookingRepository - Owner stations: $ownerStations")
                 val ownerStationIds = ownerStations.map { it.id }
-                Log.d("TAG", "BookingRepository - Owner station IDs: $ownerStationIds")
 
                 val allBookings = mutableListOf<Booking>()
 
-                //get the user's bookings
                 val userBookingsSnapshot = bookingsCollection
                     .whereEqualTo("status", "Completed")
                     .whereEqualTo("userId", currentUserId)
                     .orderBy("date", Query.Direction.DESCENDING)
                     .get()
                     .await()
-
                 allBookings.addAll(userBookingsSnapshot.toObjects(Booking::class.java))
 
-                // get all bookings for the user's stations
                 ownerStationIds.chunked(10).forEach { chunk: List<String> ->
-                    Log.d("TAG", "BookingRepository - Fetching bookings for station IDs: $chunk")
                     val snapshot = bookingsCollection
                         .whereEqualTo("status", "Completed")
                         .whereIn("stationId", chunk)
@@ -60,53 +58,20 @@ class BookingRepository(private val bookingDao: BookingDao) {
                         .get()
                         .await()
                     allBookings.addAll(snapshot.toObjects(Booking::class.java))
-                    Log.d("TAG", "BookingRepository - Fetched ${snapshot.size()} bookings for stations: $chunk")
                 }
 
                 val uniqueBookings = allBookings.distinctBy { it.bookingId }
                     .sortedByDescending { it.date }
 
+                bookingDao.insertAll(uniqueBookings)
+
                 resultLiveData.postValue(uniqueBookings)
             } catch (e: Exception) {
                 Log.e("TAG", "Error fetching all relevant bookings: ${e.message}")
-                resultLiveData.postValue(emptyList())
             }
         }
 
         return resultLiveData
-    }
-
-
-    suspend fun syncBookings() {
-        withContext(Dispatchers.IO) {
-            val currentUserId = getCurrentUserId() ?: ""
-            Log.d("TAG", "BookingRepository - Syncing bookings for userId: $currentUserId")
-
-            try {
-                val snapshot = bookingsCollection
-                    .whereEqualTo("status", "Completed")
-                    .whereEqualTo("userId", currentUserId)
-                    .orderBy("date", Query.Direction.DESCENDING)
-                    .get()
-                    .await()
-
-                val bookings = snapshot.toObjects(Booking::class.java)
-                Log.d("TAG", "BookingRepository-Fetched ${bookings.size} completed bookings from Firestore")
-
-                val existingIds = bookingDao.getCompletedBookings(currentUserId).map { it.bookingId }
-                val newBookings = bookings.filter { it.bookingId !in existingIds }
-
-                if (newBookings.isNotEmpty()) {
-                    bookingDao.insertAll(newBookings)
-                    Log.d("TAG", "BookingRepository - Inserted ${newBookings.size} new bookings to Room")
-                } else {
-                    Log.d("TAG", "BookingRepository - No new bookings to insert")
-                }
-
-            } catch (e: Exception) {
-                Log.e("TAG", "BookingRepository - Error syncing bookings: ${e.message}")
-            }
-        }
     }
 
 
@@ -138,8 +103,6 @@ class BookingRepository(private val bookingDao: BookingDao) {
     private fun getCurrentUserId(): String? {
         return FirebaseModel.getCurrentUser()?.uid
     }
-
-
 
 
 }

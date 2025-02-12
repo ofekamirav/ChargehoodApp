@@ -121,9 +121,10 @@ class EditStationFragment : Fragment() {
             binding?.progressBar?.visibility = View.GONE
             if (success == true) {
                 Toast.makeText(requireContext(), "Station updated successfully!", Toast.LENGTH_SHORT).show()
-                findNavController().navigateUp()
                 viewModel?.clearLiveData()
-            } else {
+                findNavController().navigateUp()
+            }
+            if(success==false){
                 Toast.makeText(requireContext(), "Failed to update station", Toast.LENGTH_SHORT).show()
                 viewModel?.clearLiveData()
             }
