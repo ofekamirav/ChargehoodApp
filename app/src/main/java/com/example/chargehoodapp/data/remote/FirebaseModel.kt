@@ -10,6 +10,7 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 object FirebaseModel {
 
@@ -42,17 +43,16 @@ object FirebaseModel {
         }
     }
 
-    fun updatePassword(newPassword: String) {
-        user?.updatePassword(newPassword)?.addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                Log.d("TAG", "AuthRepository-Password updated successfully")
-            } else {
-                val exception = task.exception
-                Log.e("TAG", "AuthRepository-Password update failed: $exception")
-            }
+    suspend fun updatePassword(newPassword: String) {
+        val user = getCurrentUser() ?: throw Exception("User not logged in")
+        try {
+            user.updatePassword(newPassword).await()
+            Log.d("TAG", "AuthRepository-Password updated successfully")
+        } catch (e: Exception) {
+            Log.e("TAG", "AuthRepository-Password update failed: ${e.message}")
+            throw e
         }
     }
-
     fun logout() {
         auth.signOut()
         clearLocalData()

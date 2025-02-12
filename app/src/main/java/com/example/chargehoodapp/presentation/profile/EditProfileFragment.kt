@@ -4,20 +4,24 @@ import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.provider.MediaStore
+import android.text.InputType
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.example.chargehoodapp.R
 import com.example.chargehoodapp.data.model.User
 import com.example.chargehoodapp.databinding.FragmentEditProfileBinding
+import kotlinx.coroutines.launch
 
 class EditProfileFragment : Fragment() {
 
@@ -34,6 +38,9 @@ class EditProfileFragment : Fragment() {
 
         viewModel = ViewModelProvider(requireActivity())[ProfileViewModel::class.java]
 
+        observeUpdateStatus()
+        observeCurrentUser()
+
         // Show progress bar initially
         binding?.contentGroup?.visibility = View.GONE
         binding?.progressBar?.visibility = View.VISIBLE
@@ -41,17 +48,6 @@ class EditProfileFragment : Fragment() {
         // Get current user data
         viewModel?.getCurrentUser()
 
-        // Observe current user data to pre-fill fields
-        viewModel?.currentUser?.observe(viewLifecycleOwner) { user ->
-            Log.d("TAG", "EditProfileFragment-currentUser observed: $user")
-            if (user != null) {
-                populateFields(user)
-                binding?.progressBar?.visibility = View.GONE
-                binding?.contentGroup?.visibility = View.VISIBLE
-            } else {
-                showErrorDialog("Failed to load user details. Please try again.")
-            }
-        }
 
         binding?.backButton?.setOnClickListener {
             findNavController().navigateUp()
@@ -66,12 +62,28 @@ class EditProfileFragment : Fragment() {
             galleryLauncher?.launch("image/*")
         }
 
-        binding?.SaveButton?.setOnClickListener{
-            binding?.progressBar?.visibility = View.VISIBLE
-            updateUserDetails()
+        binding?.SaveButton?.setOnClickListener {
+            val currentUser = viewModel?.currentUser?.value
+            updateUserDetails(currentUser)
+        }
+
+
+    }
+
+    //listen to the current user data
+    private fun observeCurrentUser() {
+        viewModel?.currentUser?.observe(viewLifecycleOwner) { user ->
+            binding?.progressBar?.visibility = View.GONE
+            binding?.contentGroup?.visibility = View.VISIBLE
+            user?.let {
+                populateFields(it)
+            } ?: run {
+                showErrorDialog("Failed to load user data.")
+            }
         }
     }
 
+//set the current user data to the fields
     private fun populateFields(user: User) {
         Log.d("TAG", "EditProfileFragment-populateFields called with user: $user")
         binding?.apply {
@@ -90,13 +102,52 @@ class EditProfileFragment : Fragment() {
         }
     }
 
+    private fun showSuccessDialog(message: String) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Success")
+            .setMessage(message)
+            .setPositiveButton("OK") { _, _ ->
+                navigateToHomepage()
+            }
+            .setCancelable(false)
+            .show()
+    }
+
+    private fun navigateToHomepage() {
+        binding?.progressBar?.visibility = View.GONE
+        findNavController().navigate(EditProfileFragmentDirections.actionEditProfileFragmentToHomepageFragment())
+    }
+
     private fun showErrorDialog(message: String) {
         AlertDialog.Builder(requireContext())
             .setTitle("Error")
             .setMessage(message)
-            .setPositiveButton("OK") { _, _ -> findNavController().navigateUp() }
+            .setPositiveButton("OK", null)
             .show()
     }
+//Observe the update status and show the relevant dialog
+    private fun observeUpdateStatus() {
+        viewModel?.updateStatus?.observe(viewLifecycleOwner) { status ->
+            Log.d("TAG", "EditProfileFragment-updateStatus observed: $status")
+            binding?.progressBar?.visibility = View.VISIBLE
+
+            status?.let {
+                when {
+                    it.contains("updated successfully", ignoreCase = true) -> {
+                        binding?.progressBar?.visibility = View.GONE
+                        showSuccessDialog(it)
+                        viewModel?.resetUpdateStatus()
+                    }
+                    it.contains("Error", ignoreCase = true) || it.contains("Failed", ignoreCase = true) -> {
+                        binding?.progressBar?.visibility = View.GONE
+                        showErrorDialog(it)
+                        viewModel?.resetUpdateStatus()
+                    }
+                }
+            }
+        }
+    }
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -126,59 +177,55 @@ class EditProfileFragment : Fragment() {
         return binding?.root
     }
 
-    private fun updateUserDetails() {
-        Log.d("TAG", "EditProfileFragment-updateUserDetails called")
+//get the updated information from the user if exists and send to func in viewModel
+    private fun updateUserDetails(currentUser: User?) {
         val name = binding?.nameEditText?.text?.toString()?.takeIf { it.isNotEmpty() }
         val email = binding?.emailEditText?.text?.toString()?.takeIf { it.isNotEmpty() }
         val phone = binding?.phoneEditText?.text?.toString()?.takeIf { it.isNotEmpty() }
-        val password = binding?.passwordEditText?.text?.toString()?.takeIf { it.isNotEmpty() }
+        val newPassword = binding?.passwordEditText?.text?.toString()?.takeIf { it.isNotEmpty() }
 
-        Log.d("TAG", "EditProfileFragment-Inputs: name=$name, email=$email, phone=$phone, password=$password")
-
-        val imageBitmap = if (didSetProfileImage) {
-            (binding?.userProfilePic?.drawable as? BitmapDrawable)?.bitmap
-        } else null
-        Log.d("TAG", "EditProfileFragment-ImageBitmap set: ${imageBitmap != null}")
-
-        // Validate inputs
-        val isValid = validateInputIfExist(name, email, phone, password)
-        Log.d("TAG", "EditProfileFragment-Input validation result: $isValid")
-
-        if (!isValid) {
-            Log.e("TAG", "EditProfileFragment-Input validation failed.")
+        if (!validateInputIfExist(name, email, phone, newPassword)) {
             binding?.progressBar?.visibility = View.GONE
-            showErrorDialog("Please check your inputs")
             return
         }
-        Log.d("TAG", "EditProfileFragment-Starting updateUserProfile in ViewModel")
 
-        viewModel?.updateUserProfile(
-            name = name,
-            email = email,
-            phone = phone,
-            password = password,
-            image = imageBitmap
-        )
-        Log.d("TAG", "EditProfileFragment-Observing updateStatus LiveData")
-        viewModel?.updateStatus?.observe(viewLifecycleOwner) { status ->
-            Log.d("TAG", "EditProfileFragment-updateStatus observed: $status")
-            if (!status.isNullOrEmpty()) {
-                binding?.progressBar?.visibility = View.GONE
-                AlertDialog.Builder(requireContext())
-                    .setTitle(status)
-                    .setPositiveButton("OK") { _, _ ->
-                        val action =
-                            EditProfileFragmentDirections.actionEditProfileFragmentToHomepageFragment()
-                        findNavController().navigate(action)
-                    }
-                    .show()
-            } else{
-                showErrorDialog("Failed to update profile. Please try again.")
-            }
+        val isProfileChanged = name != currentUser?.name || phone != currentUser?.phoneNumber || didSetProfileImage
+        val isSensitiveDataChanged = newPassword != null || email != currentUser?.email
+
+        if (!isProfileChanged && !isSensitiveDataChanged) {
+            showErrorDialog("No changes detected.")
+            binding?.progressBar?.visibility = View.GONE
+            return
         }
 
+        binding?.progressBar?.visibility = View.VISIBLE
+
+        if (isSensitiveDataChanged) {
+            promptForCurrentPassword { currentPassword ->
+                viewLifecycleOwner.lifecycleScope.launch {
+                    viewModel?.updateUserProfile(
+                        name = name ?: currentUser?.name,
+                        email = email ?: currentUser?.email,
+                        phone = phone ?: currentUser?.phoneNumber,
+                        image = if (didSetProfileImage) selectedImageBitmap else null,
+                        currentPassword = currentPassword,
+                        newPassword = newPassword
+                    )
+                }
+            }
+        } else {
+            viewLifecycleOwner.lifecycleScope.launch {
+                viewModel?.updateUserProfile(
+                    name = name ?: currentUser?.name,
+                    email = currentUser?.email,
+                    phone = phone ?: currentUser?.phoneNumber,
+                    image = if (didSetProfileImage) selectedImageBitmap else null
+                )
+            }
+        }
     }
 
+//validate inputs if exists
     private fun validateInputIfExist(name: String?, email: String?, phone: String?, password: String?):Boolean {
         var isValid = true
 
@@ -204,8 +251,36 @@ class EditProfileFragment : Fragment() {
         return isValid
     }
 
+    //Prompt for current password
+    private fun promptForCurrentPassword(onPasswordEntered: (String) -> Unit) {
+        val input = EditText(requireContext()).apply {
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+            hint = "Enter current password"
+        }
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Re-authentication Required")
+            .setMessage("Please enter your current password to continue.")
+            .setView(input)
+            .setPositiveButton("Confirm") { _, _ ->
+                val currentPassword = input.text.toString()
+                if (currentPassword.isNotEmpty()) {
+                    Log.d("TAG", "Password entered for reauthentication: $currentPassword")
+                    onPasswordEntered(currentPassword)
+                    binding?.progressBar?.visibility = View.VISIBLE
+                } else {
+                    showErrorDialog("Password cannot be empty.")
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+
     override fun onDestroyView() {
         super.onDestroyView()
+        viewModel?.updateStatus?.removeObservers(viewLifecycleOwner)
+        viewModel?.resetUpdateStatus()
         binding = null
     }
 }

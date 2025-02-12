@@ -23,8 +23,6 @@ class PaymentInfoRepository(
     private val paymentInfoCollection = firestore.collection(PAYMENT_INFO)
     private val usersCollection = firestore.collection(USERS)
 
-    private val _paymentInfoLists = MutableLiveData<List<PaymentInfo>>()
-    val paymentInfoLists: LiveData<List<PaymentInfo>> get() = _paymentInfoLists
 
 
     private fun getCurrentUserId(): String? {
@@ -32,44 +30,28 @@ class PaymentInfoRepository(
     }
 
 
-    suspend fun syncPaymentInfo() {
-        val userUid = getCurrentUserId() ?: return
-        Log.d("TAG", "PaymentInfoRepository-Syncing PaymentInfo for user: $userUid")
-
-        withContext(Dispatchers.IO) {
+    suspend fun syncPaymentInfo(): List<PaymentInfo> {
+        val userUid = getCurrentUserId() ?: return emptyList()
+        return withContext(Dispatchers.IO) {
             try {
                 val snapshot = paymentInfoCollection
                     .whereEqualTo("userId", userUid)
                     .get()
                     .await()
 
-                Log.d("TAG", "PaymentInfoRepository-Firestore - Fetched ${snapshot.documents.size} documents")
-
                 val paymentInfoList = snapshot.documents.mapNotNull { doc ->
-                    val payment = doc.toObject(PaymentInfo::class.java)?.copy(id = doc.id)
-                    payment
+                    doc.toObject(PaymentInfo::class.java)?.copy(id = doc.id)
                 }
-
-                Log.d("TAG", "PaymentInfoRepository-Firestore - Converted to objects: $paymentInfoList")
 
                 paymentInfoDao.deletePaymentInfoByUserId(userUid)
+                paymentInfoDao.addPaymentInfoList(paymentInfoList)
 
-                if (paymentInfoList.isNotEmpty()) {
-                    paymentInfoDao.addPaymentInfoList(paymentInfoList)
-                    _paymentInfoLists.postValue(paymentInfoList)
-                    Log.d("TAG", "PaymentInfoRepository-Room - Saved to database: $paymentInfoList")
-                } else {
-                    Log.d("TAG", "PaymentInfoRepository-Firestore - No documents found")
-                }
-
+                paymentInfoList
             } catch (e: Exception) {
                 Log.e("TAG", "PaymentInfoRepository-Error syncing PaymentInfo: ${e.message}")
+                emptyList()
             }
         }
-    }
-
-    private fun clearLiveData() {
-        _paymentInfoLists.postValue(emptyList())
     }
 
 
@@ -86,7 +68,8 @@ class PaymentInfoRepository(
                 val updatedPaymentInfo = paymentInfo.copy(id = generatedId)
                 documentRef.set(updatedPaymentInfo).await()
                 paymentInfoDao.addPaymentInfo(updatedPaymentInfo)
-                _paymentInfoLists.postValue(listOf(updatedPaymentInfo))
+
+                syncPaymentInfo()
 
                 usersCollection.document(userUid ?: "").update("hasPaymentInfo", true).await()
 
@@ -97,15 +80,6 @@ class PaymentInfoRepository(
         }
     }
 
-
-    fun getPaymentMethodsSync(): LiveData<List<PaymentInfo>> {
-        val userUid = getCurrentUserId()
-        val data = paymentInfoDao.getPaymentInfo(userUid ?: "")
-        data.observeForever {
-            Log.d("TAG", "PaymentInfoRepository-Room - LiveData updated: $it")
-        }
-        return data
-    }
 
 
 

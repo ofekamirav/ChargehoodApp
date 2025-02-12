@@ -1,5 +1,6 @@
 package com.example.chargehoodapp.presentation.profile
 
+import FirebaseModel
 import android.graphics.Bitmap
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -9,7 +10,11 @@ import androidx.lifecycle.viewModelScope
 import com.example.chargehoodapp.data.repository.UserRepository
 import com.example.chargehoodapp.data.model.User
 import com.example.chargehoodapp.data.remote.CloudinaryModel
+import com.google.firebase.auth.EmailAuthProvider
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 
 class ProfileViewModel: ViewModel() {
 
@@ -21,8 +26,8 @@ class ProfileViewModel: ViewModel() {
     private val _currentUser = MutableLiveData<User?>()
     val currentUser: LiveData<User?> get() = _currentUser
 
-    private val _updateStatus = MutableLiveData<String>()
-    val updateStatus: LiveData<String> get() = _updateStatus
+    private val _updateStatus = MutableLiveData<String?>()
+    val updateStatus: LiveData<String?> get() = _updateStatus
 
     private val uid = FirebaseModel.getCurrentUser()?.uid
 
@@ -51,19 +56,18 @@ class ProfileViewModel: ViewModel() {
         }
     }
 
-
-    fun updateUserProfile(
-        name: String?,
-        email: String?,
-        phone: String?,
-        password: String?,
-        image: Bitmap?
-    ) {
-        viewModelScope.launch {
+    //Update user collection in Firestore and cloudinary
+    fun updateUserProfile(name: String?, email: String?, phone: String?, image: Bitmap?, currentPassword: String? = null, newPassword: String? = null) {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
+                if (currentPassword != null && (newPassword != null || email != null)) {
+                    reauthenticateUser(currentPassword)
+                    newPassword?.let { FirebaseModel.updatePassword(it) }
+                    email?.let { FirebaseModel.updateEmail(it) }
+                }
+
                 val updates = mutableMapOf<String, Any>()
                 name?.let { updates["name"] = it }
-                email?.let { updates["email"] = it }
                 phone?.let { updates["phoneNumber"] = it }
 
                 if (image != null) {
@@ -73,52 +77,76 @@ class ProfileViewModel: ViewModel() {
                         name = "profile_${System.currentTimeMillis()}",
                         folder = "users",
                         onSuccess = { imageUrl ->
-                            Log.d("TAG", "ProfileViewModel-Image uploaded successfully. URL: $imageUrl")
-                            if (imageUrl?.isNotEmpty() == true) {
+                            if (!imageUrl.isNullOrEmpty()) {
                                 updates["profilePictureUrl"] = imageUrl
-                                updateFirestore(updates, email, password)
                             }
+                            updateFirestore(updates)
                         },
                         onError = { errorMessage ->
-                            Log.e("TAG", "ProfileViewModel-Error uploading image: $errorMessage")
-                            _updateStatus.postValue("Error uploading image: $errorMessage")
+                            handleUpdateResult(false, "Error uploading image: $errorMessage")
                         }
                     )
                 } else {
-                    val currentUser = _currentUser.value
-                    currentUser?.profilePictureUrl?.let {
-                        updates["profilePictureUrl"] = it
-                        Log.d("TAG", "ProfileViewModel-Using existing image URL: $it")
-                    }
-                    updateFirestore(updates, email, password)
+                    updateFirestore(updates)
                 }
             } catch (e: Exception) {
                 Log.e("TAG", "ProfileViewModel-Error updating profile: ${e.message}")
-                _updateStatus.postValue("Error updating profile: ${e.message}")
+                handleUpdateResult(false, "Error updating profile: ${e.message}")
             }
         }
     }
 
-    private fun updateFirestore(updates: Map<String, Any>, email: String?, password: String?) {
-        viewModelScope.launch {
-            try {
-                //Update email and password in Firebase Authentication if provided
-                email?.let { FirebaseModel.updateEmail(it) }
-                password?.let { FirebaseModel.updatePassword(it) }
 
-                //Update in users collection in Firestore
+    private fun updateFirestore(updates: Map<String, Any>) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
                 val success = userRepository.updateUser(updates)
-                Log.d("TAG", "UserViewModel-Firestore update successful: $success")
-                _updateStatus.value = if (success) {
-                    "Profile updated successfully."
-                } else {
-                    "Failed to update profile."
+                withContext(Dispatchers.Main) {
+                    if (success) {
+                        _updateStatus.value = "Profile updated successfully."
+                    } else {
+                        _updateStatus.value = "Failed to update profile."
+                    }
                 }
             } catch (e: Exception) {
                 Log.e("TAG", "ProfileViewModel-Error updating Firestore: ${e.message}")
-                _updateStatus.value = "Error updating Firestore: ${e.message}"
+                withContext(Dispatchers.Main) {
+                    _updateStatus.value = "Error updating Firestore: ${e.message}"
+                }
             }
+        }
+    }
+
+//handle error or success message
+    private fun handleUpdateResult(success: Boolean, message: String) {
+        viewModelScope.launch(Dispatchers.Main) {
+            _updateStatus.value = if (success) {
+                message
+            } else {
+                "Failed: $message"
+            }
+        }
+    }
+
+    fun resetUpdateStatus() {
+        _updateStatus.postValue(null)
+    }
+
+//re authenticate user before updating
+    suspend fun reauthenticateUser(currentPassword: String) {
+        val user = FirebaseModel.getCurrentUser()
+        val credential = EmailAuthProvider.getCredential(user?.email ?: "", currentPassword)
+        Log.d("TAG", "ProfileViewModel-Email: ${user?.email}")
+        try {
+            user?.reauthenticate(credential)?.await()
+            Log.d("TAG", "ProfileViewModel-Reauthentication successful")
+        } catch (e: Exception) {
+            Log.e("TAG", "ProfileViewModel-Reauthentication failed: ${e.message}")
+            throw e
         }
     }
 
 }
+
+
+
