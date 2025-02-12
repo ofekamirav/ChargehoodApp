@@ -30,6 +30,12 @@ class AddPaymentViewModel : ViewModel() {
         _selectedCardType.postValue(cardType)
     }
 
+    fun resetMessages() {
+        _successMessage.postValue(null)
+        _errorMessage.postValue(null)
+    }
+
+
     fun savePaymentInfo(cardNumber: String, expiry: String) {
         if (cardNumber.length < 16) {
             val error = "Invalid Card Number (Must be 16 digits)"

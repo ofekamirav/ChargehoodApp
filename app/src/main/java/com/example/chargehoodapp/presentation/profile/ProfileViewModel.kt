@@ -56,6 +56,7 @@ class ProfileViewModel: ViewModel() {
         }
     }
 
+    //Update user collection in Firestore and cloudinary
     fun updateUserProfile(name: String?, email: String?, phone: String?, image: Bitmap?, currentPassword: String? = null, newPassword: String? = null) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -96,7 +97,6 @@ class ProfileViewModel: ViewModel() {
     }
 
 
-
     private fun updateFirestore(updates: Map<String, Any>) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -117,7 +117,7 @@ class ProfileViewModel: ViewModel() {
         }
     }
 
-
+//handle error or success message
     private fun handleUpdateResult(success: Boolean, message: String) {
         viewModelScope.launch(Dispatchers.Main) {
             _updateStatus.value = if (success) {
@@ -132,7 +132,7 @@ class ProfileViewModel: ViewModel() {
         _updateStatus.postValue(null)
     }
 
-
+//re authenticate user before updating
     suspend fun reauthenticateUser(currentPassword: String) {
         val user = FirebaseModel.getCurrentUser()
         val credential = EmailAuthProvider.getCredential(user?.email ?: "", currentPassword)

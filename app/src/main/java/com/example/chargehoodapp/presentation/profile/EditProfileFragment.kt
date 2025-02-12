@@ -70,6 +70,7 @@ class EditProfileFragment : Fragment() {
 
     }
 
+    //listen to the current user data
     private fun observeCurrentUser() {
         viewModel?.currentUser?.observe(viewLifecycleOwner) { user ->
             binding?.progressBar?.visibility = View.GONE
@@ -82,7 +83,7 @@ class EditProfileFragment : Fragment() {
         }
     }
 
-
+//set the current user data to the fields
     private fun populateFields(user: User) {
         Log.d("TAG", "EditProfileFragment-populateFields called with user: $user")
         binding?.apply {
@@ -124,7 +125,7 @@ class EditProfileFragment : Fragment() {
             .setPositiveButton("OK", null)
             .show()
     }
-
+//Observe the update status and show the relevant dialog
     private fun observeUpdateStatus() {
         viewModel?.updateStatus?.observe(viewLifecycleOwner) { status ->
             Log.d("TAG", "EditProfileFragment-updateStatus observed: $status")
@@ -176,6 +177,7 @@ class EditProfileFragment : Fragment() {
         return binding?.root
     }
 
+//get the updated information from the user if exists and send to func in viewModel
     private fun updateUserDetails(currentUser: User?) {
         val name = binding?.nameEditText?.text?.toString()?.takeIf { it.isNotEmpty() }
         val email = binding?.emailEditText?.text?.toString()?.takeIf { it.isNotEmpty() }
@@ -223,9 +225,7 @@ class EditProfileFragment : Fragment() {
         }
     }
 
-
-
-
+//validate inputs if exists
     private fun validateInputIfExist(name: String?, email: String?, phone: String?, password: String?):Boolean {
         var isValid = true
 

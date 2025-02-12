@@ -53,6 +53,7 @@ class AddPaymentFragment : Fragment() {
         viewModel?.successMessage?.observe(viewLifecycleOwner) { message ->
             message?.let {
                 Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+                viewModel?.resetMessages()
                 findNavController().navigateUp()
             }
         }
@@ -61,6 +62,7 @@ class AddPaymentFragment : Fragment() {
         viewModel?.errorMessage?.observe(viewLifecycleOwner) { message ->
             message?.let {
                 Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+                viewModel?.resetMessages()
             }
         }
     }
