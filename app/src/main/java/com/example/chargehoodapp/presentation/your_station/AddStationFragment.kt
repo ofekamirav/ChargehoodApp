@@ -76,11 +76,13 @@ class AddStationFragment : Fragment() {
 
     private fun setupObservers() {
         viewModel?.stationAdded?.observe(viewLifecycleOwner) { success ->
-            if (success) {
+            if (success==true) {
                 binding?.progressBar?.visibility = View.GONE
                 Toast.makeText(requireContext(), "Station added successfully!", Toast.LENGTH_SHORT).show()
+                viewModel?.clearLiveData()
                 findNavController().navigateUp()
-            } else {
+            }
+            if(success==false){
                 Toast.makeText(requireContext(), "Failed to add station", Toast.LENGTH_SHORT).show()
             }
         }

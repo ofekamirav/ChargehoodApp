@@ -33,8 +33,8 @@ class AddStationViewModel() : ViewModel() {
     private val _pricePerKW = MutableLiveData<String?>()
     val pricePerKW: LiveData<String?> = _pricePerKW
 
-    private val _stationAdded = MutableLiveData<Boolean>()
-    val stationAdded: LiveData<Boolean> = _stationAdded
+    private val _stationAdded = MutableLiveData<Boolean?>()
+    val stationAdded: LiveData<Boolean?> = _stationAdded
 
     private val _errorMessage = MutableLiveData<String?>()
     val errorMessage: LiveData<String?> = _errorMessage
@@ -42,7 +42,6 @@ class AddStationViewModel() : ViewModel() {
     fun setStationImage(bitmap: Bitmap) {
         _stationImage.postValue(bitmap)
     }
-
 
     fun setChargingSpeed(speed: String) {
         _chargingSpeed.postValue(speed)
@@ -80,6 +79,15 @@ class AddStationViewModel() : ViewModel() {
                 _stationAdded.value = success
             }
         }
+    }
+
+    fun clearLiveData() {
+        _stationImage.value = null
+        _chargingSpeed.value = null
+        _connectionType.value = null
+        _pricePerKW.value = null
+        _stationAdded.value = null
+        _errorMessage.value = null
     }
 
 }
