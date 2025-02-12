@@ -26,7 +26,7 @@ class PaymentMethodViewModel : ViewModel() {
 
     init {
         FirebaseModel.addAuthStateListener {
-            refreshUserData()
+            syncPayments()
         }
     }
 
@@ -41,20 +41,15 @@ class PaymentMethodViewModel : ViewModel() {
     }
 
 
-
-    fun refreshUserData() {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.syncPaymentInfo()
-        }
-    }
-
-
     fun deletePaymentInfo(paymentInfo: PaymentInfo) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.deletePaymentInfo(paymentInfo)
-            syncPayments()
+            val updatedList = _paymentInfoList.value?.toMutableList()
+            updatedList?.remove(paymentInfo)
+            _paymentInfoList.postValue(updatedList ?: emptyList())
         }
     }
+
 
 
 }
