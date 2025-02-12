@@ -168,6 +168,10 @@ class ChargingStationRepository(
     }
 
 
+    fun getAllOwnerStations(): List<ChargingStation> {
+        return chargingStationDao.getAllChargingStationsByOwnerId(getCurrentUserId() ?: "")
+    }
+
 
     fun deleteChargingStation(chargingStation: ChargingStation) {
         CoroutineScope(Dispatchers.IO).launch {
@@ -177,8 +181,8 @@ class ChargingStationRepository(
 
                 val remainingStations = chargingStationDao.getAllChargingStationsByOwnerId(
                     getCurrentUserId() ?: ""
-                ).value
-                if (remainingStations.isNullOrEmpty()) {
+                )
+                if (remainingStations.isEmpty()) {
                     usersCollection.document(getCurrentUserId() ?: "")
                         .update("isStationOwner", false).await()
                 }
@@ -241,7 +245,6 @@ class ChargingStationRepository(
             false
         }
     }
-
 
 
 

@@ -28,7 +28,7 @@ interface ChargingStationDao {
     fun deleteChargingStation(station: ChargingStation)
 
     @Query("SELECT * FROM charging_stations WHERE ownerId = :ownerId")
-    fun getAllChargingStationsByOwnerId(ownerId: String): LiveData<List<ChargingStation>>
+    fun getAllChargingStationsByOwnerId(ownerId: String): List<ChargingStation>
 
     @Query("DELETE FROM charging_stations")
     fun clearAllStations()

@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.chargehoodapp.base.Constants.Collections.BOOKING
+import com.example.chargehoodapp.base.MyApplication
 import com.example.chargehoodapp.data.local.dao.BookingDao
 import com.example.chargehoodapp.data.local.dao.ChargingStationDao
 import com.example.chargehoodapp.data.model.Booking
@@ -21,43 +22,58 @@ class BookingRepository(private val bookingDao: BookingDao) {
     private val firestore = FirebaseModel.database
     private val bookingsCollection = firestore.collection(BOOKING)
 
-    private val coroutineScope = CoroutineScope(Dispatchers.IO)
+    private val chargingStationRepository: ChargingStationRepository =
+        (MyApplication.Globals.context?.applicationContext as MyApplication).StationRepository
 
 
-    fun getCompletedBookingsLive(): LiveData<List<Booking>> {
-        val currentUserId = getCurrentUserId()
-        Log.d("TAG", "BookingRepository - currentUserId: $currentUserId")
-        val bookingsLiveData = MutableLiveData<List<Booking>>()
-        Log.d("TAG", "BookingRepository - Fetching completed bookings for userId: $currentUserId")
+    suspend fun getAllRelevantBookings(): LiveData<List<Booking>> {
+        Log.d("TAG", "BookingRepository - Fetching all relevant bookings")
+        val resultLiveData = MutableLiveData<List<Booking>>()
 
-        coroutineScope.launch {
-            val localBookings = bookingDao.getCompletedBookings(currentUserId.toString())
-            bookingsLiveData.postValue(localBookings)
+        withContext(Dispatchers.IO) {
+            try {
+                val currentUserId = getCurrentUserId()
+                val ownerStations = chargingStationRepository.getAllOwnerStations()
+                Log.d("TAG", "BookingRepository - Owner stations: $ownerStations")
+                val ownerStationIds = ownerStations.map { it.id }
+                Log.d("TAG", "BookingRepository - Owner station IDs: $ownerStationIds")
 
-            bookingsCollection
-                .whereEqualTo("status", "Completed")
-                .whereEqualTo("userId", currentUserId)
-                .orderBy("date", Query.Direction.DESCENDING)
-                .get()
-                .addOnSuccessListener { snapshot ->
-                    val bookings = snapshot.toObjects(Booking::class.java)
-                    Log.d("TAG", "Fetched ${bookings.size} bookings from Firestore")
+                val allBookings = mutableListOf<Booking>()
 
-                    coroutineScope.launch {
-                        val existingIds = bookingDao.getCompletedBookings(currentUserId.toString()).map { it.bookingId }
-                        val newBookings = bookings.filter { it.bookingId !in existingIds }
+                //get the user's bookings
+                val userBookingsSnapshot = bookingsCollection
+                    .whereEqualTo("status", "Completed")
+                    .whereEqualTo("userId", currentUserId)
+                    .orderBy("date", Query.Direction.DESCENDING)
+                    .get()
+                    .await()
 
-                        if (newBookings.isNotEmpty()) {
-                            bookingDao.insertAll(newBookings)
-                            Log.d("TAG", "Inserted ${newBookings.size} new bookings to Room")
-                        }
+                allBookings.addAll(userBookingsSnapshot.toObjects(Booking::class.java))
 
-                        bookingsLiveData.postValue(bookingDao.getCompletedBookings(currentUserId.toString()))
-                    }
+                // get all bookings for the user's stations
+                ownerStationIds.chunked(10).forEach { chunk: List<String> ->
+                    Log.d("TAG", "BookingRepository - Fetching bookings for station IDs: $chunk")
+                    val snapshot = bookingsCollection
+                        .whereEqualTo("status", "Completed")
+                        .whereIn("stationId", chunk)
+                        .orderBy("date", Query.Direction.DESCENDING)
+                        .get()
+                        .await()
+                    allBookings.addAll(snapshot.toObjects(Booking::class.java))
+                    Log.d("TAG", "BookingRepository - Fetched ${snapshot.size()} bookings for stations: $chunk")
                 }
+
+                val uniqueBookings = allBookings.distinctBy { it.bookingId }
+                    .sortedByDescending { it.date }
+
+                resultLiveData.postValue(uniqueBookings)
+            } catch (e: Exception) {
+                Log.e("TAG", "Error fetching all relevant bookings: ${e.message}")
+                resultLiveData.postValue(emptyList())
+            }
         }
 
-        return bookingsLiveData
+        return resultLiveData
     }
 
 

@@ -1,5 +1,6 @@
 package com.example.chargehoodapp.presentation.orders.adapter
 
+import FirebaseModel
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.chargehoodapp.R
@@ -24,8 +25,8 @@ class OrdersViewHolder(
     //Bind the data into the row
     fun bind(booking: Booking, viewModel: OrdersListViewModel) {
         viewModel.getStationById(booking.stationId.toString()).observeForever { station ->
-            val userid = booking.userId
-            val iconRes = if (userid == station?.ownerId) R.drawable.ic_order_plus else R.drawable.ic_order_minus
+            val currentUserid = viewModel.getCurrentUserId()
+            val iconRes = if (currentUserid == station?.ownerId) R.drawable.ic_order_plus else R.drawable.ic_order_minus
             Glide.with(binding.root.context).load(iconRes).circleCrop().into(binding.StatusIcon)
             binding.stationAddress.text = station?.addressName ?: "Unknown Location"
 

@@ -119,11 +119,13 @@ class EditStationFragment : Fragment() {
     private fun setupObservers() {
         viewModel?.updateStatus?.observe(viewLifecycleOwner) { success ->
             binding?.progressBar?.visibility = View.GONE
-            if (success) {
+            if (success == true) {
                 Toast.makeText(requireContext(), "Station updated successfully!", Toast.LENGTH_SHORT).show()
                 findNavController().navigateUp()
+                viewModel?.clearLiveData()
             } else {
                 Toast.makeText(requireContext(), "Failed to update station", Toast.LENGTH_SHORT).show()
+                viewModel?.clearLiveData()
             }
         }
 

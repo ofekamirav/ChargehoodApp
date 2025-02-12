@@ -21,34 +21,30 @@ class OrdersListViewModel: ViewModel() {
     private val stationRepository: ChargingStationRepository =
         (MyApplication.Globals.context?.applicationContext as MyApplication).StationRepository
 
-    private val _completedBookings = MutableLiveData<List<Booking>?>()
-    val completedBookings: LiveData<List<Booking>?> get() = _completedBookings
+    private val _allRelevantBookings = MutableLiveData<List<Booking>?>()
+    val allRelevantBookings: LiveData<List<Booking>?> get() = _allRelevantBookings
 
     private val _station = MutableLiveData<ChargingStation>()
     val station: LiveData<ChargingStation> get() = _station
 
     init {
         FirebaseModel.addAuthStateListener {
-            refreshBookings()
+            loadAllRelevantBookings()
         }
     }
 
 
-    fun loadCompletedBookings() {
-        BookingRepository.getCompletedBookingsLive().observeForever { bookings ->
-            if (bookings != null) {
-                _completedBookings.postValue(bookings)
-            }
-            Log.d("TAG", "OrdersListViewModel-Completed bookings loaded: $bookings")
-        }
-    }
-
-    fun refreshBookings() {
+    fun loadAllRelevantBookings() {
         viewModelScope.launch {
-            BookingRepository.syncBookings()
+            BookingRepository.getAllRelevantBookings().observeForever { bookings ->
+                _allRelevantBookings.postValue(bookings)
+            }
         }
     }
 
+    fun getCurrentUserId(): String {
+        return FirebaseModel.getCurrentUser()?.uid ?: ""
+    }
 
 
     fun getStationById(stationId: String): LiveData<ChargingStation?> {
