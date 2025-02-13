@@ -47,6 +47,7 @@ class YourStationListViewModel : ViewModel() {
             withContext(Dispatchers.Main) {
                 _stations.value = updatedList
                 _isEmpty.value = updatedList.isNullOrEmpty()
+                refreshChargingStations()
             }
         }
     }

@@ -31,7 +31,14 @@ class PaymentMethodViewModel : ViewModel() {
     }
 
 
-    fun syncPayments() {
+    fun loadPaymentInfo() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val paymentInfoList = repository.getAllPaymentInfo()
+            _paymentInfoList.postValue(paymentInfoList)
+        }
+    }
+
+    private fun syncPayments() {
         viewModelScope.launch(Dispatchers.IO) {
             _isLoading.postValue(true)
             val payments = repository.syncPaymentInfo()

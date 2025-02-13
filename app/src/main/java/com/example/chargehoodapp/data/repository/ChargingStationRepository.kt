@@ -59,6 +59,14 @@ class ChargingStationRepository(
         }
     }
 
+    fun getAllStations(): List<ChargingStation>? {
+        var allStations: List<ChargingStation>? = null
+        CoroutineScope(Dispatchers.IO).launch {
+            allStations = chargingStationDao.getAllChargingStations()
+        }
+        return allStations
+    }
+
     suspend fun syncUserStations() {
         try {
             val userUid = getCurrentUserId() ?: return
@@ -168,6 +176,10 @@ class ChargingStationRepository(
     }
 
 
+    fun getAllOwnerStations(): List<ChargingStation> {
+        return chargingStationDao.getAllChargingStationsByOwnerId(getCurrentUserId() ?: "")
+    }
+
 
     fun deleteChargingStation(chargingStation: ChargingStation) {
         CoroutineScope(Dispatchers.IO).launch {
@@ -177,8 +189,8 @@ class ChargingStationRepository(
 
                 val remainingStations = chargingStationDao.getAllChargingStationsByOwnerId(
                     getCurrentUserId() ?: ""
-                ).value
-                if (remainingStations.isNullOrEmpty()) {
+                )
+                if (remainingStations.isEmpty()) {
                     usersCollection.document(getCurrentUserId() ?: "")
                         .update("isStationOwner", false).await()
                 }
@@ -241,7 +253,6 @@ class ChargingStationRepository(
             false
         }
     }
-
 
 
 

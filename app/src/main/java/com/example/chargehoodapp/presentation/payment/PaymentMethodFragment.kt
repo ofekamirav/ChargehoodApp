@@ -60,7 +60,7 @@ class PaymentMethodFragment : Fragment() {
             binding?.progressBar?.visibility = if (isLoading) View.VISIBLE else View.GONE
         }
 
-        viewModel?.syncPayments()
+        viewModel?.loadPaymentInfo()
 
         binding?.backButton?.setOnClickListener {
             findNavController().navigateUp()

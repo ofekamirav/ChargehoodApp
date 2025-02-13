@@ -90,9 +90,9 @@ class PaymentInfoRepository(
 
             paymentInfoDao.deletePaymentInfoById(paymentInfo.id)
 
-            val remainingPayments = paymentInfoDao.getPaymentInfo(userUid ?: "").value
+            val remainingPayments = paymentInfoDao.getPaymentInfo(userUid ?: "")
             Log.d("TAG", "PaymentInfoRepository-Remaining payments after delete: $remainingPayments")
-            if (remainingPayments.isNullOrEmpty()) {
+            if (remainingPayments.isEmpty()) {
                 usersCollection.document(userUid ?: "").update("hasPaymentInfo", false).await()
             }
 
@@ -100,6 +100,12 @@ class PaymentInfoRepository(
         } catch (e: Exception) {
             Log.e("TAG", "Error deleting payment: ${e.message}")
         }
+    }
+
+
+
+    fun getAllPaymentInfo(): List<PaymentInfo> {
+        return paymentInfoDao.getPaymentInfo(getCurrentUserId() ?: "")
     }
 
 

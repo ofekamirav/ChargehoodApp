@@ -22,16 +22,14 @@ class EditStationViewModel : ViewModel() {
     private val repository: ChargingStationRepository =
         (MyApplication.Globals.context?.applicationContext as MyApplication).StationRepository
 
-    private val ownerId = FirebaseModel.getCurrentUser()?.uid ?: ""
-
     private val _errorMessage = MutableLiveData<String?>()
     val errorMessage: LiveData<String?> = _errorMessage
 
-    private val _updateStatus = MutableLiveData<Boolean>()
-    val updateStatus: LiveData<Boolean> = _updateStatus
+    private val _updateStatus = MutableLiveData<Boolean?>()
+    val updateStatus: LiveData<Boolean?> = _updateStatus
 
-    private val _stationDetails = MutableLiveData<ChargingStation>()
-    val stationDetails: LiveData<ChargingStation> = _stationDetails
+    private val _stationDetails = MutableLiveData<ChargingStation?>()
+    val stationDetails: LiveData<ChargingStation?> = _stationDetails
 
     private var originalStation: ChargingStation? = null
 
@@ -40,12 +38,16 @@ class EditStationViewModel : ViewModel() {
         _stationDetails.postValue(station)
     }
 
+    fun clearLiveData() {
+        _errorMessage.postValue(null)
+        _updateStatus.postValue(null)
+        _stationDetails.postValue(null)
+    }
+
     fun getChargingStationById(stationId: String): LiveData<ChargingStation?> {
         Log.d("TAG", "EditStationViewModel-getChargingStationById called with ID: $stationId")
         return repository.getChargingStationById(stationId)
     }
-
-
 
 
     fun updateChargingStation(
@@ -109,7 +111,6 @@ class EditStationViewModel : ViewModel() {
             }
         }
     }
-
 
 
 

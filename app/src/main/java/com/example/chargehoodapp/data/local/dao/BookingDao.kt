@@ -17,4 +17,7 @@ interface BookingDao {
 
     @Query("DELETE FROM booking WHERE status = 'Completed'")
     fun clearCompletedBookings()
+
+    @Query("SELECT * FROM booking ORDER BY date DESC")
+    fun getAllBookings(): List<Booking>
 }

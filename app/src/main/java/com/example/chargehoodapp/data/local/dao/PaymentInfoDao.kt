@@ -21,7 +21,7 @@ interface PaymentInfoDao {
     fun getPaymentInfoSync(userId: String): LiveData<List<PaymentInfo>>
 
     @Query("SELECT * FROM payment_info WHERE userId = :userId")
-    fun getPaymentInfo(userId: String): LiveData<List<PaymentInfo>>
+    fun getPaymentInfo(userId: String): List<PaymentInfo>
 
     //Delete payment card by id
     @Query("DELETE FROM payment_info WHERE id = :id")
