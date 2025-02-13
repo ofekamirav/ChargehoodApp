@@ -22,7 +22,7 @@ import kotlin.math.round
 
 class ChargingPageViewModel: ViewModel() {
 
-    private val MAX_CHARGING_TIME_SECONDS = 0.8 * 60 * 60 // 50 mins
+    private val MAX_CHARGING_TIME_SECONDS = 0.5 * 60 * 60 // 30 mins
 
     private val BookingRepository: BookingRepository =
         (MyApplication.Globals.context?.applicationContext as MyApplication).bookingRepository
@@ -140,7 +140,7 @@ class ChargingPageViewModel: ViewModel() {
 
         if (updatedBooking != null) {
             viewModelScope.launch(Dispatchers.IO) {
-                BookingRepository.updateBooking(updatedBooking.bookingId.toString(), updatedBooking)
+                BookingRepository.updateBooking(updatedBooking.bookingId, updatedBooking)
                 Log.d("TAG", "ChargingPageViewModel - Booking updated: $updatedBooking")
 
                 Stationrepository.updateStationStatus(station.value?.id, true)

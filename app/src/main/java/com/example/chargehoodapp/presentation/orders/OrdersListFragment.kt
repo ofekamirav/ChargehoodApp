@@ -44,13 +44,13 @@ class OrdersListFragment: Fragment() {
         adapter = OrdersListAdapter(emptyList(), viewModel!!)
         recyclerView?.adapter = adapter
 
+        viewModel?.loadOrders()
+
         viewModel?.allRelevantBookings?.observe(viewLifecycleOwner) { bookings ->
             Log.d("TAG", "OrdersListFragment - Updating adapter with ${bookings?.size} items")
             adapter?.set(bookings)
             updateUI(bookings.isNullOrEmpty())
         }
-
-        viewModel?.loadOrders()
 
         binding?.backButton?.setOnClickListener {
             findNavController().navigateUp()

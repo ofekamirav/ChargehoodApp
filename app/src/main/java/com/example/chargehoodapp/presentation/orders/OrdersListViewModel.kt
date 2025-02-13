@@ -12,6 +12,7 @@ import com.example.chargehoodapp.data.repository.BookingRepository
 import com.example.chargehoodapp.data.repository.ChargingStationRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class OrdersListViewModel: ViewModel() {
 
@@ -38,14 +39,16 @@ class OrdersListViewModel: ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
              val bookings = BookingRepository.getAllBookings()
             _allRelevantBookings.postValue(bookings)
+            Log.d("TAG", "OrdersListViewModel-Loaded ${bookings.size} bookings")
             }
         }
 
 
     fun loadAllRelevantBookings() {
-        viewModelScope.launch {
-            BookingRepository.getAllRelevantBookings().observeForever { bookings ->
-                _allRelevantBookings.postValue(bookings)
+        viewModelScope.launch(Dispatchers.IO) {
+            val bookings = BookingRepository.getAllRelevantBookings()
+            withContext(Dispatchers.Main) {
+                _allRelevantBookings.value = bookings
             }
         }
     }
@@ -53,7 +56,6 @@ class OrdersListViewModel: ViewModel() {
     fun getCurrentUserId(): String {
         return FirebaseModel.getCurrentUser()?.uid ?: ""
     }
-
 
     fun getStationById(stationId: String): LiveData<ChargingStation?> {
         return stationRepository.getChargingStationById(stationId)
