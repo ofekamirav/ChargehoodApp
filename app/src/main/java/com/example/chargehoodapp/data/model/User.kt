@@ -1,7 +1,12 @@
 package com.example.chargehoodapp.data.model
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import com.example.chargehoodapp.base.Constants.Collections.USERS
+
+@Entity(tableName = USERS)
 data class User(
-    val uid: String,
+    @PrimaryKey val uid: String,
     val name: String,
     val email: String,
     val phoneNumber: String,

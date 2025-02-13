@@ -135,8 +135,8 @@ class EditProfileFragment : Fragment() {
                 when {
                     it.contains("updated successfully", ignoreCase = true) -> {
                         binding?.progressBar?.visibility = View.GONE
-                        showSuccessDialog(it)
                         viewModel?.resetUpdateStatus()
+                        showSuccessDialog(it)
                     }
                     it.contains("Error", ignoreCase = true) || it.contains("Failed", ignoreCase = true) -> {
                         binding?.progressBar?.visibility = View.GONE

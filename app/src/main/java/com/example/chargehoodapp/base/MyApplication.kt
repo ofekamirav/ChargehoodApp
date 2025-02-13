@@ -8,12 +8,14 @@ import com.example.chargehoodapp.data.model.ChargingStation
 import com.example.chargehoodapp.data.repository.BookingRepository
 import com.example.chargehoodapp.data.repository.ChargingStationRepository
 import com.example.chargehoodapp.data.repository.PaymentInfoRepository
+import com.example.chargehoodapp.data.repository.UserRepository
 import com.google.android.libraries.places.api.Places
 
 //Shared preferences to all project
 class MyApplication : Application() {
 
     val database by lazy { AppLocalDB.database }
+    val userRepository by lazy { UserRepository(database.userDao()) }
     val StationRepository by lazy { ChargingStationRepository(database.chargingStationDao()) }
     val paymentInfoRepository by lazy { PaymentInfoRepository(database.paymentInfoDao()) }
     val bookingRepository by lazy { BookingRepository(database.bookingDao()) }
