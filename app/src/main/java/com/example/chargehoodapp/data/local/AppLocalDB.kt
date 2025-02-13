@@ -7,12 +7,15 @@ import com.example.chargehoodapp.base.MyApplication
 import com.example.chargehoodapp.data.local.dao.BookingDao
 import com.example.chargehoodapp.data.local.dao.ChargingStationDao
 import com.example.chargehoodapp.data.local.dao.PaymentInfoDao
+import com.example.chargehoodapp.data.local.dao.UserDao
 import com.example.chargehoodapp.data.model.Booking
 import com.example.chargehoodapp.data.model.ChargingStation
 import com.example.chargehoodapp.data.model.PaymentInfo
+import com.example.chargehoodapp.data.model.User
 
-@Database(entities = [ChargingStation::class, PaymentInfo::class, Booking::class], version = 13)
+@Database(entities = [User::class, ChargingStation::class, PaymentInfo::class, Booking::class], version = 15)
 abstract class AppLocalDBRepository : RoomDatabase() {
+    abstract fun userDao(): UserDao
     abstract fun chargingStationDao(): ChargingStationDao
     abstract fun paymentInfoDao(): PaymentInfoDao
     abstract fun bookingDao(): BookingDao
