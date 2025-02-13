@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.chargehoodapp.base.MyApplication
 import com.example.chargehoodapp.data.model.ChargingStation
 import com.example.chargehoodapp.data.repository.UserRepository
 import kotlinx.coroutines.Dispatchers
@@ -15,7 +16,8 @@ import kotlinx.coroutines.withContext
 class ChargingStationDetailsViewModel: ViewModel() {
 
 
-    private var userRepository = UserRepository()
+    private val userRepository: UserRepository =
+        (MyApplication.Globals.context?.applicationContext as MyApplication).userRepository
 
     private val _currentUserPaymentBoolean = MutableLiveData<Boolean?>()
     val currentUserPaymentBoolean: LiveData<Boolean?> = _currentUserPaymentBoolean
@@ -67,7 +69,8 @@ class ChargingStationDetailsViewModel: ViewModel() {
                 }
                 Log.d("TAG", "ChargingStationDetailsViewModel - Fetching user for Owner ID: $ownerId")
 
-                val user = userRepository.getUserByUid(ownerId)
+                val user = userRepository.getUserFromLocalDB(ownerId)
+                //val user = userRepository.getUserByUid(ownerId)
                 withContext(Dispatchers.Main) {
                     _ownerName.value = user?.name ?: "Unknown Owner"
                     _ownerPhoneNumber.value = user?.phoneNumber ?: "No Phone"

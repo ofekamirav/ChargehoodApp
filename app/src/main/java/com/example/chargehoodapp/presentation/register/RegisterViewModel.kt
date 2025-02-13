@@ -6,15 +6,18 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.chargehoodapp.base.MyApplication
 import com.example.chargehoodapp.data.repository.UserRepository
 import com.example.chargehoodapp.data.model.User
+import com.example.chargehoodapp.data.repository.ChargingStationRepository
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 class RegisterViewModel: ViewModel() {
 
-    private val userRepository = UserRepository()
+    private val userRepository: UserRepository =
+        (MyApplication.Globals.context?.applicationContext as MyApplication).userRepository
 
     private val _emailError = MutableLiveData<String?>()
     val emailError: LiveData<String?> get() = _emailError

@@ -7,6 +7,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.chargehoodapp.base.MyApplication
 import com.example.chargehoodapp.data.repository.UserRepository
 import com.example.chargehoodapp.data.model.User
 import com.example.chargehoodapp.data.remote.CloudinaryModel
@@ -19,7 +20,8 @@ import kotlinx.coroutines.withContext
 class ProfileViewModel: ViewModel() {
 
 
-    private val userRepository = UserRepository()
+    private val userRepository: UserRepository =
+        (MyApplication.Globals.context?.applicationContext as MyApplication).userRepository
 
     private val cloudinaryModel = CloudinaryModel()
 
@@ -31,6 +33,13 @@ class ProfileViewModel: ViewModel() {
 
     private val uid = FirebaseModel.getCurrentUser()?.uid
 
+    init {
+        FirebaseModel.addAuthStateListener {
+            getCurrentUser()
+        }
+    }
+
+
     fun logout() {
         FirebaseModel.logout()
         _currentUser.postValue(null)
@@ -40,10 +49,16 @@ class ProfileViewModel: ViewModel() {
 
     fun getCurrentUser() {
         if (uid != null) {
+            var user: User? = null
             viewModelScope.launch {
                 try {
-                    val user = userRepository.getUserByUid(uid)
-                    _currentUser.value = user
+                    user = userRepository.getUserFromLocalDB(uid)
+                    Log.d("TAG", "UserViewModel-Current user retrieved from local DB: ${user?.name}")
+                    if(user == null) {
+                        user = userRepository.getUserByUid(uid)
+                        Log.d("TAG", "UserViewModel-Current user retrieved from Firestore: ${user?.name}")
+                    }
+                    _currentUser.postValue(user)
                     Log.d("TAG", "UserViewModel-Current user retrieved: ${user?.name}")
                 } catch (e: Exception) {
                     Log.e("TAG", "UserViewModel-Error getting current user: ${e.message}")
@@ -67,8 +82,15 @@ class ProfileViewModel: ViewModel() {
                 }
 
                 val updates = mutableMapOf<String, Any>()
-                name?.let { updates["name"] = it }
-                phone?.let { updates["phoneNumber"] = it }
+                name?.let {
+                    updates["name"] = it
+                }
+                phone?.let {
+                    updates["phoneNumber"] = it
+                }
+                email?.let {
+                    updates["email"] = it
+                }
 
                 if (image != null) {
                     Log.d("TAG", "ProfileViewModel-Uploading image to Cloudinary")
@@ -98,11 +120,22 @@ class ProfileViewModel: ViewModel() {
 
 
     private fun updateFirestore(updates: Map<String, Any>) {
+        var updatedUser:User?=null
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val success = userRepository.updateUser(updates)
+                if(_currentUser != null)
+                {
+                     updatedUser = currentUser.value?.copy(
+                        name = updates["name"] as? String ?: currentUser.value!!.name,
+                        email = updates["email"] as? String ?: currentUser.value!!.email,
+                        phoneNumber = updates["phoneNumber"] as? String ?: currentUser.value!!.phoneNumber,
+                        profilePictureUrl = updates["profilePictureUrl"] as? String ?: currentUser.value!!.profilePictureUrl
+                    )
+                }
+                val success = userRepository.updateUser(updates, updatedUser?:User())
                 withContext(Dispatchers.Main) {
                     if (success) {
+                        _currentUser.value = updatedUser
                         _updateStatus.value = "Profile updated successfully."
                     } else {
                         _updateStatus.value = "Failed to update profile."
