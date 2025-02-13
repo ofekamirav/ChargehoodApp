@@ -1,5 +1,6 @@
 package com.example.chargehoodapp.data.remote
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.util.Log
 import com.cloudinary.android.MediaManager
@@ -16,10 +17,24 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import java.io.File
 import kotlin.coroutines.resume
 
-
 class CloudinaryModel {
 
-    private var cloudinaryInitialized = false
+    companion object {
+        private var isInitialized = false
+
+        fun init(context: Context) {
+            if (!isInitialized) {
+                val config = mapOf(
+                    "cloud_name" to CLOUD_NAME,
+                    "api_key" to API_KEY,
+                    "api_secret" to API_SECRET
+                )
+                MediaManager.init(context, config)
+                MediaManager.get().globalUploadPolicy = GlobalUploadPolicy.defaultPolicy()
+                isInitialized = true
+            }
+        }
+    }
 
     suspend fun uploadImage(
         bitmap: Bitmap,
@@ -36,15 +51,11 @@ class CloudinaryModel {
                 return@suspendCancellableCoroutine
             }
 
-            if (!cloudinaryInitialized) {
-                val config = mapOf(
-                    "cloud_name" to CLOUD_NAME,
-                    "api_key" to API_KEY,
-                    "api_secret" to API_SECRET
-                )
-                MediaManager.init(context, config)
-                MediaManager.get().globalUploadPolicy = GlobalUploadPolicy.defaultPolicy()
-                cloudinaryInitialized = true
+            if (!isInitialized) {
+                Log.e("Cloudinary", "MediaManager is not initialized!")
+                onError("MediaManager is not initialized!")
+                continuation.resume(false)
+                return@suspendCancellableCoroutine
             }
 
             val file: File = bitmap.toFile(context, name)
@@ -62,7 +73,7 @@ class CloudinaryModel {
                         if (url != null) {
                             Log.d("Cloudinary", "Upload successful. URL: $url")
                             onSuccess(url)
-                            continuation.resume(true) // ✅ חזרנו TRUE אם ההעלאה הצליחה
+                            continuation.resume(true)
                         } else {
                             Log.e("Cloudinary", "Upload failed: No URL returned")
                             onError("Upload failed: No URL returned")
@@ -81,5 +92,4 @@ class CloudinaryModel {
                 .dispatch()
         }
     }
-
 }

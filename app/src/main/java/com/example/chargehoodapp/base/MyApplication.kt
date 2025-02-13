@@ -5,6 +5,7 @@ import android.content.Context
 import com.example.chargehoodapp.BuildConfig
 import com.example.chargehoodapp.data.local.AppLocalDB
 import com.example.chargehoodapp.data.model.ChargingStation
+import com.example.chargehoodapp.data.remote.CloudinaryModel
 import com.example.chargehoodapp.data.repository.BookingRepository
 import com.example.chargehoodapp.data.repository.ChargingStationRepository
 import com.example.chargehoodapp.data.repository.PaymentInfoRepository
@@ -29,6 +30,7 @@ class MyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         Globals.context = applicationContext
+        CloudinaryModel.init(this)
         if (!Places.isInitialized()) {
             Places.initialize(this, BuildConfig.GOOGLE_MAP_API_KEY)
         }
