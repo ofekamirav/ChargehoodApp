@@ -69,8 +69,7 @@ class ChargingStationDetailsViewModel: ViewModel() {
                 }
                 Log.d("TAG", "ChargingStationDetailsViewModel - Fetching user for Owner ID: $ownerId")
 
-                val user = userRepository.getUserFromLocalDB(ownerId)
-                //val user = userRepository.getUserByUid(ownerId)
+                val user = userRepository.getUserByUid(ownerId)
                 withContext(Dispatchers.Main) {
                     _ownerName.value = user?.name ?: "Unknown Owner"
                     _ownerPhoneNumber.value = user?.phoneNumber ?: "No Phone"

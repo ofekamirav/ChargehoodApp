@@ -22,23 +22,16 @@ class BookingRepository(private val bookingDao: BookingDao) {
     private val firestore = FirebaseModel.database
     private val bookingsCollection = firestore.collection(BOOKING)
 
-
     private val chargingStationRepository: ChargingStationRepository =
         (MyApplication.Globals.context?.applicationContext as MyApplication).StationRepository
 
-    suspend fun getAllRelevantBookings(): LiveData<List<Booking>> {
+    suspend fun getAllRelevantBookings(): List<Booking> {
         Log.d("TAG", "BookingRepository - Fetching all relevant bookings")
-        val resultLiveData = MutableLiveData<List<Booking>>()
+        val resultList = mutableListOf<Booking>()
 
         withContext(Dispatchers.IO) {
             try {
                 val currentUserId = getCurrentUserId()
-
-                val localBookings = bookingDao.getAllBookings()
-                Log.d("TAG", "BookingRepository - Loaded ${localBookings.size} bookings from Room DB")
-
-                resultLiveData.postValue(localBookings)
-                Log.d("TAG", "BookingRepository - Loaded ${localBookings.size} bookings from Room DB")
 
                 val ownerStations = chargingStationRepository.getAllOwnerStations()
                 val ownerStationIds = ownerStations.map { it.id }
@@ -66,15 +59,17 @@ class BookingRepository(private val bookingDao: BookingDao) {
                 val uniqueBookings = allBookings.distinctBy { it.bookingId }
                     .sortedByDescending { it.date }
 
+                resultList.addAll(uniqueBookings)
+
+                bookingDao.deleteAll()
                 bookingDao.insertAll(uniqueBookings)
 
-                resultLiveData.postValue(uniqueBookings)
             } catch (e: Exception) {
                 Log.e("TAG", "Error fetching all relevant bookings: ${e.message}")
             }
         }
 
-        return resultLiveData
+        return resultList
     }
 
     fun getAllBookings(): List<Booking>{
@@ -95,15 +90,13 @@ class BookingRepository(private val bookingDao: BookingDao) {
         return bookingId
     }
 
-    fun updateBooking(bookingId: String, updatedBooking: Booking) {
+    suspend fun updateBooking(bookingId: String, updatedBooking: Booking) {
         bookingsCollection.document(bookingId)
-            .set(updatedBooking, SetOptions.merge())
-            .addOnSuccessListener {
-                Log.d("TAG", "Booking updated successfully: $updatedBooking")
+            .set(updatedBooking, SetOptions.merge()).await()
+            withContext(Dispatchers.IO) {
+                bookingDao.insertBooking(updatedBooking)
             }
-            .addOnFailureListener { e ->
-                Log.e("TAG", "Error updating booking: ${e.message}")
-            }
+        Log.d("TAG", "BookingRepository-Booking updated with ID: $bookingId")
     }
 
     private fun getCurrentUserId(): String? {

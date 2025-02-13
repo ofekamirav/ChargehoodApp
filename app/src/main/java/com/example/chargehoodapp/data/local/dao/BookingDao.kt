@@ -18,6 +18,12 @@ interface BookingDao {
     @Query("DELETE FROM booking WHERE status = 'Completed'")
     fun clearCompletedBookings()
 
+    @Query("DELETE FROM booking")
+    fun deleteAll()
+
     @Query("SELECT * FROM booking ORDER BY date DESC")
     fun getAllBookings(): List<Booking>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertBooking(booking: Booking)
 }

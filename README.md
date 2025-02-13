@@ -40,9 +40,9 @@ Find charging stations, start a charging session, and track your booking history
  🗺 **Google Maps API & FusedLocationProvider** – Location tracking and navigation support.  
  ⚙ **Custom Dependency Management** – Implemented via **MyApplication** for global variables.  
  🎯 **Jetpack Navigation Component (NavGraph)** – Ensures smooth and structured in-app navigation.  
- ☁ **Cloudinary API** – Image uploads for charging station photos.   
-📂 **Single-Activity Architecture** – The app is built with a single MainActivity and multiple Fragments.
-🔄 **LiveData & ViewModel** – Ensures reactive UI updates and separation of concerns. 
+ ☁ **Cloudinary API** – Image uploads for charging station photos.
+ 📂 **Single-Activity Architecture** – The app is built with a single MainActivity and multiple Fragments. 
+ 🔄 **LiveData & ViewModel** – Ensures reactive UI updates and separation of concerns. 
 
 ---
 
