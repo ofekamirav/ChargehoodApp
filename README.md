@@ -85,25 +85,19 @@ Click ▶️ Run to start the app.
 ---
 ## 📸 Screenshots
 ### Login Page
-![Chargehood Home Screen](https://i.postimg.cc/NFJqjvh4/Screenshot-20250213-024205.jpg
-)
+![Chargehood Home Screen](https://i.postimg.cc/NFJqjvh4/Screenshot-20250213-024205.jpg)
 ### Registration Page
-![Chargehood Home Screen](https://i.postimg.cc/9XJjpZ47/Screenshot-20250213-024213.jpg
-)
+![Chargehood Home Screen](https://i.postimg.cc/9XJjpZ47/Screenshot-20250213-024213.jpg)
 ### Navigation View
 ![Chargehood Home Screen](https://i.postimg.cc/QC6hPW00/Screenshot-20250213-022750.jpg)
 ### Station Details Card (Open when click on marker)
-![Chargehood Home Screen](https://i.postimg.cc/CL5p65D6/Screenshot-20250213-024150.jpg
-)
+![Chargehood Home Screen](https://i.postimg.cc/CL5p65D6/Screenshot-20250213-024150.jpg)
 ### Payment Methods List
-![Chargehood Home Screen](https://i.postimg.cc/RFLM7Yfr/Screenshot-20250213-022958.jpg
-)
+![Chargehood Home Screen](https://i.postimg.cc/RFLM7Yfr/Screenshot-20250213-022958.jpg)
 ### Owner Stations List
-![Chargehood Home Screen](https://i.postimg.cc/T12TCcqK/Screenshot-20250213-023005.jpg
-)
+![Chargehood Home Screen](https://i.postimg.cc/T12TCcqK/Screenshot-20250213-023005.jpg)
 ### Help Center
-![Chargehood Home Screen](https://i.postimg.cc/vm98BTZZ/Screenshot-20250213-023012.jpg
-)
+![Chargehood Home Screen](https://i.postimg.cc/vm98BTZZ/Screenshot-20250213-023012.jpg)
 
 
 
